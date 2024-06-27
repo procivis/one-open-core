@@ -1,6 +1,18 @@
-[package]
-name = "one-open-core"
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[workspace]
+resolver = "2"
+members = [
+    "one-crypto",
+    "one-key-algorithm-provider",
+    "one-open-core",
+]
+
+
+[workspace.dependencies]
+thiserror          = { version = "1.0" }
+serde              = { version = "1.0" }
+serde_json         = { version = "1.0" }
+zeroize            = { version = "1.8" }

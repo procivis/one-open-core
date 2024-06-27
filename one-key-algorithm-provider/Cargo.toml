@@ -1,0 +1,20 @@
+[package]
+name = "one-key-algorithm-provider"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+one-open-core = { version = "0.1.0", path = "../one-open-core/" }
+one-crypto = { version = "0.1.0", path = "../one-crypto/" }
+ct-codecs = "1.1.1"
+thiserror = { workspace = true }
+serde.workspace            = true
+serde_json.workspace       = true
+ed25519-compact            = { version = "2.1", features = ["pem"] }
+p256               = { version = "0.13", features = ["arithmetic", "jwk"] }
+bs58               = { version = "0.5" }
+blstrs                     = { version = "0.7" }
+zeroize = { workspace = true, features = ["serde"] }
+josekit                    = { version = "0.8", features = ["vendored"] }
+anyhow = "1.0.86"
+pairing_crypto             = { version = "0.4", git = "https://github.com/Iskander508/pairing_crypto", rev = "517a424a989b57b987aacb3642bd7cd2c60b94d1" }
