@@ -5,11 +5,9 @@ edition = "2021"
 [workspace]
 resolver = "2"
 members = [
-    "one-crypto",
-    "one-key-algorithm-provider",
+    "one-providers",
     "one-open-core",
 ]
-
 
 [workspace.dependencies]
 thiserror          = { version = "1.0" }

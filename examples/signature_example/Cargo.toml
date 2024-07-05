@@ -1,0 +1,12 @@
+[workspace]
+# A separate workspace
+
+[package]
+name = "signature-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+one-open-core = { path = "../../one-open-core" }
+hex-literal = "0.4.1"
+zeroize = "1.8.1"

@@ -4,15 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-async-trait     = { version = "0.1" }
-thiserror       = { workspace = true }
-mockall         = { version = "0.12", optional = true }
-time            = { version = "0.3", features = ["macros", "serde"] }
-uuid            = { version = "1.9.1", features = ["v4"] }
-zeroize         = { workspace = true }
-
-[dev-dependencies]
-mockall         = { version = "0.12" }
-
-[features]
-mock            = ["mockall"]
+one-providers      = { version = "0.1.0", path = "../one-providers/" }
+thiserror          = { workspace = true }
+zeroize            = { workspace = true }
+async-trait        = { version = "0.1" }
+mockall            = { version = "0.12", optional = true }
+time               = { version = "0.3", features = ["macros", "serde"] }
+josekit            = { version = "0.8", features = ["vendored"] }
+strum              = { version = "0.26", features = ["derive"] }
+strum_macros       = { version = "0.26" }

@@ -516,6 +516,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
+name = "heck"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
 name = "hermit-abi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -689,14 +695,34 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
-name = "one-crypto"
+name = "one-open-core"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
+ "josekit",
+ "mockall",
+ "one-providers",
+ "strum",
+ "strum_macros",
+ "thiserror",
+ "time",
+ "zeroize",
+]
+
+[[package]]
+name = "one-providers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "blstrs 0.7.1",
+ "bs58",
  "chacha20poly1305",
  "ct-codecs",
  "ed25519-compact",
  "hmac",
- "one-open-core",
+ "josekit",
+ "mockall",
  "p256",
  "pairing_crypto",
  "pbkdf2",
@@ -706,35 +732,6 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.8",
- "thiserror",
-]
-
-[[package]]
-name = "one-key-algorithm-provider"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "blstrs 0.7.1",
- "bs58",
- "ct-codecs",
- "ed25519-compact",
- "josekit",
- "one-crypto",
- "one-open-core",
- "p256",
- "pairing_crypto",
- "serde",
- "serde_json",
- "thiserror",
- "zeroize",
-]
-
-[[package]]
-name = "one-open-core"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "mockall",
  "thiserror",
  "time",
  "uuid",
@@ -1075,6 +1072,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustversion"
+version = "1.0.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6"
+
+[[package]]
 name = "ryu"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1191,6 +1194,28 @@ checksum = "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
 dependencies = [
  "base64ct",
  "der",
+]
+
+[[package]]
+name = "strum"
+version = "0.26.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fec0f0aef304996cf250b31b5a10dee7980c85da9d759361292b8bca5a18f06"
+dependencies = [
+ "strum_macros",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.26.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c6bee85a5a24955dc440386795aa378cd9cf82acd5f764469152d2270e581be"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn",
 ]
 
 [[package]]

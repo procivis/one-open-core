@@ -1,0 +1,36 @@
+[package]
+name = "one-providers"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror          = { workspace = true }
+serde              = { workspace = true }
+serde_json         = { workspace = true }
+zeroize            = { workspace = true, features = ["serde"] }
+ed25519-compact    = { version = "2.1", features = ["pem"] }
+p256               = { version = "0.13", features = ["arithmetic", "jwk"] }
+bs58               = { version = "0.5" }
+blstrs             = { version = "0.7" }
+josekit            = { version = "0.8", features = ["vendored"] }
+pairing_crypto     = { version = "0.4", git = "https://github.com/Iskander508/pairing_crypto", rev = "517a424a989b57b987aacb3642bd7cd2c60b94d1" }
+async-trait        = { version = "0.1" }
+mockall            = { version = "0.12", optional = true }
+time               = { version = "0.3", features = ["macros", "serde"] }
+uuid               = { version = "1.9.1", features = ["v4"] }
+hmac               = { version = "0.12" }
+rand               = { version = "0.8" }
+rand_chacha        = { version = "0.3" }
+sha2               = { version = "0.10" }
+pbkdf2             = { version = "0.12", features = ["simple"] }
+chacha20poly1305   = { version = "0.10" }
+pqc_dilithium      = { version = "0.2.0", git = "https://github.com/ihor-rud/dilithium", rev = "e02a683" }
+anyhow             = { version = "1.0.86" }
+ct-codecs          = { version = "1.1.1" }
+
+
+[dev-dependencies]
+mockall         = { version = "0.12" }
+
+[features]
+mock            = ["mockall"]
