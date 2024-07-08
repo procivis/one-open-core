@@ -10,7 +10,6 @@ thiserror          = { workspace = true }
 zeroize            = { workspace = true }
 async-trait        = { version = "0.1" }
 mockall            = { version = "0.12", optional = true }
-time               = { version = "0.3", features = ["macros", "serde"] }
 josekit            = { version = "0.8", features = ["vendored"] }
-strum              = { version = "0.26", features = ["derive"] }
+strum              = { version = "0.26" }
 strum_macros       = { version = "0.26" }

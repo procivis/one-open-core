@@ -9,15 +9,14 @@ thiserror          = { workspace = true }
 serde              = { workspace = true }
 serde_json         = { workspace = true }
 zeroize            = { workspace = true, features = ["serde"] }
-ed25519-compact    = { version = "2.1", features = ["pem"] }
-p256               = { version = "0.13", features = ["arithmetic", "jwk"] }
+ed25519-compact    = { version = "2.1" }
+p256               = { version = "0.13", features = ["jwk"] }
 bs58               = { version = "0.5" }
 blstrs             = { version = "0.7" }
 josekit            = { version = "0.8", features = ["vendored"] }
 pairing_crypto     = { version = "0.4", git = "https://github.com/Iskander508/pairing_crypto", rev = "517a424a989b57b987aacb3642bd7cd2c60b94d1" }
 async-trait        = { version = "0.1" }
 mockall            = { version = "0.12", optional = true }
-time               = { version = "0.3", features = ["macros", "serde"] }
 uuid               = { version = "1.9.1", features = ["v4"] }
 hmac               = { version = "0.12" }
 rand               = { version = "0.8" }
