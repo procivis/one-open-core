@@ -8,8 +8,8 @@ publish=false
 one-providers      = { version = "0.1.0", path = "../one-providers/" }
 thiserror          = { workspace = true }
 zeroize            = { workspace = true }
-async-trait        = { version = "0.1" }
-mockall            = { version = "0.12", optional = true }
-josekit            = { version = "0.8", features = ["vendored"] }
 strum              = { version = "0.26" }
 strum_macros       = { version = "0.26" }
+
+[package.metadata.cargo-machete]
+ignored = ["strum"]
