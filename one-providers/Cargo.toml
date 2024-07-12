@@ -27,11 +27,19 @@ anyhow             = { version = "1.0.86" }
 ct-codecs          = { version = "1.1.1" }
 uuid               = { version = "1.10.0", features = ["v4", "serde"] }
 async-trait        = { version = "0.1.81" }
-time = "0.3.36"
+time               = { version = "0.3", features = ["formatting", "macros", "parsing"] }
 cocoon = "0.4.2"
 url                = { version = "2.5", features = ["serde"] }
 tokio = "1.38.0"
 reqwest            = { version = "0.12", default-features = false, features = ["rustls-tls", "rustls-tls-native-roots", "json"] }
+futures            = { version = "0.3" }
+json-syntax        = { version = "0.9" }
+locspan            = { version = "0.7" }
+json-ld            = { version = "0.15" }
+mime               = { version = "0.3" }
+rdf-types          = { version = "0.15" }
+sophia_jsonld      = { version = "0.8", features = ["http_client"] }
+sophia_api         = { version = "0.8" }
 
 [dev-dependencies]
 mockall         = { version = "0.12" }
