@@ -1,14 +1,10 @@
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
-
 use pairing_crypto::bbs::ciphersuites::bls12_381::KeyPair;
 
 use crate::{
+    common_models::{PublicKeyJwk, PublicKeyJwkEllipticData},
     crypto::imp::utilities::get_rng,
-    key_algorithm::{
-        error::KeyAlgorithmError,
-        model::{GeneratedKey, PublicKeyJwk, PublicKeyJwkEllipticData},
-        KeyAlgorithm,
-    },
+    key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
 
 pub struct BBS;

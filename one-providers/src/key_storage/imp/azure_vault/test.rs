@@ -1,21 +1,20 @@
-use crate::common_models::key::Key;
-use crate::crypto::imp::CryptoProviderImpl;
-use crate::crypto::{CryptoProvider, Hasher, MockHasher};
-use crate::key_storage::KeyStorage;
-
-use super::{dto::AzureHsmGetTokenResponse, AzureVaultKeyProvider, Params};
-
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use serde_json::json;
 use time::OffsetDateTime;
 use uuid::Uuid;
-use wiremock::http::Method;
-use wiremock::matchers::{
-    body_json, body_string_contains, header, method, path, path_regex, query_param,
+use wiremock::{
+    http::Method,
+    matchers::{body_json, body_string_contains, header, method, path, path_regex, query_param},
+    Mock, MockServer, ResponseTemplate,
 };
-use wiremock::{Mock, MockServer, ResponseTemplate};
+
+use super::{dto::AzureHsmGetTokenResponse, AzureVaultKeyProvider, Params};
+use crate::{
+    common_models::key::Key,
+    crypto::{imp::CryptoProviderImpl, CryptoProvider, Hasher, MockHasher},
+    key_storage::KeyStorage,
+};
 
 fn get_params(mock_base_url: String) -> Params {
     Params {

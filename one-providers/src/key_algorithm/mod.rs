@@ -1,6 +1,8 @@
 use error::KeyAlgorithmError;
-use model::{GeneratedKey, PublicKeyJwk};
+use model::GeneratedKey;
 use zeroize::Zeroizing;
+
+use crate::common_models::PublicKeyJwk;
 
 pub mod error;
 pub mod imp;

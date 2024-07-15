@@ -1,10 +1,11 @@
 use ct_codecs::{Base64UrlSafeNoPadding, Encoder};
-use rand::distributions::{Alphanumeric, DistString};
-use rand::rngs::ThreadRng;
-use rand::{Rng, RngCore, SeedableRng};
-use rand_chacha::ChaCha20Rng;
-
 use hmac::Mac;
+use rand::{
+    distributions::{Alphanumeric, DistString},
+    rngs::ThreadRng,
+    Rng, RngCore, SeedableRng,
+};
+use rand_chacha::ChaCha20Rng;
 
 use super::HmacSha256;
 

@@ -8,10 +8,9 @@ use super::{
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct KeyId(Uuid);
-
 impl_display!(KeyId);
-impl_from!(KeyId; uuid::Uuid);
-impl_into!(KeyId; uuid::Uuid);
+impl_from!(KeyId; Uuid);
+impl_into!(KeyId; Uuid);
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Key {

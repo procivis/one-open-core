@@ -1,4 +1,5 @@
 use super::*;
+use crate::common_models::{PublicKeyJwk, PublicKeyJwkEllipticData};
 
 struct TestData {
     jwk: PublicKeyJwk,

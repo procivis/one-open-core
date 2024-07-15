@@ -1,16 +1,19 @@
+use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
+use p256::{
+    elliptic_curve::{
+        generic_array::GenericArray,
+        sec1::{EncodedPoint, ToEncodedPoint},
+    },
+    pkcs8::DecodePublicKey,
+};
 use serde::Deserialize;
 use zeroize::Zeroizing;
 
-use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
-
-use p256::elliptic_curve::sec1::ToEncodedPoint;
-use p256::elliptic_curve::{generic_array::GenericArray, sec1::EncodedPoint};
-use p256::pkcs8::DecodePublicKey;
-
-use crate::crypto::imp::signer::es256::ES256Signer;
-use crate::key_algorithm::error::KeyAlgorithmError;
-use crate::key_algorithm::model::{GeneratedKey, PublicKeyJwk, PublicKeyJwkEllipticData};
-use crate::key_algorithm::KeyAlgorithm;
+use crate::{
+    common_models::{PublicKeyJwk, PublicKeyJwkEllipticData},
+    crypto::imp::signer::es256::ES256Signer,
+    key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
+};
 
 pub struct Es256;
 

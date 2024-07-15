@@ -1,12 +1,11 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
+    common_models::PublicKeyJwk,
     crypto::{CryptoProvider, Signer},
     key_algorithm::{
-        error::KeyAlgorithmProviderError,
-        model::{ParsedPublicKeyJwk, PublicKeyJwk},
-        provider::KeyAlgorithmProvider,
-        KeyAlgorithm,
+        error::KeyAlgorithmProviderError, model::ParsedPublicKeyJwk,
+        provider::KeyAlgorithmProvider, KeyAlgorithm,
     },
 };
 

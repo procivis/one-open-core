@@ -1,15 +1,15 @@
-use super::InternalKeyProvider;
-use crate::common_models::key::Key;
-use crate::crypto::MockSigner;
-use crate::key_algorithm::model::GeneratedKey;
-
-use crate::key_algorithm::provider::MockKeyAlgorithmProvider;
-use crate::key_algorithm::MockKeyAlgorithm;
-use crate::key_storage::imp::internal::Params;
-use crate::key_storage::KeyStorage;
 use std::sync::Arc;
+
 use time::OffsetDateTime;
 use uuid::Uuid;
+
+use super::InternalKeyProvider;
+use crate::{
+    common_models::key::Key,
+    crypto::MockSigner,
+    key_algorithm::{model::GeneratedKey, provider::MockKeyAlgorithmProvider, MockKeyAlgorithm},
+    key_storage::{imp::internal::Params, KeyStorage},
+};
 
 #[tokio::test]
 async fn test_internal_generate() {

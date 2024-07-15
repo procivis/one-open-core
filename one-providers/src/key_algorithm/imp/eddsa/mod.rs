@@ -1,16 +1,12 @@
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use ed25519_compact::{KeyPair, PublicKey};
-
 use serde::Deserialize;
 use zeroize::Zeroizing;
 
 use crate::{
+    common_models::{PublicKeyJwk, PublicKeyJwkEllipticData},
     crypto::SignerError,
-    key_algorithm::{
-        error::KeyAlgorithmError,
-        model::{GeneratedKey, PublicKeyJwk, PublicKeyJwkEllipticData},
-        KeyAlgorithm,
-    },
+    key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
 
 pub struct Eddsa;

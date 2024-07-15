@@ -1,9 +1,10 @@
 use async_trait;
 use zeroize::Zeroizing;
 
-use crate::crypto::SignerError;
-
-use crate::common_models::key::{Key, KeyId};
+use crate::{
+    common_models::key::{Key, KeyId},
+    crypto::SignerError,
+};
 
 pub mod error;
 pub mod imp;

@@ -66,8 +66,8 @@ impl OneOpenCore {
         ));
 
         let signature_service = SignatureService {
-            crypto: crypto.clone(),
-            key_algorithm_provider: key_algorithm_provider.clone(),
+            crypto,
+            key_algorithm_provider,
         };
 
         Self { signature_service }

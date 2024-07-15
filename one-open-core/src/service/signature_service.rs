@@ -6,9 +6,8 @@ use one_providers::{
 };
 use zeroize::Zeroizing;
 
-use crate::model::KeyAlgorithmType;
-
 use super::error::SignatureServiceError;
+use crate::model::KeyAlgorithmType;
 
 pub struct SignatureService {
     pub crypto: Arc<dyn CryptoProvider>,

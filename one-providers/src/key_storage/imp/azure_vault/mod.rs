@@ -1,8 +1,7 @@
+use std::{ops::Add, sync::Arc};
+
 use anyhow::Context;
 use async_trait::async_trait;
-use std::ops::Add;
-use std::sync::Arc;
-
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder};
 use dto::{AzureHsmGenerateKeyResponse, AzureHsmGetTokenResponse, AzureHsmSignResponse};
 use mapper::{
@@ -11,11 +10,10 @@ use mapper::{
 };
 use serde::Deserialize;
 use time::{Duration, OffsetDateTime};
+use tokio::sync::Mutex;
 use url::Url;
 use uuid::Uuid;
 use zeroize::Zeroizing;
-
-use tokio::sync::Mutex;
 
 use crate::{
     common_models::key::{Key, KeyId},
