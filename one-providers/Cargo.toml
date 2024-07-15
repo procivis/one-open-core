@@ -25,10 +25,18 @@ chacha20poly1305   = { version = "0.10" }
 pqc_dilithium      = { version = "0.2.0", git = "https://github.com/ihor-rud/dilithium", rev = "e02a683" }
 anyhow             = { version = "1.0.86" }
 ct-codecs          = { version = "1.1.1" }
+uuid               = { version = "1.10.0", features = ["v4", "serde"] }
+async-trait        = { version = "0.1.81" }
+time = "0.3.36"
+cocoon = "0.4.2"
+url                = { version = "2.5", features = ["serde"] }
+tokio = "1.38.0"
+reqwest            = { version = "0.12", default-features = false, features = ["rustls-tls", "rustls-tls-native-roots", "json"] }
 
 
 [dev-dependencies]
 mockall         = { version = "0.12" }
+wiremock        = { version = "0.6.0" }
 
 [features]
 mock            = ["mockall"]
