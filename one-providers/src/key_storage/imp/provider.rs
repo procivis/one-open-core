@@ -2,11 +2,9 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     common_models::key::Key,
+    credential_formatter::model::SignatureProvider,
     crypto::SignerError,
-    key_storage::{
-        provider::{KeyProvider, SignatureProvider},
-        KeyStorage,
-    },
+    key_storage::{provider::KeyProvider, KeyStorage},
 };
 
 pub struct KeyProviderImpl {

@@ -1,4 +1,4 @@
-use ct_codecs::{Base64UrlSafeNoPadding, Encoder};
+use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use hmac::Mac;
 use rand::{
     distributions::{Alphanumeric, DistString},
@@ -6,6 +6,7 @@ use rand::{
     Rng, RngCore, SeedableRng,
 };
 use rand_chacha::ChaCha20Rng;
+use serde::{Deserialize, Deserializer};
 
 use super::HmacSha256;
 
@@ -49,4 +50,13 @@ pub fn get_rng() -> ThreadRng {
 pub fn generate_nonce() -> String {
     let mut rng = ChaCha20Rng::from_entropy();
     rng.gen::<[u8; 32]>().map(char::from).into_iter().collect()
+}
+
+pub fn deserialize_base64<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+
+    Base64UrlSafeNoPadding::decode_to_vec(s, None).map_err(serde::de::Error::custom)
 }

@@ -5,6 +5,8 @@ pub mod organisation;
 
 pub mod types;
 
+pub const NESTED_CLAIM_MARKER: char = '/';
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum PublicKeyJwk {
     Ec(PublicKeyJwkEllipticData),

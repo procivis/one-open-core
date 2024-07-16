@@ -1,19 +1,7 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
-
 use super::{error::KeyStorageProviderError, imp::provider::SignatureProviderImpl, KeyStorage};
-use crate::{common_models::key::Key, crypto::SignerError};
-
-pub type AuthenticationFn = Box<dyn SignatureProvider>;
-
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
-#[async_trait]
-pub trait SignatureProvider: Send + Sync {
-    async fn sign(&self, message: &[u8]) -> Result<Vec<u8>, SignerError>;
-    fn get_key_id(&self) -> Option<String>;
-    fn get_public_key(&self) -> Vec<u8>;
-}
+use crate::{common_models::key::Key, credential_formatter::model::AuthenticationFn};
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait KeyProvider: Send + Sync {
