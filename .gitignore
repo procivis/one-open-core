@@ -1,2 +1,21 @@
 target
 Cargo.lock
+
+# IDE settings
+.idea
+.vscode
+.DS_Store
+
+# Reports file
+report.json
+coverage.xml
+cobertura.xml
+lcov.info
+clippy.json
+deny.json
+sonar-issues.json
+
+# Sonar scanner
+.sonar
+.scannerwork
+sonar.yml

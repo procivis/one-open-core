@@ -1,0 +1,177 @@
+image: registry.gitlab.procivis.ch/procivis/one/one-operations/core-base:1.76.0-0.1
+
+variables:
+  DEPENDENCY_TRACK_PROJECT_NAME: "One-Open-Core"
+
+
+stages:
+  - build
+  - test
+  - scan
+
+before_script:
+  - D_TRACK_PROJECT_VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+
+.only_main:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+build:
+  stage: build
+  script:
+    - cargo build --release
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - target/release/core-server
+  extends:
+    - .only_main
+
+
+tests:
+  stage: test
+  script:
+    - cargo llvm-cov --no-clean --workspace --lcov --ignore-filename-regex=".*test.*\.rs$|tests/.*\.rs$" --output-path lcov.info
+    - cargo llvm-cov report --cobertura --output-path cobertura.xml
+    - cargo llvm-cov report
+  coverage: '/^TOTAL\s+\d+\s+\d+\s+(?:\d+\.\d+)%\s+\d+\s+\d+\s+(?:\d+\.\d+)%\s+\d+\s+\d+\s+(\d+\.\d+)%/'
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - lcov.info
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+
+
+linter:clippy:
+  stage: test
+  script:
+    - cargo clippy --all-targets --message-format=json -- -D warnings > clippy.json
+    - cargo clippy --package one-providers --message-format=json -- -W clippy::expect_used -W clippy::panic -W clippy::unwrap_used >> clippy.json
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - clippy.json
+
+linter:rustfmt:
+  stage: test
+  script:
+    - cargo fmt --all -- --check
+
+linter:dependencies:
+  stage: test
+  script:
+    - cargo deny --format json check 2> deny.json || true
+    - cargo deny check
+  artifacts:
+    expire_in: 1 day
+    when: always
+    paths:
+      - deny.json
+
+
+sonarqube-check:
+  stage: scan
+  dependencies:
+    - linter:clippy
+    - tests
+  needs:
+    - linter:clippy
+    - tests
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
+    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
+  script:
+    - sonar-scanner
+  allow_failure: true
+  extends:
+    - .only_main
+
+
+dependency_track:upload-bom:
+  stage: scan
+  variables:
+    D_TRACK_PATH: ${DEPENDENCY_TRACK_BASE_URL}/api/v1/bom
+    SBOM_FILE_PATH: "merged_sbom.json"
+    SBOM_FILES: >-
+      one-open-core/one-open-core.cdx.json
+      one-providers/one-providers.cdx.json
+  extends:
+    - .only_main
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${SBOM_FILE_PATH}
+    reports:
+      cyclonedx:
+        - ${SBOM_FILE_PATH}
+  script:
+    - cargo cyclonedx -f json --spec-version 1.3
+    - cyclonedx-cli merge --input-files ${SBOM_FILES} --input-format=json --output-format=json --group apps > ${SBOM_FILE_PATH}
+    - echo "${SBOM_FILE_PATH}"
+    - file_content=$(base64 -i $SBOM_FILE_PATH)
+    - |
+      curl -i --fail -X PUT \
+        -H "Content-Type: application/json" \
+        -H "X-API-Key: ${DEPENDENCY_TRACK_API_KEY}" \
+        --data @- ${D_TRACK_PATH} << EOF
+      {
+        "projectName": "${DEPENDENCY_TRACK_PROJECT_NAME}",
+        "projectVersion": "${D_TRACK_PROJECT_VERSION}",
+        "autoCreate": true,
+        "bom": "${file_content}"
+      }
+      EOF
+
+.dTrack_metrics: &dTrack_metrics
+  - base_url=${DEPENDENCY_TRACK_BASE_URL}/api/v1/project/lookup
+  - url="${base_url}?name=${DEPENDENCY_TRACK_PROJECT_NAME}&version=${D_TRACK_PROJECT_VERSION}"
+  - echo "URL=$url"
+  - >
+    result=$(curl -X GET "${url}" \
+      -H "X-Api-Key: ${DEPENDENCY_TRACK_API_KEY}" \
+      -H "Accept: application/json")
+  - metrics=$(echo $result | jq -r .metrics)
+  - echo "Dependency Track Project Version metrics=${metrics}"
+
+dependency_track:policy_violations:
+  stage: scan
+  allow_failure: true
+  needs:
+    - job: dependency_track:upload-bom
+  extends:
+    - .only_main
+  script:
+    - *dTrack_metrics
+    - violated_licences=$(echo ${metrics} | jq -r .policyViolationsFail)
+    - echo "Count of violated_licences=${violated_licences}"
+    - >
+      if [[ ${violated_licences} -gt 0 ]]; then
+        echo "Violated licences more that 0."
+        exit 1;
+      fi
+
+dependency_track:metrics:
+  stage: scan
+  allow_failure: true
+  needs:
+    - job: dependency_track:upload-bom
+  extends:
+    - .only_main
+  script:
+    - *dTrack_metrics
+    - critical=$(echo ${metrics} | jq -r .critical)
+    - high=$(echo ${metrics} | jq -r .high)
+    - echo "Critical vulnerabilities=${critical}"
+    - echo "High vulnerabilities=${high}"
+    - >
+      if [[ ${critical} -gt 0  || ${high} -gt 0  ]]; then
+          echo "Lib vulnerabilities more that 0."
+          exit 1;
+      fi
