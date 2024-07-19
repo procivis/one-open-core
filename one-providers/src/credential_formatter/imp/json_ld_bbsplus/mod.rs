@@ -128,7 +128,10 @@ impl CredentialFormatter for JsonLdBbsplus {
     fn get_capabilities(&self) -> FormatterCapabilities {
         FormatterCapabilities {
             signing_key_algorithms: vec!["BBS_PLUS".to_owned()],
-            features: vec!["SELECTIVE_DISCLOSURE".to_owned()],
+            features: vec![
+                "SUPPORTS_CREDENTIAL_DESIGN".to_string(),
+                "SELECTIVE_DISCLOSURE".to_owned(),
+            ],
             selective_disclosure: vec!["ANY_LEVEL".to_owned()],
             issuance_did_methods: vec![
                 "KEY".to_string(),

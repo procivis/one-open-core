@@ -600,5 +600,5 @@ fn test_get_capabilities() {
         params: Params { leeway: 123u64 },
     };
 
-    assert_eq!(0, jwt_formatter.get_capabilities().features.len());
+    assert_eq!(1, jwt_formatter.get_capabilities().features.len());
 }
