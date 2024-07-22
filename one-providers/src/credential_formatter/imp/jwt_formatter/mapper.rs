@@ -1,3 +1,4 @@
+use super::model::{VCContent, VC};
 use crate::{
     common_models::did::DidValue,
     credential_formatter::{
@@ -9,8 +10,6 @@ use crate::{
         },
     },
 };
-
-use super::model::{VCContent, VC};
 
 impl From<CredentialSchemaData> for Option<CredentialSchema> {
     fn from(credential_schema: CredentialSchemaData) -> Self {

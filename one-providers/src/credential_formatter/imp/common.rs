@@ -1,5 +1,6 @@
-use crate::credential_formatter::{error::FormatterError, model::PublishedClaim};
 use std::collections::HashMap;
+
+use crate::credential_formatter::{error::FormatterError, model::PublishedClaim};
 
 pub fn nest_claims(
     claims: impl IntoIterator<Item = PublishedClaim>,
@@ -27,8 +28,9 @@ pub fn nest_claims(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_json::json;
+
+    use super::*;
 
     #[test]
     fn test_format_nested_vc_jwt() {
@@ -103,7 +105,6 @@ pub struct MockAuth<F: Fn(&[u8]) -> Vec<u8> + Send + Sync>(pub F);
 
 #[cfg(any(test, feature = "mock"))]
 pub use crate::credential_formatter::model::SignatureProvider;
-
 #[cfg(any(test, feature = "mock"))]
 pub use crate::crypto::SignerError;
 

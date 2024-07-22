@@ -1,13 +1,11 @@
 use async_trait::async_trait;
-
-use crate::common_models::did::DidValue;
-use model::CredentialData;
-
 use error::FormatterError;
 use model::{
-    AuthenticationFn, CredentialPresentation, DetailCredential, ExtractPresentationCtx,
-    FormatPresentationCtx, Presentation, TokenVerifier,
+    AuthenticationFn, CredentialData, CredentialPresentation, DetailCredential,
+    ExtractPresentationCtx, FormatPresentationCtx, Presentation, TokenVerifier,
 };
+
+use crate::common_models::did::DidValue;
 
 pub mod error;
 pub mod imp;

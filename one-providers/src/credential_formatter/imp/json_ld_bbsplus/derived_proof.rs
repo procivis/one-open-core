@@ -1,22 +1,32 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::common_models::NESTED_CLAIM_MARKER;
-use crate::credential_formatter::error::FormatterError;
-use crate::credential_formatter::model::CredentialPresentation;
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use itertools::Itertools;
 use urlencoding::encode;
 
-use crate::crypto::imp::signer::bbs::{BBSSigner, BbsDeriveInput};
-
-use super::super::json_ld::model::LdCredential;
-use super::model::{GroupEntry, TransformedEntry};
-use super::JsonLdBbsplus;
-use crate::credential_formatter::imp::json_ld;
-use crate::credential_formatter::imp::json_ld_bbsplus::model::{
-    BbsDerivedProofComponents, BbsProofComponents, CBOR_PREFIX_BASE, CBOR_PREFIX_DERIVED,
+use super::{
+    super::json_ld::model::LdCredential,
+    model::{GroupEntry, TransformedEntry},
+    JsonLdBbsplus,
 };
-use crate::credential_formatter::imp::json_ld_bbsplus::remove_undisclosed_keys::remove_undisclosed_keys;
+use crate::{
+    common_models::NESTED_CLAIM_MARKER,
+    credential_formatter::{
+        error::FormatterError,
+        imp::{
+            json_ld,
+            json_ld_bbsplus::{
+                model::{
+                    BbsDerivedProofComponents, BbsProofComponents, CBOR_PREFIX_BASE,
+                    CBOR_PREFIX_DERIVED,
+                },
+                remove_undisclosed_keys::remove_undisclosed_keys,
+            },
+        },
+        model::CredentialPresentation,
+    },
+    crypto::imp::signer::bbs::{BBSSigner, BbsDeriveInput},
+};
 
 impl JsonLdBbsplus {
     pub(super) async fn derive_proof(

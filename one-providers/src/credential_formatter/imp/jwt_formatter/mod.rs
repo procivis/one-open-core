@@ -5,6 +5,7 @@ use serde::Deserialize;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
+use super::jwt::{model::JWTPayload, Jwt};
 use crate::{
     common_models::did::DidValue,
     credential_formatter::{
@@ -17,8 +18,6 @@ use crate::{
         CredentialFormatter,
     },
 };
-
-use super::jwt::{model::JWTPayload, Jwt};
 
 #[cfg(test)]
 mod test;

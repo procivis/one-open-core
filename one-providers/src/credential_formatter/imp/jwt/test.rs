@@ -2,12 +2,11 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use time::{macros::datetime, OffsetDateTime};
 
+use super::{model::JWTPayload, Jwt, TokenVerifier};
 use crate::{
     common_models::did::DidValue,
     credential_formatter::imp::common::{MockAuth, SignerError},
 };
-
-use super::{model::JWTPayload, Jwt, TokenVerifier};
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 struct Payload {

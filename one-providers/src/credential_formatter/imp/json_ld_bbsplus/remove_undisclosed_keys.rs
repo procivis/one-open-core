@@ -1,7 +1,6 @@
-use crate::credential_formatter::error::FormatterError;
-
-use crate::credential_formatter::imp::json_ld::model::LdCredential;
 use std::collections::HashMap;
+
+use crate::credential_formatter::{error::FormatterError, imp::json_ld::model::LdCredential};
 
 pub(super) fn remove_undisclosed_keys(
     revealed_ld: &mut LdCredential,

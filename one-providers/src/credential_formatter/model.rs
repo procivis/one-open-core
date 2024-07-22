@@ -1,5 +1,7 @@
-use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
+use std::{
+    collections::HashMap,
+    fmt::{Display, Formatter},
+};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -7,9 +9,8 @@ use strum::Display;
 use time::{Duration, OffsetDateTime};
 use url::Url;
 
-use crate::{common_models::did::DidValue, crypto::SignerError};
-
 use super::error::FormatterError;
+use crate::{common_models::did::DidValue, crypto::SignerError};
 
 pub type AuthenticationFn = Box<dyn SignatureProvider>;
 pub type VerificationFn = Box<dyn TokenVerifier>;

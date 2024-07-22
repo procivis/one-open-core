@@ -5,7 +5,7 @@ edition = "2021"
 publish=false
 
 [dependencies]
-one-providers      = { version = "0.1.0", path = "../one-providers/" }
+one-providers      = { version = "0.1.0", path = "../one-providers" }
 thiserror          = { workspace = true }
 zeroize            = { workspace = true }
 strum              = { version = "0.26" }

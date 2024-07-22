@@ -4,6 +4,7 @@ use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
+use super::JWTFormatter;
 use crate::{
     common_models::did::DidValue,
     credential_formatter::{
@@ -22,8 +23,6 @@ use crate::{
         CredentialFormatter,
     },
 };
-
-use super::JWTFormatter;
 
 fn get_credential_data(status: Vec<CredentialStatus>, core_base_url: &str) -> CredentialData {
     let id = Uuid::new_v4().to_string();

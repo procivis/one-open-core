@@ -1,15 +1,18 @@
 use std::collections::HashMap;
 
-use crate::credential_formatter::error::FormatterError;
-use crate::credential_formatter::imp::json_ld;
-use crate::credential_formatter::model::{DetailCredential, VerificationFn};
-use crate::crypto::imp::signer::bbs::{BBSSigner, BbsProofInput};
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder};
 
-use super::super::json_ld::model::LdCredential;
-use super::JsonLdBbsplus;
-use crate::credential_formatter::imp::json_ld_bbsplus::model::{
-    BbsDerivedProofComponents, CBOR_PREFIX_DERIVED,
+use super::{super::json_ld::model::LdCredential, JsonLdBbsplus};
+use crate::{
+    credential_formatter::{
+        error::FormatterError,
+        imp::{
+            json_ld,
+            json_ld_bbsplus::model::{BbsDerivedProofComponents, CBOR_PREFIX_DERIVED},
+        },
+        model::{DetailCredential, VerificationFn},
+    },
+    crypto::imp::signer::bbs::{BBSSigner, BbsProofInput},
 };
 
 impl JsonLdBbsplus {

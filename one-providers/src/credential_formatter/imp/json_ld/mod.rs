@@ -1,22 +1,24 @@
 use std::collections::HashMap;
 
-use crate::common_models::did::DidValue;
-use crate::credential_formatter::error::FormatterError;
-use crate::credential_formatter::imp::json_ld::context::caching_loader::CachingLoader;
-use crate::credential_formatter::model::{Context, CredentialData, PublishedClaim};
-
 use convert_case::{Case, Casing};
 use serde::Serialize;
 use sophia_api::{quad::Spog, source::QuadSource, term::SimpleTerm};
 use sophia_c14n::rdfc10;
-use sophia_jsonld::loader::NoLoader;
-use sophia_jsonld::loader_factory::DefaultLoaderFactory;
-use sophia_jsonld::{JsonLdOptions, JsonLdParser};
+use sophia_jsonld::{
+    loader::NoLoader, loader_factory::DefaultLoaderFactory, JsonLdOptions, JsonLdParser,
+};
 use time::OffsetDateTime;
 
 use self::model::{LdCredential, LdCredentialSubject, LdProof};
-
 use super::common::nest_claims;
+use crate::{
+    common_models::did::DidValue,
+    credential_formatter::{
+        error::FormatterError,
+        imp::json_ld::context::caching_loader::CachingLoader,
+        model::{Context, CredentialData, PublishedClaim},
+    },
+};
 
 pub mod context;
 pub mod model;

@@ -1,19 +1,21 @@
 use std::fmt::Debug;
 
-use crate::{
-    common_models::did::DidValue, credential_formatter::model::AuthenticationFn,
-    crypto::SignerError,
-};
 use async_trait::async_trait;
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder};
 use mapper::{bin_to_b64url_string, string_to_b64url_string};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::credential_formatter::{error::FormatterError, model::TokenVerifier};
-
 use self::{
     mapper::json_from_decoded,
     model::{DecomposedToken, JWTHeader, JWTPayload},
+};
+use crate::{
+    common_models::did::DidValue,
+    credential_formatter::{
+        error::FormatterError,
+        model::{AuthenticationFn, TokenVerifier},
+    },
+    crypto::SignerError,
 };
 
 #[cfg(test)]

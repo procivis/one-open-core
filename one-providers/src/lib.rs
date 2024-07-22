@@ -4,3 +4,5 @@ pub mod crypto;
 pub mod did;
 pub mod key_algorithm;
 pub mod key_storage;
+pub mod revocation;
+pub mod util;

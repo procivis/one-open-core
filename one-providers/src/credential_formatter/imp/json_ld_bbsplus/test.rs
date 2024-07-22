@@ -1,19 +1,24 @@
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
-use crate::credential_formatter::imp::json_ld::test_utilities::prepare_caching_loader;
-use crate::crypto::MockCryptoProvider;
-use crate::did::provider::MockDidMethodProvider;
-use crate::key_algorithm::provider::MockKeyAlgorithmProvider;
 use time::{Duration, OffsetDateTime};
-
-use crate::credential_formatter::imp::json_ld::model::{LdCredential, LdCredentialSubject};
-use crate::credential_formatter::imp::json_ld_bbsplus::remove_undisclosed_keys::remove_undisclosed_keys;
-use crate::credential_formatter::imp::json_ld_bbsplus::{JsonLdBbsplus, Params};
 
 use super::{
     derived_proof::find_selective_indices,
     model::{GroupEntry, TransformedEntry},
+};
+use crate::{
+    credential_formatter::imp::{
+        json_ld::{
+            model::{LdCredential, LdCredentialSubject},
+            test_utilities::prepare_caching_loader,
+        },
+        json_ld_bbsplus::{
+            remove_undisclosed_keys::remove_undisclosed_keys, JsonLdBbsplus, Params,
+        },
+    },
+    crypto::MockCryptoProvider,
+    did::provider::MockDidMethodProvider,
+    key_algorithm::provider::MockKeyAlgorithmProvider,
 };
 
 #[tokio::test]

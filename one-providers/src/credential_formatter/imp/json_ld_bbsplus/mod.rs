@@ -1,26 +1,27 @@
-use std::sync::Arc;
-use std::vec;
+use std::{sync::Arc, vec};
 
-use crate::common_models::did::DidValue;
-use crate::credential_formatter::error::FormatterError;
-use crate::credential_formatter::model::{
-    AuthenticationFn, CredentialData, CredentialPresentation, DetailCredential,
-    ExtractPresentationCtx, FormatPresentationCtx, FormatterCapabilities, Presentation,
-    VerificationFn,
-};
-use crate::credential_formatter::CredentialFormatter;
-use crate::crypto::CryptoProvider;
-use crate::did::provider::DidMethodProvider;
-use crate::key_algorithm::provider::KeyAlgorithmProvider;
-
-use crate::credential_formatter::imp::json_ld::context::caching_loader::CachingLoader;
 use async_trait::async_trait;
 use serde::Deserialize;
 use serde_with::{serde_as, DurationSeconds};
 use time::Duration;
 
-use super::json_ld::jsonld_forbidden_claim_names;
-use super::json_ld::model::LdCredential;
+use super::json_ld::{jsonld_forbidden_claim_names, model::LdCredential};
+use crate::{
+    common_models::did::DidValue,
+    credential_formatter::{
+        error::FormatterError,
+        imp::json_ld::context::caching_loader::CachingLoader,
+        model::{
+            AuthenticationFn, CredentialData, CredentialPresentation, DetailCredential,
+            ExtractPresentationCtx, FormatPresentationCtx, FormatterCapabilities, Presentation,
+            VerificationFn,
+        },
+        CredentialFormatter,
+    },
+    crypto::CryptoProvider,
+    did::provider::DidMethodProvider,
+    key_algorithm::provider::KeyAlgorithmProvider,
+};
 
 mod base_proof;
 mod derived_proof;

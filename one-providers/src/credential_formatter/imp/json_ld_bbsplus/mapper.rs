@@ -1,13 +1,9 @@
+use super::model::TransformedEntry;
 use crate::credential_formatter::{
     error::FormatterError,
+    imp::{json_ld::model::LdCredential, json_ld_bbsplus::model::GroupEntry},
     model::{CredentialSubject, DetailCredential},
 };
-
-use crate::credential_formatter::imp::{
-    json_ld::model::LdCredential, json_ld_bbsplus::model::GroupEntry,
-};
-
-use super::model::TransformedEntry;
 
 pub fn to_grouped_entry(entries: Vec<(usize, String)>) -> TransformedEntry {
     TransformedEntry {

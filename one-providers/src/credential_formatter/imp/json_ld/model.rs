@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, OneOrMany};
+use time::OffsetDateTime;
+
 use crate::{
     common_models::did::DidValue,
     credential_formatter::model::{CredentialSchema, CredentialStatus},
 };
-use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, OneOrMany};
-use time::OffsetDateTime;
 
 // The main credential
 #[serde_as]

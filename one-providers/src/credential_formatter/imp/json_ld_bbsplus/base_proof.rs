@@ -1,18 +1,24 @@
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::vec;
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    vec,
+};
 
-use crate::common_models::did::DidValue;
-use crate::credential_formatter::error::FormatterError;
-use crate::credential_formatter::imp::json_ld;
-use crate::credential_formatter::model::{AuthenticationFn, CredentialStatus};
-use crate::crypto::imp::utilities;
-use crate::{credential_formatter::model::CredentialData, crypto::imp::signer::bbs::BbsInput};
 use ct_codecs::{Base64UrlSafeNoPadding, Encoder};
 
-use super::model::{BbsProofComponents, GroupedFormatDataDocument, HashData, CBOR_PREFIX_BASE};
-
-use super::{mapper, JsonLdBbsplus};
+use super::{
+    mapper,
+    model::{BbsProofComponents, GroupedFormatDataDocument, HashData, CBOR_PREFIX_BASE},
+    JsonLdBbsplus,
+};
+use crate::{
+    common_models::did::DidValue,
+    credential_formatter::{
+        error::FormatterError,
+        imp::json_ld,
+        model::{AuthenticationFn, CredentialData, CredentialStatus},
+    },
+    crypto::imp::{signer::bbs::BbsInput, utilities},
+};
 
 #[allow(clippy::too_many_arguments)]
 impl JsonLdBbsplus {
