@@ -16,11 +16,13 @@ use crate::{
 pub struct LdCredential {
     #[serde(rename = "@context")]
     pub context: Vec<String>,
-    pub id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
     pub r#type: Vec<String>,
     pub issuer: DidValue,
-    #[serde(with = "time::serde::rfc3339")]
-    pub issuance_date: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339::option")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub issuance_date: Option<OffsetDateTime>,
     pub credential_subject: LdCredentialSubject,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[serde_as(as = "OneOrMany<_>")]
@@ -34,7 +36,8 @@ pub struct LdCredential {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LdCredentialSubject {
-    pub id: DidValue,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<DidValue>,
     #[serde(flatten)]
     pub subject: HashMap<String, serde_json::Value>,
 }
@@ -45,10 +48,12 @@ pub type Claims = HashMap<String, String>;
 #[serde(rename_all = "camelCase")]
 pub struct LdProof {
     #[serde(rename = "@context")]
-    pub context: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context: Option<Vec<String>>,
     pub r#type: String,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created: OffsetDateTime,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "time::serde::rfc3339::option")]
+    pub created: Option<OffsetDateTime>,
     pub cryptosuite: String,
     pub verification_method: String,
     pub proof_purpose: String,

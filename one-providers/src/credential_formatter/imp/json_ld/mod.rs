@@ -40,8 +40,6 @@ pub fn prepare_credential(
 ) -> Result<LdCredential, FormatterError> {
     let credential_schema = &credential.schema;
 
-    let issuance_date = OffsetDateTime::now_utc();
-
     let mut context = prepare_context(additional_context);
     if let Some(json_ld_context_url) = json_ld_context_url {
         context.push(json_ld_context_url);
@@ -62,10 +60,10 @@ pub fn prepare_credential(
 
     Ok(LdCredential {
         context,
-        id: credential.id,
+        id: Some(credential.id),
         r#type: ld_type,
         issuer: credential.issuer_did,
-        issuance_date,
+        issuance_date: Some(OffsetDateTime::now_utc()),
         credential_subject,
         credential_status: credential.status,
         proof: None,
@@ -89,9 +87,9 @@ pub async fn prepare_proof_config(
     let r#type = "DataIntegrityProof".to_owned();
 
     Ok(LdProof {
-        context,
+        context: Some(context),
         r#type,
-        created: OffsetDateTime::now_utc(),
+        created: Some(OffsetDateTime::now_utc()),
         cryptosuite: cryptosuite.to_owned(),
         verification_method: key_id,
         proof_purpose: proof_purpose.to_owned(),
@@ -139,7 +137,7 @@ pub fn prepare_credential_subject(
     let subject_name_base = custom_subject_name.unwrap_or(credential_schema_name);
 
     Ok(LdCredentialSubject {
-        id: holder_did.clone(),
+        id: Some(holder_did.clone()),
         subject: HashMap::from([(
             format!("{subject_name_base}Subject"),
             serde_json::to_value(nest_claims(claims)?)

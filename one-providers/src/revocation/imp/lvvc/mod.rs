@@ -132,7 +132,14 @@ impl LvvcProvider {
     ) -> Result<CredentialRevocationState, RevocationError> {
         let bearer_token = prepare_bearer_token(credential, self.key_provider.clone()).await?;
 
-        let lvvc_check_url = &credential_status.id;
+        let lvvc_check_url =
+            credential_status
+                .id
+                .as_ref()
+                .ok_or(RevocationError::ValidationError(
+                    "LVVC status id is missing".to_string(),
+                ))?;
+
         let response: IssuerResponseDTO = self
             .client
             .get(lvvc_check_url)
@@ -283,7 +290,10 @@ impl RevocationMethod for LvvcProvider {
             ),
             vec![CredentialRevocationInfo {
                 credential_status: CredentialStatus {
-                    id: format!("{base_url}/ssi/revocation/v1/lvvc/{}", credential.id),
+                    id: Some(format!(
+                        "{base_url}/ssi/revocation/v1/lvvc/{}",
+                        credential.id
+                    )),
                     r#type: self.get_status_type(),
                     status_purpose: None,
                     additional_fields: HashMap::new(),

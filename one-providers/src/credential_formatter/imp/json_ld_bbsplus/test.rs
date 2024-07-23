@@ -244,12 +244,12 @@ _:b0 <http://127.0.0.1:36585/ssi/context/v1/bb9c433c-3d35-437c-bfb7-919ae6da07aa
 fn generate_ld_credential(subject_claims: serde_json::Value) -> LdCredential {
     LdCredential {
         context: vec![],
-        id: "".to_string(),
+        id: Some("".to_string()),
         r#type: vec![],
         issuer: "did:key:1234".to_string().into(),
-        issuance_date: OffsetDateTime::now_utc(),
+        issuance_date: Some(OffsetDateTime::now_utc()),
         credential_subject: LdCredentialSubject {
-            id: "did:key:1234".to_string().into(),
+            id: Some("did:key:1234".to_string().into()),
             subject: HashMap::from([("credentialSubject".to_string(), subject_claims)]),
         },
         credential_status: vec![],

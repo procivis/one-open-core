@@ -149,6 +149,7 @@ impl RevocationMethod for BitstringStatusList {
         let list_url = credential_status
             .additional_fields
             .get("statusListCredential")
+            .and_then(|url| url.as_str())
             .ok_or(RevocationError::ValidationError(
                 "Missing status list url".to_string(),
             ))?;
@@ -156,6 +157,7 @@ impl RevocationMethod for BitstringStatusList {
         let list_index = credential_status
             .additional_fields
             .get("statusListIndex")
+            .and_then(|index| index.as_str())
             .ok_or(RevocationError::ValidationError(
                 "Missing status list index".to_string(),
             ))?;
@@ -246,14 +248,17 @@ impl BitstringStatusList {
     ) -> Result<CredentialStatus, RevocationError> {
         let revocation_list_url = get_revocation_list_url(revocation_list_id, &self.core_base_url)?;
         Ok(CredentialStatus {
-            id: format!("{}#{}", revocation_list_url, index_on_status_list),
+            id: Some(format!("{}#{}", revocation_list_url, index_on_status_list)),
             r#type: CREDENTIAL_STATUS_TYPE.to_string(),
             status_purpose: Some(purpose.to_string()),
             additional_fields: HashMap::from([
-                ("statusListCredential".to_string(), revocation_list_url),
+                (
+                    "statusListCredential".to_string(),
+                    revocation_list_url.into(),
+                ),
                 (
                     "statusListIndex".to_string(),
-                    index_on_status_list.to_string(),
+                    index_on_status_list.to_string().into(),
                 ),
             ]),
         })

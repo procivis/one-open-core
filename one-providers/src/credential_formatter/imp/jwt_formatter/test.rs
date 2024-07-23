@@ -113,10 +113,10 @@ async fn test_format_credential() {
 
     let credential_data = get_credential_data(
         vec![CredentialStatus {
-            id: "STATUS_ID".to_string(),
+            id: Some("STATUS_ID".to_string()),
             r#type: "TYPE".to_string(),
             status_purpose: Some("PURPOSE".to_string()),
-            additional_fields: HashMap::from([("Field1".to_owned(), "Val1".to_owned())]),
+            additional_fields: HashMap::from([("Field1".to_owned(), "Val1".into())]),
         }],
         "http://base_url",
     );
@@ -185,7 +185,7 @@ async fn test_format_credential() {
 
     assert_eq!(1, vc.credential_status.len());
     let credential_status = vc.credential_status.first().unwrap();
-    assert_eq!(&credential_status.id, "STATUS_ID");
+    assert_eq!(&credential_status.id, &Some("STATUS_ID".to_string()));
     assert_eq!(&credential_status.r#type, "TYPE");
     assert_eq!(credential_status.status_purpose.as_deref(), Some("PURPOSE"));
 
@@ -203,10 +203,10 @@ async fn test_format_credential_nested_array() {
 
     let credential_data = get_credential_data_with_array(
         vec![CredentialStatus {
-            id: "STATUS_ID".to_string(),
+            id: Some("STATUS_ID".to_string()),
             r#type: "TYPE".to_string(),
             status_purpose: Some("PURPOSE".to_string()),
-            additional_fields: HashMap::from([("Field1".to_owned(), "Val1".to_owned())]),
+            additional_fields: HashMap::from([("Field1".to_owned(), "Val1".into())]),
         }],
         "http://base_url",
     );
@@ -323,7 +323,7 @@ async fn test_extract_credentials() {
     assert_eq!(1, credentials.status.len());
 
     let first_credential_status = credentials.status.first().unwrap();
-    assert_eq!(first_credential_status.id, "STATUS_ID");
+    assert_eq!(first_credential_status.id, Some("STATUS_ID".to_string()));
     assert_eq!(first_credential_status.r#type, "TYPE");
     assert_eq!(
         first_credential_status.status_purpose.as_deref(),
@@ -331,7 +331,7 @@ async fn test_extract_credentials() {
     );
     assert_eq!(
         first_credential_status.additional_fields.get("Field1"),
-        Some(&"Val1".to_string())
+        Some(&"Val1".into())
     );
 
     assert_eq!(credentials.claims.values.get("name").unwrap(), "John");
@@ -393,7 +393,7 @@ async fn test_extract_credentials_nested_array() {
     assert_eq!(1, credentials.status.len());
 
     let first_credential_status = credentials.status.first().unwrap();
-    assert_eq!(first_credential_status.id, "STATUS_ID");
+    assert_eq!(first_credential_status.id, Some("STATUS_ID".to_string()));
     assert_eq!(first_credential_status.r#type, "TYPE");
     assert_eq!(
         first_credential_status.status_purpose.as_deref(),
@@ -401,7 +401,7 @@ async fn test_extract_credentials_nested_array() {
     );
     assert_eq!(
         first_credential_status.additional_fields.get("Field1"),
-        Some(&"Val1".to_string())
+        Some(&"Val1".into())
     );
 
     let root_item = credentials.claims.values.get("root_item").unwrap();
