@@ -1,3 +1,5 @@
+//! Shared resources for providers.
+
 pub mod claim;
 pub mod claim_schema;
 pub mod credential;

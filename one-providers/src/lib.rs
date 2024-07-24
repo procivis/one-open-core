@@ -1,3 +1,5 @@
+//! Use the providers to manage the full lifecycle of credentials.
+
 pub mod common_models;
 pub mod credential_formatter;
 pub mod crypto;

@@ -1,3 +1,7 @@
+//! Hashing and signing utilities.
+//!
+//! This module provides utilities for hashing and direct signatures and verifications.
+
 use std::sync::Arc;
 
 use thiserror::Error;
@@ -40,26 +44,41 @@ pub enum SignerError {
     MissingKey,
 }
 
+/// Provides hashing.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait Hasher: Send + Sync {
+    /// Hasher.
     fn hash_base64(&self, input: &[u8]) -> Result<String, HasherError>;
+
+    /// Hasher.
     fn hash(&self, input: &[u8]) -> Result<Vec<u8>, HasherError>;
 }
 
+/// Generally the [key storage][ks] module or [credential formatter][cf] module is used for safe signing,
+/// but direct signing and verification is possible here.
+///
+/// [ks]: ../../one_providers/key_storage/index.html
+/// [cf]: ../../one_providers/credential_formatter/index.html
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait Signer: Send + Sync {
+    /// Direct signing.
     fn sign(
         &self,
         input: &[u8],
         public_key: &[u8],
         private_key: &[u8],
     ) -> Result<Vec<u8>, SignerError>;
+
+    /// Direct signature verification.
     fn verify(&self, input: &[u8], signature: &[u8], public_key: &[u8]) -> Result<(), SignerError>;
 }
 
+/// Return hasher or signer instances. Not supported for all key storage types.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait CryptoProvider: Send + Sync {
+    /// Returns hasher instance.
     fn get_hasher(&self, hasher: &str) -> Result<Arc<dyn Hasher>, CryptoProviderError>;
 
+    /// Returns signer instance.
     fn get_signer(&self, signer: &str) -> Result<Arc<dyn Signer>, CryptoProviderError>;
 }
