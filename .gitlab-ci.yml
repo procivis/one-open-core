@@ -2,18 +2,41 @@ image: registry.gitlab.procivis.ch/procivis/one/one-operations/core-base:1.76.0-
 
 variables:
   DEPENDENCY_TRACK_PROJECT_NAME: "One-Open-Core"
+  CI_TAG_PATTERN: /^v[0-9]+\.[0-9]+\.[0-9]+-.+$/
 
+  # Required variables in GitLab config:
+  # - AAD_SERVICE_PRINCIPAL_CLIENT_ID: Azure Active directory Application id. Use for RBAC SP kubelogin
+  # - AAD_SERVICE_PRINCIPAL_CLIENT_SECRET: Application secret. Use for RBAC SP kubelogin
+  # - AD_TENANT_ID: Azure Active Directory Tenant ID
+  # - DEMO_RESOURCE_GROUP: Azure Resource group where AKS deployed
+  # - DEMO_CLUSTER_NAME: AKS cluster name
+  # - DOCKER_AUTH_CONFIG: Pull image from private repository
 
 stages:
   - build
   - test
+  - docs
   - scan
+  - package
+  - deploy
 
 before_script:
   - D_TRACK_PROJECT_VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+  - APP_FLAVOR=docs
+  - APP_VERSION=$(echo $CI_COMMIT_TAG | sed -n "s/^\(v.*\)-.*$/\1/p")
+  - APP_VERSION=${APP_VERSION:-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA}
+  - IMAGE_NAME=$CI_REGISTRY_IMAGE/$APP_FLAVOR
+  - IMAGE_TAG=$IMAGE_NAME:$APP_VERSION
 
 .only_main:
   rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+.only_main_or_tag:
+  rules:
+    - if: $CI_COMMIT_TAG =~ $CI_TAG_PATTERN
+      when: on_success
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
 
@@ -94,6 +117,71 @@ sonarqube-check:
   allow_failure: true
   extends:
     - .only_main
+
+build-docs:
+  stage: docs
+  script:
+    - cargo doc --no-deps --release
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - target/doc
+  extends:
+    - .only_main_or_tag
+
+
+publish_docs:
+  stage: package
+  image: docker:latest
+  dependencies: [ build-docs ]
+  services:
+    - docker:dind
+  script:
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN
+    - docker build -t $IMAGE_TAG -f docs/docker/Dockerfile .
+    - >
+      if [ "$CI_COMMIT_REF_NAME" == "main" ] ; then
+        docker image tag $IMAGE_TAG $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:latest
+      fi
+    - docker push $IMAGE_TAG
+    - docker logout $CI_REGISTRY
+  extends:
+    - .only_main_or_tag
+
+
+.deploy_k8s:
+  image: registry.gitlab.procivis.ch/procivis/one/one-operations/az-helm-kubectl:1.25.7
+  dependencies: []
+  variables:
+    DEPLOY_IMAGE_TAG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    K8S_TYPE: deployment
+    HELM_APP_NAME: one-core-docs
+    HELM_PATH: docs/one-core-docs-chart
+  before_script:
+    - az aks install-cli
+    - az login --service-principal -u "$AAD_SERVICE_PRINCIPAL_CLIENT_ID" -p "$AAD_SERVICE_PRINCIPAL_CLIENT_SECRET" --tenant "$AD_TENANT_ID"
+    - az aks get-credentials --resource-group $DEMO_RESOURCE_GROUP --name $DEMO_CLUSTER_NAME
+    - kubelogin convert-kubeconfig -l spn
+  script:
+    - cd "$HELM_PATH"
+    - >
+      helm upgrade --install $HELM_APP_NAME .
+      --values $HELM_VALUES_FILE
+      --set "image.tag=$DEPLOY_IMAGE_TAG"
+      --namespace $K8S_NAMESPACE
+    - kubectl rollout restart $K8S_TYPE $HELM_APP_NAME-$HELM_PATH --namespace=$K8S_NAMESPACE
+
+
+deploy:doc:
+  stage: deploy
+  needs: [ publish_docs ]
+  extends:
+    - .deploy_k8s
+    - .only_main_or_tag
+  variables:
+    HELM_VALUES_FILE: values/docs.procivis-one.yaml
+    K8S_NAMESPACE: trial
 
 
 dependency_track:upload-bom:
