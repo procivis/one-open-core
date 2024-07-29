@@ -1,0 +1,13 @@
+[workspace]
+# A separate workspace
+
+[package]
+name = "did-resolution-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+one-open-core = { path = "../../one-open-core" }
+one-providers = { path = "../../one-providers" }
+tokio = { version = "1.38.1", features = ["full"] }
+futures = "0.3.17"

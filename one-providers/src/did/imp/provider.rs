@@ -33,9 +33,8 @@ impl DidMethodProvider for DidMethodProviderImpl {
         Ok(method.resolve(did).await?)
     }
 }
-pub(super) fn did_method_id_from_value(
-    did_value: &DidValue,
-) -> Result<String, DidMethodProviderError> {
+
+fn did_method_id_from_value(did_value: &DidValue) -> Result<String, DidMethodProviderError> {
     let mut parts = did_value.as_str().splitn(3, ':');
 
     let did_method = parts

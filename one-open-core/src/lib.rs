@@ -54,14 +54,26 @@
 //! [vci]: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-12.html
 //! [vp]: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html
 
-use std::{collections::HashMap, sync::Arc};
+use std::error::Error;
+use std::{collections::HashMap, default::Default, sync::Arc};
 
+use config::OneCoreConfig;
 use model::KeyAlgorithmType;
 use one_providers::{
     crypto::imp::{
         hasher::sha256::SHA256,
         signer::{bbs::BBSSigner, crydi3::CRYDI3Signer, eddsa::EDDSASigner, es256::ES256Signer},
         CryptoProviderImpl,
+    },
+    did::{
+        imp::{
+            jwk::JWKDidMethod,
+            key::KeyDidMethod,
+            provider::DidMethodProviderImpl,
+            universal::{Params as UniversalDidMethodParams, UniversalDidMethod},
+            web::{Params as WebDidMethodParams, WebDidMethod},
+        },
+        keys::{Keys, MinMax},
     },
     key_algorithm::{
         imp::{
@@ -73,24 +85,31 @@ use one_providers::{
         KeyAlgorithm,
     },
 };
-use service::signature_service::SignatureService;
+use service::{did_service::DidService, signature_service::SignatureService};
 
+pub mod config;
 pub mod model;
 pub mod service;
 
 pub struct OneOpenCore {
     pub signature_service: SignatureService,
+    pub did_service: DidService,
 }
 
 impl Default for OneOpenCore {
     fn default() -> Self {
-        Self::new()
+        Self::new(None).unwrap()
     }
 }
 
 impl OneOpenCore {
-    pub fn new() -> Self {
-        let crypto = Arc::new(CryptoProviderImpl::new(
+    pub fn new(config: Option<OneCoreConfig>) -> Result<Self, Box<dyn Error>> {
+        let config = config.unwrap_or(OneCoreConfig {
+            ..Default::default()
+        });
+
+        // initialize crypto provider
+        let crypto_provider = Arc::new(CryptoProviderImpl::new(
             HashMap::from_iter(vec![("sha-256".to_string(), Arc::new(SHA256 {}) as _)]),
             HashMap::from_iter(vec![
                 ("Ed25519".to_string(), Arc::new(EDDSASigner {}) as _),
@@ -100,6 +119,7 @@ impl OneOpenCore {
             ]),
         ));
 
+        // initialize key algorithm provider
         let key_algorithms: HashMap<String, Arc<dyn KeyAlgorithm>> = HashMap::from_iter(vec![
             (
                 KeyAlgorithmType::Eddsa.to_string(),
@@ -115,17 +135,68 @@ impl OneOpenCore {
             ),
             (KeyAlgorithmType::BbsPlus.to_string(), Arc::new(BBS) as _),
         ]);
-
         let key_algorithm_provider = Arc::new(KeyAlgorithmProviderImpl::new(
             key_algorithms,
-            crypto.clone(),
+            crypto_provider.clone(),
         ));
 
-        let signature_service = SignatureService {
-            crypto,
-            key_algorithm_provider,
-        };
+        // initialize did method provider
+        let universal_resolver = Arc::new(UniversalDidMethod::new(UniversalDidMethodParams {
+            resolver_url: config.did_method_config.universal_resolver_url,
+        }));
+        let did_method_provider = Arc::new(DidMethodProviderImpl::new(HashMap::from_iter(vec![
+            (
+                "JWK".to_string(),
+                Arc::new(JWKDidMethod::new(key_algorithm_provider.clone())) as _,
+            ),
+            (
+                "KEY".to_string(),
+                Arc::new(KeyDidMethod::new(key_algorithm_provider.clone())) as _,
+            ),
+            (
+                "WEB".to_string(),
+                Arc::new(WebDidMethod::new(
+                    &None,
+                    WebDidMethodParams {
+                        resolve_to_insecure_http: Some(false),
+                        keys: Keys {
+                            global: MinMax {
+                                min: config.did_method_config.key_count_range.0,
+                                max: config.did_method_config.key_count_range.1,
+                            },
+                            assertion_method: MinMax {
+                                min: config.did_method_config.key_count_range.0,
+                                max: config.did_method_config.key_count_range.1,
+                            },
+                            authentication: MinMax {
+                                min: config.did_method_config.key_count_range.0,
+                                max: config.did_method_config.key_count_range.1,
+                            },
+                            capability_delegation: MinMax {
+                                min: config.did_method_config.key_count_range.0,
+                                max: config.did_method_config.key_count_range.1,
+                            },
+                            capability_invocation: MinMax {
+                                min: config.did_method_config.key_count_range.0,
+                                max: config.did_method_config.key_count_range.1,
+                            },
+                            key_agreement: MinMax {
+                                min: config.did_method_config.key_count_range.0,
+                                max: config.did_method_config.key_count_range.1,
+                            },
+                        },
+                    },
+                )?) as _,
+            ),
+        ])));
 
-        Self { signature_service }
+        let signature_service = SignatureService::new(crypto_provider, key_algorithm_provider);
+
+        let did_service = DidService::new(did_method_provider, Some(universal_resolver));
+
+        Ok(Self {
+            signature_service,
+            did_service,
+        })
     }
 }

@@ -44,10 +44,9 @@ build:
   stage: build
   script:
     - cargo build --release
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - target/release/core-server
+    # also build examples
+    - (cd examples/did_resolution_example ; cargo build --release)
+    - (cd examples/signature_example ; cargo build --release)
   extends:
     - .only_main
 

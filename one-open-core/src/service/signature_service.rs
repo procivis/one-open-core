@@ -10,20 +10,21 @@ use super::error::SignatureServiceError;
 use crate::model::KeyAlgorithmType;
 
 pub struct SignatureService {
-    pub crypto: Arc<dyn CryptoProvider>,
+    pub crypto_provider: Arc<dyn CryptoProvider>,
     pub key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
 }
 
 impl SignatureService {
     pub fn new(
-        crypto: Arc<dyn CryptoProvider>,
+        crypto_provider: Arc<dyn CryptoProvider>,
         key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
     ) -> Self {
         Self {
-            crypto,
+            crypto_provider,
             key_algorithm_provider,
         }
     }
+
     pub fn get_key_pair(
         &self,
         algorithm: &KeyAlgorithmType,
@@ -54,7 +55,7 @@ impl SignatureService {
 
         let signer_algorithm_id = algorithm.get_signer_algorithm_id();
 
-        let signer = self.crypto.get_signer(&signer_algorithm_id)?;
+        let signer = self.crypto_provider.get_signer(&signer_algorithm_id)?;
 
         Ok(signer.sign(data, public_key, private_key.as_slice())?)
     }
@@ -75,7 +76,7 @@ impl SignatureService {
 
         let signer_algorithm_id = algorithm.get_signer_algorithm_id();
 
-        let signer = self.crypto.get_signer(&signer_algorithm_id)?;
+        let signer = self.crypto_provider.get_signer(&signer_algorithm_id)?;
 
         Ok(signer.verify(data, signature, public_key)?)
     }
