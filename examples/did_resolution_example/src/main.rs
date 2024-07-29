@@ -1,18 +1,11 @@
-#![feature(async_closure)]
-
+use futures::future::join_all;
 use one_open_core::OneOpenCore;
+use one_providers::common_models::did::DidValue;
 use one_providers::did::{
-    imp::{
-        universal::{
-            UniversalDidMethod,
-            Params as UniversalDidMethodParams,
-        },
-    },
     error::DidMethodError,
+    imp::universal::{Params as UniversalDidMethodParams, UniversalDidMethod},
     DidMethod,
 };
-use one_providers::common_models::did::DidValue;
-use futures::future::join_all;
 
 #[tokio::main]
 async fn main() -> Result<(), DidMethodError> {
@@ -33,26 +26,31 @@ async fn main() -> Result<(), DidMethodError> {
     // Resolving DIDs using the core DID service
     //
 
-    join_all(example_did_values_implemented.into_iter().map(async |did| {
+    for did in example_did_values_implemented.into_iter() {
         // resolve DID using service without allowing fallback provider
         let result = did_service.resolve_did(&did, false).await;
         assert!(result.is_ok(), "expected to resolve DID {}", did);
         println!("Resolved {} into:\n{:#?}\n", did, result);
-    })).await;
+    }
 
     // resolving an unimplemented DID method with fallback provider disabled will fail
-    let result = did_service.resolve_did(&example_did_value_unimplemented, false).await;
+    let result = did_service
+        .resolve_did(&example_did_value_unimplemented, false)
+        .await;
     assert!(result.is_err(), "expected not to resolve DID");
 
     // when enabling the fallback to an universal resolver, DID resolution should succeed however
-    let result = did_service.resolve_did(&example_did_value_unimplemented, true).await;
+    let result = did_service
+        .resolve_did(&example_did_value_unimplemented, true)
+        .await;
     assert!(result.is_ok(), "expected to resolve DID");
 
     //
     // Resolving DIDs using the DID method impolementation directly
     //
 
-    let example_did_key = DidValue::from("did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK".to_string());
+    let example_did_key =
+        DidValue::from("did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK".to_string());
     let did_key = did_service.get_did_method("KEY").unwrap();
     let result = did_key.resolve(&example_did_key).await;
     assert!(result.is_ok(), "expected to resolve DID");

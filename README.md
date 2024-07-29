@@ -18,7 +18,6 @@ of two open-source libraries (OSL) for Issuers, Digital Wallets, and Verifiers:
   - Key storage provider
   - Revocation provider
   - Exchange protocol provider
-
 - OSL (C): Metadata Management SDK
   - DID method provider
 
@@ -104,9 +103,12 @@ See the [Procivis One documentation](https://docs.procivis.ch/) for:
 Several examples of using the **Core** are provided in the **/examples** directory of
 the repository. More examples will be added in the future. Examples include:
 
-- Signing and verifying via the signature service
-- Resolving a DID via the DID service
+- `examples/signature_example`: Signing and verifying via the signature service
+- `examples/did_resolution_example`: Resolving DIDs via the DID service or using the implementations directly
 
 ## License
 
-[Apache License Version 2.0](./LICENSE)
+Some rights reserved. This library is published under the  [Apache License
+Version 2.0](./LICENSE).
+
+© Procivis AG, https://www.procivis.ch.
