@@ -1,6 +1,5 @@
-![Procivis](.docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)
-
-![Procivis](.docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)
+![Procivis](docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)
+![Procivis](docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)
 
 The Procivis One Open Core is a high-performance Rust library for decentralized
 digital identities and credentials.
@@ -14,7 +13,6 @@ Homeland Security's (DHS) Silicon Valley Innovation Program (SVIP). The Core con
 of two open-source libraries (OSL) for Issuers, Digital Wallets, and Verifiers:
 
 - OSL (A): Cryptographic Tools SDK
-
   - Credential format provider
   - Signature provider
   - Key storage provider
@@ -22,7 +20,6 @@ of two open-source libraries (OSL) for Issuers, Digital Wallets, and Verifiers:
   - Exchange protocol provider
 
 - OSL (C): Metadata Management SDK
-
   - DID method provider
 
 These libraries are combined here for simplicity of use.
@@ -30,17 +27,11 @@ These libraries are combined here for simplicity of use.
 ## Features
 
 - Issue, hold and verify digital credentials in different formats
-
 - Generate new key pairs, create and verify signatures
-
 - Perform operations of multiple DID methods
-
 - Store keys in Azure Key Vault or an encrypted internal database
-
 - Issue credentials with different revocation methods; discover the status of credentials
-
 - Seamless operation from end-to-end regardless of which technologies are employed
-
 - Install and operate almost anywhere
 
 ## Supported technologies
@@ -104,11 +95,8 @@ and traits.
 See the [Procivis One documentation](https://docs.procivis.ch/) for:
 
 - The complete list of **Procivis One** supported technologies
-
 - Trial access to the full solution
-
 - APIs and SDK documentation
-
 - Conceptual topics
 
 ## Examples
@@ -117,7 +105,6 @@ Several examples of using the **Core** are provided in the **/examples** directo
 the repository. More examples will be added in the future. Examples include:
 
 - Signing and verifying via the signature service
-
 - Resolving a DID via the DID service
 
 ## License
