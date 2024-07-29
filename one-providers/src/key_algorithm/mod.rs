@@ -1,6 +1,6 @@
 //! Tools for key algorithm representations and finding signer IDs.
 //!
-//! This module provides utilities for finding signer IDs, getting public and private
+//! This module provides utilities for finding signer IDs and getting public and private
 //! keys in different representations.
 //!
 //! Key pairs can also be generated with this module, though generating key pairs with
@@ -43,7 +43,7 @@ pub trait KeyAlgorithm: Send + Sync {
 
     /// Converts a private key to JWK.
     ///
-    /// Use carefully.
+    /// **Use carefully.**
     ///
     /// This can be useful for certain APIs that require JWK. Not supported by all
     /// storage methods.

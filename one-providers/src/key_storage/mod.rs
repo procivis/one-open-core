@@ -1,7 +1,7 @@
 //! Tools for safe generation and usage of keys.
 //!
 //! This module provides a middle layer for interacting with private keys via key
-//! references.
+//! references. Generate key pairs and sign via key reference.
 
 use async_trait;
 use zeroize::Zeroizing;
@@ -32,7 +32,7 @@ pub trait KeyStorage: Send + Sync {
 
     /// Converts a private key to JWK (thus exposing it).
     ///
-    /// Use carefully.
+    /// **Use carefully.**
     ///
     /// May not be implemented for some storage providers (e.g. Azure Key Vault).
     fn secret_key_as_jwk(&self, key: &Key) -> Result<Zeroizing<String>, error::KeyStorageError>;

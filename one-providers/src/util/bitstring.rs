@@ -1,3 +1,5 @@
+//! Utilities for Bitstring Status List.
+
 use std::io::{Read, Write};
 
 use bit_vec::BitVec;

@@ -1,3 +1,16 @@
+//! Tools for exchanging credentials using OpenID4VC.
+//!
+//! Exchange protocols govern the direct exchange of credentials. They define
+//! the types of messages sent and their content, whenever credentials are
+//! exchanged between parties.
+//!
+//! This module contains traits for implementing a chosen storage layer as
+//! well as credential schema handling. These must be implemented to enable
+//! the use of an exchange protocol.
+//!
+//! Methods for issuing, holding, and verifying in OpenID4VC are found in
+//! `ExchangeProtocolImpl` trait.
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -68,20 +81,31 @@ pub enum ExchangeProtocolError {
     StorageAccessError(anyhow::Error),
 }
 
+/// Interface to be implemented in order to use an exchange protocol.
+///
+/// The exchange protocol provider relies on storage of data for interactions,
+/// credentials, credential schemas, and DIDs. A storage layer must be
+/// chosen and implemented for the exchange protocol to be enabled.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait::async_trait]
 pub trait StorageProxy: Send + Sync {
+    /// Store an interaction with a chosen storage layer.
     async fn create_interaction(&self, interaction: Interaction) -> anyhow::Result<InteractionId>;
+    /// Get a credential schema from a chosen storage layer.
     async fn get_schema(&self, schema_id: &str) -> anyhow::Result<Option<CredentialSchema>>;
+    /// Get credentials from a specified schema ID, from a chosen storage layer.
     async fn get_credentials_by_credential_schema_id(
         &self,
         schema_id: &str,
     ) -> anyhow::Result<Vec<Credential>>;
+    /// Create a credential schema in a chosen storage layer.
     async fn create_credential_schema(
         &self,
         schema: CredentialSchema,
     ) -> anyhow::Result<CredentialSchemaId>;
+    /// Create a DID in a chosen storage layer.
     async fn create_did(&self, did: Did) -> anyhow::Result<DidId>;
+    /// Obtain a DID by its address, from a chosen storage layer.
     async fn get_did_by_value(&self, value: &DidValue) -> anyhow::Result<Option<Did>>;
 }
 pub type StorageAccess = dyn StorageProxy;
@@ -96,6 +120,7 @@ pub struct BuildCredentialSchemaResponse {
     pub schema: CredentialSchema,
 }
 
+/// Interface to be implemented in order to use an exchange protocol.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait::async_trait]
 pub trait HandleInvitationOperations: Send + Sync {
@@ -129,15 +154,20 @@ pub trait HandleInvitationOperations: Send + Sync {
 }
 pub type HandleInvitationOperationsAccess = dyn HandleInvitationOperations;
 
+/// This trait contains methods for exchanging credentials between issuers,
+/// holders, and verifiers.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock(type VCInteractionContext = (); type VPInteractionContext = ();))]
 #[async_trait::async_trait]
 pub trait ExchangeProtocolImpl: Send + Sync {
     type VCInteractionContext;
     type VPInteractionContext;
 
-    // holder methods
+    // Holder methods:
+    /// Check if the holder can handle the necessary URLs.
     fn can_handle(&self, url: &Url) -> bool;
 
+    /// For handling credential issuance and verification, this method
+    /// saves the offer information coming in.
     async fn handle_invitation(
         &self,
         url: Url,
@@ -145,8 +175,10 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         handle_invitation_operations: &HandleInvitationOperationsAccess,
     ) -> Result<InvitationResponseDTO, ExchangeProtocolError>;
 
+    /// Rejects a verifier's request for credential presentation.
     async fn reject_proof(&self, proof: &Proof) -> Result<(), ExchangeProtocolError>;
 
+    /// Submits a presentation to a verifier.
     #[allow(clippy::too_many_arguments)]
     async fn submit_proof(
         &self,
@@ -159,6 +191,9 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         presentation_format_map: HashMap<String, String>,
     ) -> Result<UpdateResponse<()>, ExchangeProtocolError>;
 
+    /// Accepts an offered credential.
+    ///
+    /// Storage access must be implemented.
     async fn accept_credential(
         &self,
         credential: &Credential,
@@ -169,9 +204,14 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         storage_access: &StorageAccess,
     ) -> Result<UpdateResponse<SubmitIssuerResponse>, ExchangeProtocolError>;
 
+    /// Rejects an offered credential.
     async fn reject_credential(&self, credential: &Credential)
         -> Result<(), ExchangeProtocolError>;
 
+    /// Takes a proof request and filters held credentials,
+    /// returning those which are acceptable for the request.
+    ///
+    /// Storage access is needed to check held credentials.
     async fn get_presentation_definition(
         &self,
         proof: &Proof,
@@ -182,16 +222,16 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         organisation: Organisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError>;
 
-    // issuer methods
-    /// Generates QR-code content to start the credential issuance flow
+    // Issuer methods:
+    /// Generates QR-code content to start the credential issuance flow.
     async fn share_credential(
         &self,
         credential: &Credential,
         credential_format: &str,
     ) -> Result<ShareResponse<Self::VCInteractionContext>, ExchangeProtocolError>;
 
-    // verifier methods
-    /// Generates QR-code content to start the proof request flow
+    // Verifier methods:
+    /// Generates QR-code content to start the proof request flow.
     async fn share_proof(
         &self,
         proof: &Proof,
@@ -202,7 +242,7 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         type_to_descriptor: TypeToDescriptorMapper,
     ) -> Result<ShareResponse<Self::VPInteractionContext>, ExchangeProtocolError>;
 
-    /// For now: Specially for ScanToVerify
+    /// Checks if the submitted presentation complies with the given proof request.
     async fn verifier_handle_proof(
         &self,
         proof: &Proof,

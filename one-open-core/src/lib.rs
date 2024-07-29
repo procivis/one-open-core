@@ -35,6 +35,8 @@
 //!
 //! - [Signature service][ss] for signing and verifying credentals.
 //!
+//! - [DID resolver service][dresolv] for resolving DIDs.
+//!
 //! ### Providers
 //!
 //! For extending the library, the **Providers** include traits and implementations
@@ -60,7 +62,11 @@
 //! ## Examples
 //!
 //! Several examples of using the **Core** are provided in the **/examples** directory of
-//! the repository. More examples will be added in the future.
+//! the [repository][repo]. More examples will be added in the future. Examples include
+//!
+//! - Signing and verifying via the signature service
+//!
+//! - Resolving a DID via the DID service
 //!
 //! [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
 //! [bbs]: https://w3c.github.io/vc-di-bbs/
@@ -69,6 +75,7 @@
 //! [djw]: https://github.com/quartzjer/did-jwk/blob/main/spec.md
 //! [dk]: https://w3c-ccg.github.io/did-method-key/
 //! [docs]: https://docs.procivis.ch/
+//! [dresolv]: ..//one_open_core/service/did_service/struct.DidService.html
 //! [dw]: https://w3c-ccg.github.io/did-method-web/
 //! [ecd]: https://www.rfc-editor.org/rfc/rfc7518#section-3.4
 //! [edd]: https://www.w3.org/TR/vc-di-eddsa/
@@ -76,6 +83,7 @@
 //! [jw]: https://www.w3.org/TR/2023/WD-vc-jwt-20230427/
 //! [lvvc]: https://eprint.iacr.org/2022/1658.pdf
 //! [prov]: ../one_providers/index.html
+//! [repo]: https://github.com/procivis/one-open-core
 //! [serv]: ..//one_open_core/service/index.html
 //! [sl]: https://w3c.github.io/vc-bitstring-status-list/
 //! [ss]: ..//one_open_core/service/signature_service/struct.SignatureService.html

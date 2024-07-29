@@ -52,7 +52,7 @@ These libraries are combined here for simplicity of use.
 |                    |                    | did:jwk                    |                                          | BBS+                                 |                   |
 |                    |                    | [+ Universal DID resolver] |                                          | Dilithium 3 (FIPS 204: post-quantum) |                   |
 
-The Procivis One Core allows the mixing and matching of different technologies (where
+The **Procivis One Core** allows the mixing and matching of different technologies (where
 technically possible) and handles the complexity so that issuance and verification
 flows remain simple.
 
@@ -85,8 +85,9 @@ The library consists of two crates: the **Core** and the **Providers**.
 The **Core** provides developer APIs for simple and easy-to-use functionalities
 of the library and its supported technologies, without extension. Most developers
 will use the Core as it provides the simplest access to all library functions with
-the least amount of effort. Use the provided services to get started.
-Additional services will be added.
+the least amount of effort.
+
+Use the provided services to get started. Additional services will be added.
 
 ### Providers
 
@@ -94,15 +95,11 @@ For extending the library, the **Providers** include traits and implementations
 separated into logical modules. Additional functionalities (e.g. the addition of
 a new key algorithm, or a new DID method) can be extended via the providers.
 
-## Examples
-
-Several examples of using the **Core** are provided in the **/examples** directory of
-the repository. More examples will be added in the future.
-
 ## Documentation
 
-See the [library documentation](https://docs.procivis-one.com/) for details on the **One Open Core**.
-The library documentation provides descriptions of crates, modules, and traits.
+See the [library documentation](https://docs.procivis-one.com/) for details on the
+**One Open Core**. The library documentation provides descriptions of crates, modules,
+and traits.
 
 See the [Procivis One documentation](https://docs.procivis.ch/) for:
 
@@ -113,6 +110,15 @@ See the [Procivis One documentation](https://docs.procivis.ch/) for:
 - APIs and SDK documentation
 
 - Conceptual topics
+
+## Examples
+
+Several examples of using the **Core** are provided in the **/examples** directory of
+the repository. More examples will be added in the future. Examples include:
+
+- Signing and verifying via the signature service
+
+- Resolving a DID via the DID service
 
 ## License
 

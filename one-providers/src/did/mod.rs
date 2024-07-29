@@ -47,14 +47,13 @@ pub trait DidMethod: Send + Sync {
 
     /// Informs whether a DID can be deactivated or not.
     ///
-    /// DID deactivation if, for instance, a private key is leaked.
+    /// DID deactivation is useful if, for instance, a private key is leaked.
     fn can_be_deactivated(&self) -> bool;
 
     #[doc = include_str!("../../../docs/capabilities.md")]
     ///
     /// DID method capabilities include reports such as which operations (resolve, create,
     /// deactivate, etc.) and which key algorithms are supported by the DID method.
-    #[doc = include_str!("../../../docs/capabilities.md")]
     fn get_capabilities(&self) -> DidCapabilities;
 
     /// Validates whether the number of keys assigned is supported by the DID method.

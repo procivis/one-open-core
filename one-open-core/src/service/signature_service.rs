@@ -1,3 +1,10 @@
+//! A service for signing and verifying bytes.
+//!
+//! See the **/examples** directory in the [repository][repo] for an
+//! example implementation.
+//!
+//! [repo]: https://github.com/procivis/one-open-core
+
 use std::sync::Arc;
 
 use one_providers::{
