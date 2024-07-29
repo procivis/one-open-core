@@ -28,17 +28,20 @@ pub mod provider;
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait::async_trait]
 pub trait RevocationMethod: Send + Sync {
+    /// Returns the revocation method as a string for the `credentialStatus` field of the VC.
     fn get_status_type(&self) -> String;
 
+    /// Creates the `credentialStatus` field of the VC.
     ///
+    /// For BitstringStatusList, this method creates the entry in revocation and suspension lists.
+    ///
+    /// For LVVC, the URL used by the holder to obtain a new LVVC is returned.
     async fn add_issued_credential(
         &self,
         credential: &Credential,
         additional_data: Option<CredentialAdditionalData>,
     ) -> Result<(Option<RevocationUpdate>, Vec<CredentialRevocationInfo>), RevocationError>;
 
-    /// Updates a credential's status.
-    ///
     /// Change a credential's status to valid, revoked, or suspended.
     ///
     /// For list-based revocation methods, use `additional_data` to specify the ID of the associated list.
@@ -59,19 +62,11 @@ pub trait RevocationMethod: Send + Sync {
 
     #[doc = include_str!("../../../docs/capabilities.md")]
     ///
-    /// Revocation method capabilities include reports such as
+    /// Revocation method capabilities include the operations possible for each revocation
+    /// method.
     fn get_capabilities(&self) -> RevocationMethodCapabilities;
 
-    /// Returns the @context of a JSON-LD credential.
-    ///
-    /// The [@context][con] of JSON-LD credentials allows for mapping terms to Internationalized
-    /// Resource Identifiers (IRIs), enabling credentials to declare and share a context
-    /// within which to understand the terms used.
-    ///
-    /// Contexts can be published and used within domains to create a shared language. This
-    /// also allows for larger architectures to use multiple contexts across different domains
-    /// according to needs.
-    ///
-    /// [con]: https://www.w3.org/TR/json-ld11/#the-context
+    /// For credentials with LVVC revocation method, this method creates the URL
+    /// where the JSON-LD @context is hosted.
     fn get_json_ld_context(&self) -> Result<JsonLdContext, RevocationError>;
 }

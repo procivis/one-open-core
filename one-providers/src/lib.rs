@@ -1,4 +1,6 @@
-//! Use the providers to manage the full lifecycle of credentials.
+//! Traits and implementations for integrating SSI functionality into projects.
+
+#![doc(html_favicon_url = "https://docs.procivis.ch/img/favicon.svg")]
 
 pub mod common_models;
 pub mod credential_formatter;

@@ -1,9 +1,16 @@
 //! Credential formatting, parsing and signing.
 //!
-//! Credentials must be formatted for publication and sharing, and shared credentials
-//! must be parsed.
+//! A credential is an assertion of a claim, or a set of claims, about a subject.
 //!
-//! This module provides tools for formatting and parsing credentials.
+//! Credential formats specify how the entire credential — including payload data,
+//! metadata, and cryptographic material — is mapped to data structures. When a
+//! credential is created it must be formatted for publication and sharing. Similarly,
+//! when a presentation of credentials is made to a verifier (service provider), that
+//! presentation must be parsed and verified.
+//!
+//! The credential formatter provides tools for formatting and parsing credentials,
+//! as well as signing and verifying. This includes functionality for issuer, holders,
+//! and verifiers.
 
 use async_trait::async_trait;
 use error::FormatterError;
