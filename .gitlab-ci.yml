@@ -118,7 +118,7 @@ sonarqube-check:
   extends:
     - .only_main
 
-build-docs:
+build:docs:
   stage: docs
   script:
     - cargo doc --no-deps --release
@@ -130,10 +130,10 @@ build-docs:
     - .only_main_or_tag
 
 
-publish_docs:
+publish:docs:
   stage: package
   image: docker:latest
-  dependencies: [ build-docs ]
+  dependencies: [ build:docs ]
   services:
     - docker:dind
   script:
@@ -170,12 +170,11 @@ publish_docs:
       --values $HELM_VALUES_FILE
       --set "image.tag=$DEPLOY_IMAGE_TAG"
       --namespace $K8S_NAMESPACE
-    - kubectl rollout restart $K8S_TYPE $HELM_APP_NAME-$HELM_PATH --namespace=$K8S_NAMESPACE
 
 
-deploy:doc:
+deploy:docs:
   stage: deploy
-  needs: [ publish_docs ]
+  needs: [ publish:docs ]
   extends:
     - .deploy_k8s
     - .only_main_or_tag
