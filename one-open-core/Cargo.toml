@@ -1,16 +1,16 @@
 [package]
-name = "one-open-core"
+name    = "one-open-core"
 version = "0.1.0"
 edition = "2021"
-publish=false
+publish = false
 license = "Apache-2.0"
 
 [dependencies]
-one-providers      = { version = "0.1.0", path = "../one-providers" }
-thiserror          = { workspace = true }
-zeroize            = { workspace = true }
-strum              = { version = "0.26" }
-strum_macros       = { version = "0.26" }
+one-providers = { version = "0.1.0", path = "../one-providers" }
+thiserror     = { workspace = true }
+zeroize       = { workspace = true }
+strum         = { version = "0.26" }
+strum_macros  = { version = "0.26" }
 
 [package.metadata.cargo-machete]
 ignored = ["strum"]

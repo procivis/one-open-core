@@ -5,9 +5,11 @@ pub mod claim_schema;
 pub mod credential;
 pub mod credential_schema;
 pub mod did;
+pub mod interaction;
 pub mod key;
 pub mod macros;
 pub mod organisation;
+pub mod proof;
 pub mod proof_schema;
 
 pub const NESTED_CLAIM_MARKER: char = '/';

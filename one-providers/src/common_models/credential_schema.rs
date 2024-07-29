@@ -5,7 +5,7 @@ use uuid::Uuid;
 use super::claim_schema::ClaimSchema;
 use crate::common_models::macros::{impl_display, impl_from, impl_into};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct CredentialSchemaId(Uuid);
 impl_display!(CredentialSchemaId);
 impl_from!(CredentialSchemaId; Uuid);
@@ -28,19 +28,10 @@ pub struct CredentialSchema {
     pub layout_type: LayoutType,
     pub layout_properties: Option<LayoutProperties>,
     pub schema_id: String,
-    pub schema_type: CredentialSchemaType,
+    pub schema_type: String,
 
     // Relations
     pub claim_schemas: Option<Vec<CredentialSchemaClaim>>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
-pub enum CredentialSchemaType {
-    ProcivisOneSchema2024,
-    FallbackSchema2024,
-    Mdoc,
-    #[serde(untagged)]
-    Other(String),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -103,4 +94,12 @@ pub enum CodeTypeEnum {
     Barcode,
     Mrz,
     QrCode,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct UpdateCredentialSchemaRequest {
+    pub id: CredentialSchemaId,
+    pub revocation_method: Option<RevocationMethod>,
+    pub format: Option<String>,
+    pub claim_schemas: Option<Vec<CredentialSchemaClaim>>,
 }

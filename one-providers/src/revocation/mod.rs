@@ -7,17 +7,13 @@
 //! This module provides tools for changing the suspension or revocation status of a
 //! credential and for retrieving the validity status of a credential.
 
-use crate::{
-    common_models::{credential::Credential, did::DidValue},
-    credential_formatter::model::CredentialStatus,
-    revocation::{
-        error::RevocationError,
-        model::{
-            CredentialAdditionalData, CredentialDataByRole, CredentialRevocationInfo,
-            CredentialRevocationState, JsonLdContext, RevocationMethodCapabilities,
-            RevocationUpdate,
-        },
-    },
+use crate::common_models::credential::Credential;
+use crate::common_models::did::DidValue;
+use crate::credential_formatter::model::CredentialStatus;
+use crate::revocation::error::RevocationError;
+use crate::revocation::model::{
+    CredentialAdditionalData, CredentialDataByRole, CredentialRevocationInfo,
+    CredentialRevocationState, JsonLdContext, RevocationMethodCapabilities, RevocationUpdate,
 };
 
 pub mod error;

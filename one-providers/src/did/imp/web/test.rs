@@ -8,13 +8,11 @@ use wiremock::{
 };
 
 use crate::{
+    common_dto::{PublicKeyJwkDTO, PublicKeyJwkEllipticDataDTO, PublicKeyJwkRsaDataDTO},
     common_models::did::{DidId, DidValue},
     did::{
         error::DidMethodError,
-        imp::{
-            dto::{PublicKeyJwkDTO, PublicKeyJwkEllipticDataDTO, PublicKeyJwkRsaDataDTO},
-            web::{did_value_to_url, fetch_did_web_document, Params, WebDidMethod},
-        },
+        imp::web::{did_value_to_url, fetch_did_web_document, Params, WebDidMethod},
         keys::{Keys, MinMax},
         model::AmountOfKeys,
         DidMethod,

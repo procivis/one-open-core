@@ -8,7 +8,7 @@ use crate::common_models::{
     macros::{impl_display, impl_from, impl_into},
 };
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct DidId(Uuid);
 impl_display!(DidId);
 impl_from!(DidId; uuid::Uuid);
@@ -43,7 +43,8 @@ pub struct Did {
     pub keys: Option<Vec<RelatedKey>>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum DidType {
     Remote,
     Local,

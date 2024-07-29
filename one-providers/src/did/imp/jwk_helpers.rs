@@ -1,13 +1,11 @@
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 
 use crate::{
+    common_dto::PublicKeyJwkDTO,
     common_models::did::DidValue,
     did::{
         error::DidMethodError,
-        imp::{
-            common::{jwk_context, jwk_verification_method, ENC, SIG},
-            dto::PublicKeyJwkDTO,
-        },
+        imp::common::{jwk_context, jwk_verification_method, ENC, SIG},
         model::DidDocument,
     },
 };

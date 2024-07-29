@@ -1,13 +1,14 @@
 use crate::{
+    common_dto::{
+        PublicKeyJwkDTO, PublicKeyJwkEllipticDataDTO, PublicKeyJwkMlweDataDTO,
+        PublicKeyJwkOctDataDTO, PublicKeyJwkRsaDataDTO,
+    },
     common_models::{
         PublicKeyJwk, PublicKeyJwkEllipticData, PublicKeyJwkMlweData, PublicKeyJwkOctData,
         PublicKeyJwkRsaData,
     },
     did::{
-        imp::dto::{
-            DidDocumentDTO, DidVerificationMethodDTO, PublicKeyJwkDTO, PublicKeyJwkEllipticDataDTO,
-            PublicKeyJwkMlweDataDTO, PublicKeyJwkOctDataDTO, PublicKeyJwkRsaDataDTO,
-        },
+        imp::dto::{DidDocumentDTO, DidVerificationMethodDTO},
         model::{DidDocument, DidVerificationMethod},
     },
 };

@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
@@ -6,7 +7,7 @@ use super::{
     organisation::Organisation,
 };
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct KeyId(Uuid);
 impl_display!(KeyId);
 impl_from!(KeyId; Uuid);

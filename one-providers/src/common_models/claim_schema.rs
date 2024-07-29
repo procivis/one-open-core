@@ -1,9 +1,10 @@
+use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::common_models::macros::{impl_display, impl_from, impl_into};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, Serialize, Deserialize, PartialEq, Hash)]
 pub struct ClaimSchemaId(Uuid);
 impl_display!(ClaimSchemaId);
 impl_from!(ClaimSchemaId; Uuid);
