@@ -35,6 +35,8 @@ These libraries are combined here for simplicity of use.
 
 ## Supported technologies
 
+Additional information and documentation about the supported technologies and methods can be found in our general [Procivis One documentation](https://docs.procivis.ch/).
+
 | Credential formats | Revocation methods | DID methods                | Exchange protocols                       | Key signing algorithms               | Key storage       |
 | ------------------ | ------------------ | -------------------------- | ---------------------------------------- | ------------------------------------ | ----------------- |
 | JSON-LD            | LVVC               | did:web                    | OpenID4VCI (draft 12)                    | ECDSA                                | Azure Key Vault   |
