@@ -4,7 +4,7 @@ use zeroize::Zeroizing;
 use hex_literal::hex;
 
 fn main() {
-    let core = OneOpenCore::new();
+    let core = OneOpenCore::new(None).unwrap();
 
     let key_pair = core
         .signature_service
