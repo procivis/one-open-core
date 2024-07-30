@@ -1,5 +1,5 @@
-![Procivis](docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)
-![Procivis](docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)
+[![Procivis](docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)](https://www.procivis.ch)
+[![Procivis](docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)](https://www.procivis.ch)
 
 The Procivis One Open Core is a high-performance Rust library for decentralized
 digital identities and credentials.
@@ -37,12 +37,27 @@ These libraries are combined here for simplicity of use.
 
 Additional information and documentation about the supported technologies and methods can be found in our general [Procivis One documentation](https://docs.procivis.ch/).
 
-| Credential formats | Revocation methods | DID methods                | Exchange protocols                       | Key signing algorithms               | Key storage       |
-| ------------------ | ------------------ | -------------------------- | ---------------------------------------- | ------------------------------------ | ----------------- |
-| JSON-LD            | LVVC               | did:web                    | OpenID4VCI (draft 12)                    | ECDSA                                | Azure Key Vault   |
-| JWT                | Status list        | did:key                    | OpenID4VCP (draft 20)                    | EdDSA                                | Internal database |
-|                    |                    | did:jwk                    |                                          | BBS+                                 |                   |
-|                    |                    | [+ Universal DID resolver] |                                          | Dilithium 3 (FIPS 204: post-quantum) |                   |
+| Credential formats | Revocation methods | DID methods                | Exchange protocols                       | Key signing algorithms                      | Key storage                 |
+| ------------------ | ------------------ | -------------------------- | ---------------------------------------- | ------------------------------------------- | --------------------------- |
+| [JSON-LD][jld]     | [LVVC][lvvc]       | [did:web][dw]              | [OpenID4VCI (draft 12)][vci]             | [ECDSA][ecd]                                | [Azure Key Vault][akv]      |
+| [JWT][jw]          | [Status list][sl]  | [did:key][dk]              | [OpenID4VCP (draft 20)][vp]              | [EdDSA][edd]                                | Internal encrypted database |
+|                    |                    | [did:jwk][djw]             |                                          | [BBS+][bbs]                                 |                             |
+|                    |                    | [+ Universal DID resolver] |                                          | [Dilithium 3 (FIPS 204: post-quantum)][dil] |                             |
+
+[akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
+[bbs]: https://w3c.github.io/vc-di-bbs/
+[dil]: https://csrc.nist.gov/pubs/fips/204/ipd
+[djw]: https://github.com/quartzjer/did-jwk/blob/main/spec.md
+[dk]: https://w3c-ccg.github.io/did-method-key/
+[dw]: https://w3c-ccg.github.io/did-method-web/
+[ecd]: https://www.rfc-editor.org/rfc/rfc7518#section-3.4
+[edd]: https://www.w3.org/TR/vc-di-eddsa/
+[jld]: https://www.w3.org/TR/json-ld11/
+[jw]: https://www.w3.org/TR/2023/WD-vc-jwt-20230427/
+[lvvc]: https://eprint.iacr.org/2022/1658.pdf
+[sl]: https://w3c.github.io/vc-bitstring-status-list/
+[vci]: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-12.html
+[vp]: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html
 
 The **Procivis One Core** allows the mixing and matching of different technologies (where
 technically possible) and handles the complexity so that issuance and verification
