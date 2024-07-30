@@ -52,8 +52,9 @@ pub trait DidMethod: Send + Sync {
 
     #[doc = include_str!("../../../docs/capabilities.md")]
     ///
-    /// DID method capabilities include reports such as which operations (resolve, create,
-    /// deactivate, etc.) and which key algorithms are supported by the DID method.
+    /// See the [API docs][dmc] for a complete list of credential format capabilities.
+    ///
+    /// [dmc]: https://docs.procivis.ch/api/resources/dids#did-method-capabilities
     fn get_capabilities(&self) -> DidCapabilities;
 
     /// Validates whether the number of keys assigned is supported by the DID method.

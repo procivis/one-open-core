@@ -106,10 +106,8 @@ pub trait CredentialFormatter: Send + Sync {
 
     #[doc = include_str!("../../../docs/capabilities.md")]
     ///
-    /// Credential format capabilities include reports such as:
-    /// - Whether the format supports selective disclosure
-    /// - Which signing algorithms are supported
-    /// - Which DID methods are supported
-    /// - Which revocation methods are supported
+    /// See the [API docs][cfc] for a complete list of credential format capabilities.
+    ///
+    /// [cfc]: https://docs.procivis.ch/api/resources/credential_schemas#credential-format-capabilities
     fn get_capabilities(&self) -> model::FormatterCapabilities;
 }

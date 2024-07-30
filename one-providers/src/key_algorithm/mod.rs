@@ -41,9 +41,7 @@ pub trait KeyAlgorithm: Send + Sync {
     /// Converts JWK to key bytes.
     fn jwk_to_bytes(&self, jwk: &PublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError>;
 
-    /// Converts a private key to JWK.
-    ///
-    /// **Use carefully.**
+    /// Converts a private key to JWK. **Use carefully.**
     ///
     /// This can be useful for certain APIs that require JWK. Not supported by all
     /// storage methods.

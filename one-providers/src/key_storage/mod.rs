@@ -39,7 +39,8 @@ pub trait KeyStorage: Send + Sync {
 
     #[doc = include_str!("../../../docs/capabilities.md")]
     ///
-    /// Key storage capabilities include reports such as which key algorithms are supported
-    /// by different key storage types and whether keys can be exported or backed up.
+    /// See the [API docs][ksc] for a complete list of credential format capabilities.
+    ///
+    /// [ksc]: https://docs.procivis.ch/api/resources/keys#key-storage-capabilities
     fn get_capabilities(&self) -> model::KeyStorageCapabilities;
 }

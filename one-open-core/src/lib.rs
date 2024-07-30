@@ -23,25 +23,62 @@
 //!
 //! ## Usage
 //!
-//! The library consists of two crates: the **Core** and the **Providers**.
+//! The library consists of two crates:
+//!
+//! - **Core**: A few developer APIs for orchestrating the providers.
+//! - **Providers**: Implementations of the complete range of functionality. Most projects will
+//! use the providers, even if they take advantage of the services of the Core.
 //!
 //! ### Core
 //!
 //! The **Core** provides developer APIs for simple and easy-to-use functionalities
-//! of the library and its supported technologies, without extension. Most developers
-//! will use the Core as it provides the simplest access to all library functions with
+//! of the library and its supported technologies, without extension. As an orchestration
+//! layer, it provides the simplest access to related functions with
 //! the least amount of effort. Use the provided [services][serv] to get started.
 //! Additional services will be added.
 //!
 //! - [Signature service][ss] for signing and verifying credentals.
-//!
 //! - [DID resolver service][dresolv] for resolving DIDs.
+//!
+//! To get started, initialize the core:
+//!
+//! ```rust
+//! /// `None` initializes the Core with the default configuration
+//! let core = OneOpenCore::new(None).unwrap();
+//! ```
+//!
+//! Then start using the services, e.g.:
+//! ```rust
+//! let key_pair = core
+//!     .signature_service
+//!     .get_key_pair(&KeyAlgorithmType::Es256)
+//!     .expect("Key pair creation failed");
+//! ```
+//!
+//! #### Examples
+//!
+//! Some examples of using the **Core** are provided in the **/examples** directory of
+//! the [repository][repo]. More examples will be added in the future. Examples include
+//!
+//! - `examples/signature_example`: Signing and verifying via the signature service
+//! - `examples/did_resolution_example`: Resolving DIDs via the DID service or using the
+//! implementations directly
 //!
 //! ### Providers
 //!
-//! For extending the library, the **Providers** include traits and implementations
-//! separated into logical modules. Additional functionalities (e.g. the addition of
-//! a new key algorithm, or a new DID method) can be extended via the [providers][prov].
+//! The **Providers** contain the actual implementations of technologies. This includes all
+//! elements of issuing, holding and verifying credentials.
+//!
+//! - Credential format provider: implements credential formats, including seralizing and parsing of credentials.
+//! - DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating.
+//! - Key algorithm provider: implements cryptographic key pair generation and key representations.
+//! - Key storage provider: implements storage of cryptographic keys and the creation of digital signatures.
+//! - Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
+//! checking the revocation/suspension status for holders and verifiers.
+//!
+//! This is where all the functions to issue, hold verify come from. These providers
+//! are described further in the relevant [doc][prov]. The library can be extended
+//! by adding new implementations in the relevant provider.
 //!
 //! ## Documentation
 //!
@@ -52,21 +89,9 @@
 //! site. This includes:
 //!
 //! - The complete list of **Procivis One** supported technologies
-//!
 //! - Trial access to the full solution
-//!
 //! - APIs and SDK documentation
-//!
 //! - Conceptual topics
-//!
-//! ## Examples
-//!
-//! Several examples of using the **Core** are provided in the **/examples** directory of
-//! the [repository][repo]. More examples will be added in the future. Examples include
-//!
-//! - Signing and verifying via the signature service
-//!
-//! - Resolving a DID via the DID service
 //!
 //! [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
 //! [bbs]: https://w3c.github.io/vc-di-bbs/

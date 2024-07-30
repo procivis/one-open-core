@@ -1,3 +1,5 @@
+//! Enumerates errors for credential formatter provider.
+
 use jsonptr::MalformedPointerError;
 use thiserror::Error;
 

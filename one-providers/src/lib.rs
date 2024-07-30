@@ -1,11 +1,33 @@
-//! Traits and implementations for integrating SSI functionality into projects.
+//! Implementations of functionality and traits for interfaces.
 //!
 //! Where the [Core][cor] provides developer APIs for quick implementations
-//! of supported functionalities through [services][serv], the providers contain
-//! logically divided modules of traits to allow for the possibility of extending
-//! functionality.
+//! of supported functionalities through [services][serv], the providers
+//! implement the actual functioning (i.e. generating key pairs, signing,
+//! verifying, exchanging credentials, etc.).
 //!
-//! Each provider is contained within a module below.
+//! ## Provider structure
+//!
+//! Each provider is contained within a module below and structured in a
+//! similar pattern, each containing some subset of:
+//!
+//! - `imp`: Implements the functionality. Within this directory, each
+//! technology (e.g. each credential format, each key algorithm, each
+//! DID method) is implemented within its own directory.
+//! - `error`: Enumerates errors of the provider.
+//! - `mod`: Provides the traits used in the implementation.
+//! - `model`: `struct`s and `enum`s of the provider.
+//! - `provider`: The provider implementation.
+//!
+//! Some providers may include additional elements of implementation.
+//!
+//! There are additional modules in the **Providers** crate containing,
+//! for example, shared resources such as DTOs as well as utilities such
+//! as bitstring list handling and key verification of DIDs.
+//!
+//! ## Extension
+//!
+//! The library can be extended by adding additional implementations in the
+//! relevant provider.
 //!
 //! [cor]: ..//one_open_core/index.html
 //! [serv]: ..//one_open_core/service/index.html
