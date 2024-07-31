@@ -1,5 +1,5 @@
-![Procivis](docs/assets/Open_One_Core_light.png#gh-light-mode-only)
-![Procivis](docs/assets/Open_One_Core_dark.png#gh-dark-mode-only)
+![Procivis](docs/assets/logo_light_mode_Open One Core.svg#gh-light-mode-only)
+![Procivis](docs/assets/logo_dark_mode_Open_One_Core.svg#gh-dark-mode-only)
 
 # Procivis One Core
 
@@ -195,7 +195,7 @@ See the [Procivis One documentation](https://docs.procivis.ch/) for:
 Some rights reserved. This library is published under the  [Apache License
 Version 2.0](./LICENSE).
 
-![Procivis AG](docs/assets/logo_light_Procivis@2x.png#gh-light-mode-only)
-![Procivis AG](docs/assets/logo_dark_Procivis@2x.png#gh-dark-mode-only)
+![Procivis AG](docs/assets/logo_light_mode_Procivis.svg#gh-light-mode-only)
+![Procivis AG](docs/assets/logo_dark_mode_Procivis.svg#gh-dark-mode-only)
 
 © Procivis AG, https://www.procivis.ch.
