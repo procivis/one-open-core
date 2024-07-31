@@ -1,3 +1,5 @@
+//! SD-JWT implementation.
+//
 // https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-05.html
 
 use std::sync::Arc;

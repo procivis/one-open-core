@@ -67,7 +67,7 @@ Additional information and documentation about the supported technologies and me
 | ------------------ | ------------------ | -------------------------- | ---------------------------------------- | ------------------------------------------- | --------------------------- |
 | [JSON-LD][jld]     | [LVVC][lvvc]       | [did:web][dw]              | [OpenID4VCI (draft 12)][vci]             | [ECDSA][ecd]                                | [Azure Key Vault][akv]      |
 | [JWT][jw]          | [Status list][sl]  | [did:key][dk]              | [OpenID4VCP (draft 20)][vp]              | [EdDSA][edd]                                | Internal encrypted database |
-|                    |                    | [did:jwk][djw]             |                                          | [BBS+][bbs]                                 |                             |
+| [SD-JWT][sdjwt]    |                    | [did:jwk][djw]             |                                          | [BBS+][bbs]                                 |                             |
 |                    |                    | [+ Universal DID resolver] |                                          | [Dilithium 3 (FIPS 204: post-quantum)][dil] |                             |
 
 [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
@@ -81,6 +81,7 @@ Additional information and documentation about the supported technologies and me
 [jld]: https://www.w3.org/TR/json-ld11/
 [jw]: https://www.w3.org/TR/2023/WD-vc-jwt-20230427/
 [lvvc]: https://eprint.iacr.org/2022/1658.pdf
+[sdjwt]: https://www.ietf.org/archive/id/draft-terbu-oauth-sd-jwt-vc-00.html
 [sl]: https://w3c.github.io/vc-bitstring-status-list/
 [vci]: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-12.html
 [vp]: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html
