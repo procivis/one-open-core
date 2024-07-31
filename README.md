@@ -1,9 +1,9 @@
-[![Procivis](docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)](https://www.procivis.ch)
-[![Procivis](docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)](https://www.procivis.ch)
+[![Procivis](docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)]
+[![Procivis](docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)]
 
-The Procivis One Open Core is a high-performance Rust library for decentralized
-digital identities and credentials. Use it to issue, hold and verify digital
-identities and credentials on almost any device.
+The [Procivis](https://www.procivis.ch/) One Open Core is a high-performance
+Rust library for decentralized digital identities and credentials. Use it to
+issue, hold and verify digital identities and credentials on almost any device.
 
 ## Project affiliation
 
