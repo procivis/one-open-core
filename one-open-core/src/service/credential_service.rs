@@ -1,3 +1,11 @@
+//! A service for issuing credentials, creating and signing presentations as a holder,
+//! and parsing and verifying credentials as a verifier.
+//!
+//! See the **/examples** directory in the [repository][repo] for an
+//! example implementation.
+//!
+//! [repo]: https://github.com/procivis/one-open-core
+
 use std::sync::Arc;
 
 use one_providers::{

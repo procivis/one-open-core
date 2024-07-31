@@ -1,3 +1,5 @@
+//! Enumerates errors for services.
+
 use one_providers::{
     credential_formatter::error::FormatterError,
     crypto::{CryptoProviderError, SignerError},

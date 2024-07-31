@@ -119,6 +119,7 @@ of the library and its supported technologies, without extension. As an orchestr
 layer, it provides the simplest access to related functions with the least amount of
 effort. Services currently available:
 
+* [Credential service](https://docs.procivis-one.com//one_open_core/service/credential_service/struct.CredentialService.html)
 - [Signature service](https://docs.procivis-one.com//one_open_core/service/signature_service/struct.SignatureService.html)
 - [DID resolver service](https://docs.procivis-one.com///one_open_core/service/did_service/struct.DidService.html)
 
@@ -143,8 +144,9 @@ let key_pair = core
 Some examples of using the **Core** are provided in the **/examples** directory of the repository.
 More examples will be added in the future. Examples include:
 
-- [Signing and verifying](https://github.com/procivis/one-open-core/blob/main/examples/signature_example/src/main.rs): Signing and verifying via the signature service
-- [DID Resolution](https://github.com/procivis/one-open-core/blob/main/examples/did_resolution_example/src/main.rs): Resolving DIDs via the DID service or using the implementations directly
+* [Signing for issuing, presenting and verifying](https://github.com/procivis/one-open-core/blob/main/examples/credential_example/src/main.rs)
+* [Signing and verifying](https://github.com/procivis/one-open-core/blob/main/examples/signature_example/src/main.rs): Signing and verifying via the signature service
+* [DID Resolution](https://github.com/procivis/one-open-core/blob/main/examples/did_resolution_example/src/main.rs): Resolving DIDs via the DID service or using the implementations directly
 
 The services return provider implementations, covered next.
 

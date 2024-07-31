@@ -37,8 +37,9 @@
 //! the least amount of effort. Use the provided [services][serv] to get started.
 //! Additional services will be added.
 //!
-//! - [Signature service][ss] for signing and verifying credentals.
-//! - [DID resolver service][dresolv] for resolving DIDs.
+//! - [Credentials service][cs] for issuing, presenting as a holder, and verifying credentials
+//! - [Signature service][ss] for signing and verifying credentals
+//! - [DID resolver service][dresolv] for resolving DIDs
 //!
 //! To get started, initialize the core:
 //!
@@ -60,6 +61,7 @@
 //! Some examples of using the **Core** are provided in the **/examples** directory of
 //! the [repository][repo]. More examples will be added in the future. Examples include:
 //!
+//! - `examples/signature_example`: Issuing, presenting as a holder, and verifying a credential via the credentials service
 //! - `examples/signature_example`: Signing and verifying via the signature service
 //! - `examples/did_resolution_example`: Resolving DIDs via the DID service or using the
 //! implementations directly
@@ -94,6 +96,7 @@
 //!
 //! [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
 //! [bbs]: https://w3c.github.io/vc-di-bbs/
+//! [cs]: ..//one_open_core/service/credential_service/struct.CredentialService.html
 //! [di]: https://w3c-ccg.github.io/did-primer/
 //! [dil]: https://csrc.nist.gov/pubs/fips/204/ipd
 //! [djw]: https://github.com/quartzjer/did-jwk/blob/main/spec.md
