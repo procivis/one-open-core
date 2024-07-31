@@ -38,26 +38,26 @@ The Procivis One Core was developed with funding from the U.S. Department of
 Homeland Security's (DHS) Silicon Valley Innovation Program (SVIP). The Core consists
 of two open-source libraries (OSL) for Issuers, Digital Wallets, and Verifiers:
 
-- OSL (A): Cryptographic Tools SDK
-  - Credential format provider
-  - Signature provider
-  - Key storage provider
-  - Revocation provider
-  - Exchange protocol provider
-- OSL (C): Metadata Management SDK
-  - DID method provider
+* OSL (A): Cryptographic Tools SDK
+  * Credential format provider
+  * Signature provider
+  * Key storage provider
+  * Revocation provider
+  * Exchange protocol provider
+* OSL (C): Metadata Management SDK
+  * DID method provider
 
 These libraries are combined here for simplicity of use.
 
 ## Features
 
-- Issue, hold and verify digital credentials in different formats
-- Generate new key pairs with different algorithms, create and verify signatures
-- Perform operations of multiple DID methods
-- Store keys in Azure Key Vault or an encrypted internal database
-- Issue credentials with different revocation methods; discover the status of credentials
-- Seamless operation from end-to-end regardless of which technologies are employed
-- Install and operate almost anywhere
+* Issue, hold and verify digital credentials in different formats
+* Generate new key pairs with different algorithms, create and verify signatures
+* Perform operations of multiple DID methods
+* Store keys in Azure Key Vault or an encrypted internal database
+* Issue credentials with different revocation methods; discover the status of credentials
+* Seamless operation from end-to-end regardless of which technologies are employed
+* Install and operate almost anywhere
 
 ## Supported technologies
 
@@ -120,8 +120,8 @@ layer, it provides the simplest access to related functions with the least amoun
 effort. Services currently available:
 
 * [Credential service](https://docs.procivis-one.com//one_open_core/service/credential_service/struct.CredentialService.html)
-- [Signature service](https://docs.procivis-one.com//one_open_core/service/signature_service/struct.SignatureService.html)
-- [DID resolver service](https://docs.procivis-one.com///one_open_core/service/did_service/struct.DidService.html)
+* [Signature service](https://docs.procivis-one.com//one_open_core/service/signature_service/struct.SignatureService.html)
+* [DID resolver service](https://docs.procivis-one.com///one_open_core/service/did_service/struct.DidService.html)
 
 To get started, initialize the core:
 
@@ -144,7 +144,8 @@ let key_pair = core
 Some examples of using the **Core** are provided in the **/examples** directory of the repository.
 More examples will be added in the future. Examples include:
 
-* [Signing for issuing, presenting and verifying](https://github.com/procivis/one-open-core/blob/main/examples/credential_example/src/main.rs)
+* [Signing for issuing, presenting and verifying](https://github.com/procivis/one-open-core/blob/main/examples/credential_example/src/main.rs): Signing
+for issuance, signing for a presentation, and verifying a credential, via the credential service
 * [Signing and verifying](https://github.com/procivis/one-open-core/blob/main/examples/signature_example/src/main.rs): Signing and verifying via the signature service
 * [DID Resolution](https://github.com/procivis/one-open-core/blob/main/examples/did_resolution_example/src/main.rs): Resolving DIDs via the DID service or using the implementations directly
 
@@ -154,11 +155,11 @@ The services return provider implementations, covered next.
 
 The **Providers** contain the actual implementations of technologies.
 
-- Credential format provider: implements credential formats, including seralizing and parsing of credentials
-- DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating
-- Key algorithm provider: implements cryptographic key pair generation and key representations
-- Key storage provider: implements storage of cryptographic keys and the creation of digital signatures
-- Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
+* Credential format provider: implements credential formats, including seralizing and parsing of credentials
+* DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating
+* Key algorithm provider: implements cryptographic key pair generation and key representations
+* Key storage provider: implements storage of cryptographic keys and the creation of digital signatures
+* Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
 checking the revocation/suspension status for holders and verifiers
 
 The library can be extended (e.g. with a new DID method or key signing algorithm) by adding
@@ -166,12 +167,12 @@ additional implementations in the relevant provider.
 
 Each provider is structured in a similar pattern, each containing some subset of:
 
-- `imp`: Implements the functionality. Within this directory, each technology (e.g. each credential format,
+* `imp`: Implements the functionality. Within this directory, each technology (e.g. each credential format,
 each key algorithm, each DID method) is implemented within its own directory.
-- `error`: Enumerates errors of the provider.
-- `mod`: Provides the traits used in the implementation.
-- `model`: `struct`s and `enum`s of the provider.
-- `provider`: The provider implementation.
+* `error`: Enumerates errors of the provider.
+* `mod`: Provides the traits used in the implementation.
+* `model`: `struct`s and `enum`s of the provider.
+* `provider`: The provider implementation.
 
 Some providers may include additional elements of implementation.
 
@@ -187,10 +188,10 @@ modules, and traits.
 
 See the [Procivis One documentation](https://docs.procivis.ch/) for:
 
-- The complete list of **Procivis One** [supported technologies](https://docs.procivis.ch/product/supported_tech)
-- [Trial access](https://docs.procivis.ch/trial/intro) to the full solution
-- [APIs](https://docs.procivis.ch/guides/api/overview) and [SDK](https://docs.procivis.ch/sdk/overview) documentation
-- Conceptual topics
+* The complete list of **Procivis One** [supported technologies](https://docs.procivis.ch/product/supported_tech)
+* [Trial access](https://docs.procivis.ch/trial/intro) to the full solution
+* [APIs](https://docs.procivis.ch/guides/api/overview) and [SDK](https://docs.procivis.ch/sdk/overview) documentation
+* Conceptual topics
 
 ## License
 
