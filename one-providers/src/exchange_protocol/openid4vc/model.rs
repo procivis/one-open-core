@@ -568,7 +568,7 @@ pub struct ShareResponse<T> {
     pub context: T,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct SubmitIssuerResponse {
     pub credential: String,
     pub format: String,
