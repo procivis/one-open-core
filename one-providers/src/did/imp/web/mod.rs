@@ -1,3 +1,5 @@
+//! Implementation of did:web.
+
 use async_trait::async_trait;
 use url::Url;
 

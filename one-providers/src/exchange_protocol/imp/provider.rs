@@ -1,3 +1,5 @@
+//! Exchange protocol provider.
+
 use std::collections::HashMap;
 use std::sync::Arc;
 

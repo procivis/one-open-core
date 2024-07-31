@@ -1,3 +1,5 @@
+//! Methods for signing and verifying credentials, as well as `struct`s and `enum`s.
+
 use std::{
     collections::HashMap,
     fmt::{Display, Formatter},
@@ -15,6 +17,7 @@ use crate::{common_models::did::DidValue, crypto::SignerError};
 pub type AuthenticationFn = Box<dyn SignatureProvider>;
 pub type VerificationFn = Box<dyn TokenVerifier>;
 
+/// Method for verifying credential.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
 pub trait TokenVerifier: Send + Sync {
@@ -28,6 +31,7 @@ pub trait TokenVerifier: Send + Sync {
     ) -> Result<(), SignerError>;
 }
 
+/// Method for signing credential with private key without exposing it.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
 pub trait SignatureProvider: Send + Sync {

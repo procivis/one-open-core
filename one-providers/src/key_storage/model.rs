@@ -1,3 +1,5 @@
+//! `struct`s and `enum`s for key storage provider.
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum KeySecurity {
     Hardware,

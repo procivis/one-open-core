@@ -1,3 +1,5 @@
+//! Implementation of DID method provider.
+
 pub mod common;
 pub mod jwk;
 pub mod jwk_helpers;

@@ -1,3 +1,5 @@
+//! Exchange protocol provider.
+
 use std::sync::Arc;
 
 use url::Url;

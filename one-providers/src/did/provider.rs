@@ -1,3 +1,5 @@
+//! DID method provider.
+
 use std::sync::Arc;
 
 use crate::{

@@ -1,3 +1,5 @@
+//! Bitstring Status List implementation.
+
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{

@@ -1,3 +1,5 @@
+//! LVVC implementation.
+
 use std::{collections::HashMap, ops::Sub, sync::Arc};
 
 use serde::{Deserialize, Serialize};

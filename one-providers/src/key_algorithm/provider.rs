@@ -1,3 +1,5 @@
+//! Key algorithm provider.
+
 use std::sync::Arc;
 
 use super::{error::KeyAlgorithmProviderError, model::ParsedPublicKeyJwk, KeyAlgorithm};

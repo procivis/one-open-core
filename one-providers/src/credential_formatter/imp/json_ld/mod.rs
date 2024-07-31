@@ -1,3 +1,5 @@
+//! Implementation of JSON-LD credential format.
+
 use std::collections::HashMap;
 
 use convert_case::{Case, Casing};

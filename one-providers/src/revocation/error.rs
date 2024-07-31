@@ -1,3 +1,5 @@
+//! Enumerates errors related to revocation method provider.
+
 use thiserror::Error;
 
 use crate::{

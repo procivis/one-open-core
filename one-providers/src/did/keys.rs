@@ -1,3 +1,5 @@
+//! Implementation of keys validation of DIDs.
+
 use crate::did::model::AmountOfKeys;
 
 #[derive(Debug, Clone)]

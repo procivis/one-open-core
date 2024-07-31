@@ -1,3 +1,5 @@
+//! Enumerates errors related to the key algorithm provider.
+
 use thiserror::Error;
 
 use crate::crypto::SignerError;

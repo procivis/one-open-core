@@ -1,3 +1,5 @@
+//! Implementation of JSON-LD credential format with BBS+ signatures, allowing for selective disclosure.
+
 use std::{sync::Arc, vec};
 
 use async_trait::async_trait;

@@ -1,3 +1,5 @@
+//! Key storage provider.
+
 use std::sync::Arc;
 
 use super::{error::KeyStorageProviderError, imp::provider::SignatureProviderImpl, KeyStorage};

@@ -1,3 +1,5 @@
+//! Implementation of DID Universal Resolver.
+
 use async_trait::async_trait;
 use serde::Deserialize;
 

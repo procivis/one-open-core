@@ -1,3 +1,5 @@
+//! `struct`s and `enum`s for revocation method provider.
+
 use serde::Serialize;
 use strum::Display;
 use time::OffsetDateTime;

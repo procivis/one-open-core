@@ -1,3 +1,5 @@
+//! Internal encrypted database implementation.
+
 use std::sync::Arc;
 
 use cocoon::MiniCocoon;

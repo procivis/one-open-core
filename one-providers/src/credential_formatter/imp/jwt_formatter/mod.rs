@@ -1,3 +1,5 @@
+//! Implementations for JWT credential format.
+
 use async_trait::async_trait;
 use mapper::format_vc;
 use model::{VPContent, VC, VP};

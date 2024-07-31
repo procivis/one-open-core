@@ -1,3 +1,5 @@
+//! Azure Key Vault implementation.
+
 use std::{ops::Add, sync::Arc};
 
 use anyhow::Context;

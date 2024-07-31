@@ -1,3 +1,5 @@
+//! `struct`s and `enum`s for DID method provider.
+
 use crate::common_models::{did::DidValue, PublicKeyJwk};
 
 #[derive(Debug, PartialEq, Eq, Clone)]

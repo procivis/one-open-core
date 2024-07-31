@@ -1,3 +1,5 @@
+//! `struct`s for key algorithm provider.
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ParsedPublicKeyJwk {
     pub public_key_bytes: Vec<u8>,

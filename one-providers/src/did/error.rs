@@ -1,3 +1,5 @@
+//! Enumerates errors related to DID method provider.
+
 use thiserror::Error;
 
 #[derive(Debug, Error)]

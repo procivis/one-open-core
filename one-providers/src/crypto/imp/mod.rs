@@ -1,3 +1,5 @@
+//! Implementation of the Crypto provider, for hashing and signing.
+
 use std::{collections::HashMap, sync::Arc};
 
 use hmac::Hmac;
