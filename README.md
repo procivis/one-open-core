@@ -143,8 +143,8 @@ let key_pair = core
 Some examples of using the **Core** are provided in the **/examples** directory of the repository.
 More examples will be added in the future. Examples include:
 
-- `examples/signature_example`: Signing and verifying via the signature service
-- `examples/did_resolution_example`: Resolving DIDs via the DID service or using the implementations directly
+- [Signing and verifying](https://github.com/procivis/one-open-core/blob/main/examples/signature_example/src/main.rs): Signing and verifying via the signature service
+- [DID Resolution](https://github.com/procivis/one-open-core/blob/main/examples/did_resolution_example/src/main.rs): Resolving DIDs via the DID service or using the implementations directly
 
 The services return provider implementations, covered next.
 
@@ -185,9 +185,9 @@ modules, and traits.
 
 See the [Procivis One documentation](https://docs.procivis.ch/) for:
 
-- The complete list of **Procivis One** supported technologies
-- Trial access to the full solution
-- APIs and SDK documentation
+- The complete list of **Procivis One** [supported technologies](https://docs.procivis.ch/product/supported_tech)
+- [Trial access](https://docs.procivis.ch/trial/intro) to the full solution
+- [APIs](https://docs.procivis.ch/guides/api/overview) and [SDK](https://docs.procivis.ch/sdk/overview) documentation
 - Conceptual topics
 
 ## License
