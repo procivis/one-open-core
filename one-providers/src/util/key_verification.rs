@@ -13,7 +13,7 @@ use crate::{
 };
 
 #[derive(Clone)]
-pub(crate) struct KeyVerification {
+pub struct KeyVerification {
     pub did_method_provider: Arc<dyn DidMethodProvider>,
     pub key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
     pub key_role: KeyRole,

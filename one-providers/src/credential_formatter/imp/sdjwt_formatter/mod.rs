@@ -49,7 +49,7 @@ pub struct SDJWTFormatter {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Params {
-    leeway: u64,
+    pub leeway: u64,
 }
 
 #[async_trait]

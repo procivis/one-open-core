@@ -120,7 +120,17 @@ use std::error::Error;
 use std::{collections::HashMap, default::Default, sync::Arc};
 
 use config::OneCoreConfig;
-use model::KeyAlgorithmType;
+use model::{CredentialFormat, DidMethodType, KeyAlgorithmType, StorageType};
+use one_providers::credential_formatter::imp::json_ld::context::caching_loader::CachingLoader;
+use one_providers::credential_formatter::imp::json_ld::context::storage::in_memory_storage::InMemoryStorage;
+use one_providers::credential_formatter::imp::json_ld_bbsplus::{
+    JsonLdBbsplus, Params as JsonLdParams,
+};
+use one_providers::credential_formatter::imp::jwt_formatter::{JWTFormatter, Params as JWTParams};
+use one_providers::credential_formatter::imp::provider::CredentialFormatterProviderImpl;
+use one_providers::credential_formatter::imp::sdjwt_formatter::{
+    Params as SDJWTParams, SDJWTFormatter,
+};
 use one_providers::{
     crypto::imp::{
         hasher::sha256::SHA256,
@@ -146,7 +156,15 @@ use one_providers::{
         },
         KeyAlgorithm,
     },
+    key_storage::{
+        imp::{
+            internal::{InternalKeyProvider, Params as InternalKeyProviderParams},
+            provider::KeyProviderImpl,
+        },
+        KeyStorage,
+    },
 };
+use service::credential_service::CredentialService;
 use service::{did_service::DidService, signature_service::SignatureService};
 
 pub mod config;
@@ -156,6 +174,7 @@ pub mod service;
 pub struct OneOpenCore {
     pub signature_service: SignatureService,
     pub did_service: DidService,
+    pub credential_service: CredentialService,
 }
 
 impl Default for OneOpenCore {
@@ -202,21 +221,30 @@ impl OneOpenCore {
             crypto_provider.clone(),
         ));
 
+        let key_storages: HashMap<String, Arc<dyn KeyStorage>> = HashMap::from_iter(vec![(
+            StorageType::Internal.to_string(),
+            Arc::new(InternalKeyProvider::new(
+                key_algorithm_provider.clone(),
+                InternalKeyProviderParams { encryption: None },
+            )) as _,
+        )]);
+        let key_storage_provider = Arc::new(KeyProviderImpl::new(key_storages));
+
         // initialize did method provider
         let universal_resolver = Arc::new(UniversalDidMethod::new(UniversalDidMethodParams {
             resolver_url: config.did_method_config.universal_resolver_url,
         }));
         let did_method_provider = Arc::new(DidMethodProviderImpl::new(HashMap::from_iter(vec![
             (
-                "JWK".to_string(),
+                DidMethodType::Jwk.to_string(),
                 Arc::new(JWKDidMethod::new(key_algorithm_provider.clone())) as _,
             ),
             (
-                "KEY".to_string(),
+                DidMethodType::Key.to_string(),
                 Arc::new(KeyDidMethod::new(key_algorithm_provider.clone())) as _,
             ),
             (
-                "WEB".to_string(),
+                DidMethodType::Web.to_string(),
                 Arc::new(WebDidMethod::new(
                     &None,
                     WebDidMethodParams {
@@ -252,13 +280,58 @@ impl OneOpenCore {
             ),
         ])));
 
-        let signature_service = SignatureService::new(crypto_provider, key_algorithm_provider);
+        let caching_loader = CachingLoader {
+            cache_size: 10000,
+            cache_refresh_timeout: time::Duration::seconds(999999),
+            client: Default::default(),
+            json_ld_context_storage: Arc::new(InMemoryStorage::new(HashMap::from([]))),
+        };
 
-        let did_service = DidService::new(did_method_provider, Some(universal_resolver));
+        let credential_formatter_provider = Arc::new(CredentialFormatterProviderImpl::new(
+            HashMap::from_iter(vec![
+                (
+                    CredentialFormat::Jwt.to_string(),
+                    Arc::new(JWTFormatter::new(JWTParams { leeway: 60 })) as _,
+                ),
+                (
+                    CredentialFormat::SdJwt.to_string(),
+                    Arc::new(SDJWTFormatter::new(
+                        SDJWTParams { leeway: 60 },
+                        crypto_provider.clone(),
+                    )) as _,
+                ),
+                (
+                    CredentialFormat::JsonLdBbsPlus.to_string(),
+                    Arc::new(JsonLdBbsplus::new(
+                        JsonLdParams {
+                            leeway: time::Duration::seconds(60),
+                        },
+                        crypto_provider.clone(),
+                        None,
+                        did_method_provider.clone(),
+                        key_algorithm_provider.clone(),
+                        caching_loader.clone(),
+                    )) as _,
+                ),
+            ]),
+        ));
+
+        let signature_service =
+            SignatureService::new(crypto_provider, key_algorithm_provider.clone());
+
+        let did_service = DidService::new(did_method_provider.clone(), Some(universal_resolver));
+
+        let credential_service = CredentialService::new(
+            key_storage_provider.clone(),
+            credential_formatter_provider.clone(),
+            key_algorithm_provider.clone(),
+            did_method_provider.clone(),
+        );
 
         Ok(Self {
             signature_service,
             did_service,
+            credential_service,
         })
     }
 }

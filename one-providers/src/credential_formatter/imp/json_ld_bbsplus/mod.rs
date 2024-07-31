@@ -50,7 +50,7 @@ pub struct JsonLdBbsplus {
 #[serde(rename_all = "camelCase")]
 pub struct Params {
     #[serde_as(as = "DurationSeconds<i64>")]
-    leeway: Duration,
+    pub leeway: Duration,
 }
 
 #[async_trait]

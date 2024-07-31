@@ -29,7 +29,7 @@ pub struct InternalKeyProvider {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Params {
-    encryption: Option<String>,
+    pub encryption: Option<String>,
 }
 
 impl InternalKeyProvider {

@@ -1,4 +1,8 @@
-use one_providers::crypto::{CryptoProviderError, SignerError};
+use one_providers::{
+    credential_formatter::error::FormatterError,
+    crypto::{CryptoProviderError, SignerError},
+    key_storage::error::KeyStorageProviderError,
+};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -13,4 +17,14 @@ pub enum SignatureServiceError {
     CryptoProviderError(#[from] CryptoProviderError),
     #[error("Signer error: `{0}`")]
     SignerError(#[from] SignerError),
+}
+
+#[derive(Debug, Error)]
+pub enum CredentialServiceError {
+    #[error("Missing algorithm `{0}`")]
+    MissingFormat(String),
+    #[error(transparent)]
+    KeyStorageProviderError(#[from] KeyStorageProviderError),
+    #[error(transparent)]
+    FormatterError(#[from] FormatterError),
 }
