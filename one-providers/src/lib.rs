@@ -46,4 +46,6 @@ pub mod util;
 
 pub mod common_mappers;
 
+pub mod caching_loader;
 pub mod exchange_protocol;
+pub mod remote_entity_storage;

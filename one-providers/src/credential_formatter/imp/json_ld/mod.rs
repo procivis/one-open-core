@@ -17,7 +17,7 @@ use crate::{
     common_models::did::DidValue,
     credential_formatter::{
         error::FormatterError,
-        imp::json_ld::context::caching_loader::CachingLoader,
+        imp::json_ld::context::caching_loader::JsonLdCachingLoader,
         model::{Context, CredentialData, PublishedClaim},
     },
 };
@@ -150,7 +150,7 @@ pub fn prepare_credential_subject(
 
 pub async fn canonize_any<T>(
     json_ld: &T,
-    caching_loader: CachingLoader,
+    caching_loader: JsonLdCachingLoader,
 ) -> Result<String, FormatterError>
 where
     T: Serialize,

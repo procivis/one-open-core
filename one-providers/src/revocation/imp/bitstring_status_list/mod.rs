@@ -3,6 +3,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
+    caching_loader::CachingLoader,
     common_models::{
         credential::{Credential, CredentialId, CredentialStateEnum},
         did::{Did, DidId, DidValue, KeyRole},
@@ -32,6 +33,7 @@ use crate::{
 
 mod jwt_formatter;
 pub mod model;
+pub mod resolver;
 
 const CREDENTIAL_STATUS_TYPE: &str = "BitstringStatusListEntry";
 
@@ -40,7 +42,7 @@ pub struct BitstringStatusList {
     pub key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
     pub did_method_provider: Arc<dyn DidMethodProvider>,
     pub key_provider: Arc<dyn KeyProvider>,
-    pub client: reqwest::Client,
+    pub caching_loader: CachingLoader<RevocationError>,
 }
 
 #[async_trait::async_trait]
@@ -167,14 +169,7 @@ impl RevocationMethod for BitstringStatusList {
             .parse()
             .map_err(|_| RevocationError::ValidationError("Invalid list index".to_string()))?;
 
-        let response = self
-            .client
-            .get(list_url)
-            .send()
-            .await?
-            .error_for_status()?
-            .text()
-            .await?;
+        let response = String::from_utf8(self.caching_loader.resolve(list_url).await?)?;
 
         let key_verification = Box::new(KeyVerification {
             key_algorithm_provider: self.key_algorithm_provider.clone(),

@@ -1,40 +1,39 @@
 use std::{collections::HashMap, sync::Arc};
 
+use super::context::caching_loader::JsonLdCachingLoader;
+use crate::remote_entity_storage::in_memory::InMemoryStorage;
+use crate::remote_entity_storage::{RemoteEntity, RemoteEntityType};
 use time::{Duration, OffsetDateTime};
 
-use super::context::{
-    caching_loader::CachingLoader,
-    storage::{in_memory_storage::InMemoryStorage, JsonLdContext},
-};
-
-pub fn prepare_caching_loader() -> CachingLoader {
-    CachingLoader {
-        cache_size: 10000,
-        cache_refresh_timeout: Duration::seconds(999999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(InMemoryStorage::new(HashMap::from([
+pub fn prepare_caching_loader() -> JsonLdCachingLoader {
+    JsonLdCachingLoader::new(
+        10000,
+        Duration::seconds(999999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(InMemoryStorage::new(HashMap::from([
             (
                 "https://www.w3.org/ns/credentials/v2".to_string(),
-                JsonLdContext {
+                RemoteEntity {
                     last_modified: OffsetDateTime::now_utc(),
-                    context: W3_ORG_NS_CREDENTIALS_V2.to_string().into_bytes(),
-                    url: "https://www.w3.org/ns/credentials/v2".parse().unwrap(),
+                    entity_type: RemoteEntityType::JsonLdContext,
+                    key: "https://www.w3.org/ns/credentials/v2".to_string(),
+                    value: W3_ORG_NS_CREDENTIALS_V2.to_string().into_bytes(),
                     hit_counter: 0,
                 },
             ),
             (
                 "https://www.w3.org/ns/credentials/examples/v2".to_string(),
-                JsonLdContext {
+                RemoteEntity {
                     last_modified: OffsetDateTime::now_utc(),
-                    context: W3_ORG_NS_CREDENTIALS_EXAMPLES_V2.to_string().into_bytes(),
-                    url: "https://www.w3.org/ns/credentials/examples/v2"
-                        .parse()
-                        .unwrap(),
+                    entity_type: RemoteEntityType::JsonLdContext,
+                    key: "https://www.w3.org/ns/credentials/examples/v2".to_string(),
+                    value: W3_ORG_NS_CREDENTIALS_EXAMPLES_V2.to_string().into_bytes(),
                     hit_counter: 0,
                 },
             ),
         ]))),
-    }
+    )
 }
 
 const W3_ORG_NS_CREDENTIALS_EXAMPLES_V2: &str = r#"{

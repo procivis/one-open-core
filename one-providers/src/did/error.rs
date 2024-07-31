@@ -1,5 +1,6 @@
 //! Enumerates errors related to DID method provider.
 
+use crate::remote_entity_storage::RemoteEntityStorageError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -18,10 +19,18 @@ pub enum DidMethodError {
 pub enum DidMethodProviderError {
     #[error("Did method error: `{0}`")]
     DidMethod(#[from] DidMethodError),
+    #[error("Failed to resolve did: `{0}`")]
+    FailedToResolve(String),
     #[error("Missing did method name in did value")]
     MissingDidMethodNameInDidValue,
     #[error("Missing did provider: `{0}`")]
     MissingProvider(String),
+
     #[error("Other: `{0}`")]
     Other(String),
+
+    #[error("JSON parse error: `{0}`")]
+    JsonParse(#[from] serde_json::Error),
+    #[error("Remote entity storage error: `{0}`")]
+    RemoteEntityStorage(#[from] RemoteEntityStorageError),
 }

@@ -14,7 +14,7 @@ thiserror     = { workspace = true }
 zeroize       = { workspace = true }
 strum         = { version = "0.26" }
 strum_macros  = { version = "0.26" }
-time          = { version = "0.3", features = ["formatting", "macros", "parsing"] }
+time          = { version = "0.3", features = ["formatting", "macros", "parsing"], workspace = true }
 
 [package.metadata.cargo-machete]
 ignored = ["strum"]

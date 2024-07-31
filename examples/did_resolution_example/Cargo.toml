@@ -1,10 +1,8 @@
-[workspace]
-# A separate workspace
-
 [package]
 name = "did-resolution-example"
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
 
 [dependencies]
 one-open-core = { path = "../../one-open-core" }

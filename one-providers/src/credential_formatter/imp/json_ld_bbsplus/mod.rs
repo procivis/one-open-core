@@ -12,7 +12,7 @@ use crate::{
     common_models::did::DidValue,
     credential_formatter::{
         error::FormatterError,
-        imp::json_ld::context::caching_loader::CachingLoader,
+        imp::json_ld::context::caching_loader::JsonLdCachingLoader,
         model::{
             AuthenticationFn, CredentialData, CredentialPresentation, DetailCredential,
             ExtractPresentationCtx, FormatPresentationCtx, FormatterCapabilities, Presentation,
@@ -41,7 +41,7 @@ pub struct JsonLdBbsplus {
     pub crypto: Arc<dyn CryptoProvider>,
     pub did_method_provider: Arc<dyn DidMethodProvider>,
     pub key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
-    pub caching_loader: CachingLoader,
+    pub caching_loader: JsonLdCachingLoader,
     params: Params,
 }
 
@@ -194,7 +194,7 @@ impl JsonLdBbsplus {
         base_url: Option<String>,
         did_method_provider: Arc<dyn DidMethodProvider>,
         key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
-        caching_loader: CachingLoader,
+        caching_loader: JsonLdCachingLoader,
     ) -> Self {
         Self {
             params,

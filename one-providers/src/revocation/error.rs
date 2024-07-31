@@ -10,6 +10,7 @@ use crate::{
     credential_formatter::error::FormatterError,
     did::error::DidMethodProviderError,
     key_storage::error::KeyStorageProviderError,
+    remote_entity_storage::RemoteEntityStorageError,
     util::bitstring::BitstringError,
 };
 
@@ -40,7 +41,11 @@ pub enum RevocationError {
     FormatterError(#[from] FormatterError),
     #[error("Key storage provider error: `{0}`")]
     KeyStorageProviderError(#[from] KeyStorageProviderError),
+    #[error("Remote entity storage error: `{0}`")]
+    RemoteEntityStorageError(#[from] RemoteEntityStorageError),
 
+    #[error("From UTF-8 error: `{0}`")]
+    FromUtf8Error(#[from] std::string::FromUtf8Error),
     #[error("HTTP request error: `{0}`")]
     HttpRequestError(#[from] reqwest::Error),
     #[error("JSON error: `{0}`")]

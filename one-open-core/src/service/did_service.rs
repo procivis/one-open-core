@@ -14,6 +14,7 @@ use one_providers::{
     },
 };
 
+#[derive(Clone)]
 pub struct DidService {
     pub did_provider: Arc<dyn DidMethodProvider>,
     pub fallback_method: Option<Arc<dyn DidMethod>>,

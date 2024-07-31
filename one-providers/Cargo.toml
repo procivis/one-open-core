@@ -29,7 +29,6 @@ anyhow           = { version = "1.0.86" }
 ct-codecs        = { version = "1.1.1" }
 uuid             = { version = "1.10.0", features = ["v4", "serde"] }
 async-trait      = { version = "0.1.81" }
-time             = { version = "0.3", features = ["formatting", "macros", "parsing"] }
 cocoon           = { version = "0.4" }
 url              = { version = "2.5", features = ["serde"] }
 tokio            = { version = "1.38", features = ["macros"] }
@@ -53,6 +52,8 @@ bit-vec          = { version = "0.8" }
 flate2           = { version = "1.0" }
 serde_urlencoded = { version = "0.7" }
 serde_qs         = { version = "0.13" }
+
+time.workspace = true
 
 [dev-dependencies]
 mockall  = { version = "0.13" }

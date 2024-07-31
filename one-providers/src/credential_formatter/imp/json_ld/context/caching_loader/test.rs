@@ -6,10 +6,8 @@ use wiremock::{
     Match, Mock, MockServer, Request, ResponseTemplate,
 };
 
-use crate::credential_formatter::imp::json_ld::context::{
-    caching_loader::CachingLoader,
-    storage::{JsonLdContext, MockJsonLdContextStorage},
-};
+use crate::credential_formatter::imp::json_ld::context::caching_loader::JsonLdCachingLoader;
+use crate::remote_entity_storage::{MockRemoteEntityStorage, RemoteEntity, RemoteEntityType};
 
 pub fn get_dummy_date() -> OffsetDateTime {
     datetime!(2005-04-02 21:37 +1)
@@ -20,34 +18,31 @@ async fn test_load_context_success_cache_hit() {
     let url = "http://127.0.0.1/context";
     let response_content = "validstring";
 
-    let mut repository = MockJsonLdContextStorage::default();
-    repository
-        .expect_get_json_ld_context_by_url()
-        .return_once(|_| {
-            let now = OffsetDateTime::now_utc();
-            Ok(Some(JsonLdContext {
-                last_modified: now,
-                context: response_content.to_string().into_bytes(),
-                url: url.parse().unwrap(),
-                hit_counter: 0,
-            }))
-        });
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(|_| {
+        let now = OffsetDateTime::now_utc();
+        Ok(Some(RemoteEntity {
+            last_modified: now,
+            entity_type: RemoteEntityType::JsonLdContext,
+            key: url.to_string(),
+            value: response_content.to_string().into_bytes(),
+            hit_counter: 0,
+        }))
+    });
 
-    repository
-        .expect_insert_json_ld_context()
-        .times(1)
-        .return_once(|_| Ok(()));
-    repository
+    storage.expect_insert().times(1).return_once(|_| Ok(()));
+    storage
         .expect_get_storage_size()
         .times(1)
-        .return_once(|| Ok(1usize));
+        .return_once(|_| Ok(1usize));
 
-    let loader = CachingLoader {
-        cache_size: 99999,
-        cache_refresh_timeout: Duration::seconds(99999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(repository),
-    };
+    let loader = JsonLdCachingLoader::new(
+        99999,
+        Duration::seconds(99999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
 
     assert_eq!(response_content, loader.load_context(url).await.unwrap());
 }
@@ -119,26 +114,22 @@ async fn test_load_context_success_cache_miss_external_fetch_occured() {
 
     let url = format!("{}/context", mock_server.uri());
 
-    let mut repository = MockJsonLdContextStorage::default();
-    repository
-        .expect_get_json_ld_context_by_url()
-        .return_once(|_| Ok(None));
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(|_| Ok(None));
 
-    repository
-        .expect_insert_json_ld_context()
-        .times(1)
-        .return_once(|_| Ok(()));
-    repository
+    storage.expect_insert().times(1).return_once(|_| Ok(()));
+    storage
         .expect_get_storage_size()
         .times(1)
-        .return_once(|| Ok(1usize));
+        .return_once(|_| Ok(1usize));
 
-    let loader = CachingLoader {
-        cache_size: 99999,
-        cache_refresh_timeout: Duration::seconds(99999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(repository),
-    };
+    let loader = JsonLdCachingLoader::new(
+        99999,
+        Duration::seconds(99999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
 
     assert_eq!(response_content, loader.load_context(&url).await.unwrap());
 }
@@ -152,29 +143,25 @@ async fn test_load_context_success_cache_miss_overfilled_delete_oldest_entry_cal
 
     let url = format!("{}/context", mock_server.uri());
 
-    let mut repository = MockJsonLdContextStorage::default();
-    repository
-        .expect_get_json_ld_context_by_url()
-        .return_once(|_| Ok(None));
-    repository
-        .expect_insert_json_ld_context()
-        .times(1)
-        .return_once(|_| Ok(()));
-    repository
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(|_| Ok(None));
+    storage.expect_insert().times(1).return_once(|_| Ok(()));
+    storage
         .expect_get_storage_size()
         .times(1)
-        .return_once(|| Ok(2usize));
-    repository
-        .expect_delete_oldest_context()
+        .return_once(|_| Ok(2usize));
+    storage
+        .expect_delete_oldest()
         .times(1)
-        .return_once(|| Ok(()));
+        .return_once(|_| Ok(()));
 
-    let loader = CachingLoader {
-        cache_size: 1,
-        cache_refresh_timeout: Duration::seconds(99999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(repository),
-    };
+    let loader = JsonLdCachingLoader::new(
+        1,
+        Duration::seconds(99999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
 
     assert_eq!(response_content, loader.load_context(&url).await.unwrap());
 }
@@ -190,40 +177,37 @@ async fn test_load_context_success_cache_hit_but_too_old_200() {
     let url = format!("{}/context", mock_server.uri());
 
     let cloned_url = url.clone();
-    let mut storage = MockJsonLdContextStorage::default();
-    storage
-        .expect_get_json_ld_context_by_url()
-        .return_once(move |_| {
-            Ok(Some(JsonLdContext {
-                last_modified: get_dummy_date(),
-                context: old_response_content.to_string().into_bytes(),
-                url: cloned_url.parse().unwrap(),
-                hit_counter: 0,
-            }))
-        });
-    storage
-        .expect_insert_json_ld_context()
-        .times(1)
-        .return_once(|request| {
-            assert_eq!(request.context, response_content.to_string().into_bytes());
-            assert!(request.last_modified > get_dummy_date());
-            Ok(())
-        });
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(move |_| {
+        Ok(Some(RemoteEntity {
+            last_modified: get_dummy_date(),
+            entity_type: RemoteEntityType::JsonLdContext,
+            key: cloned_url,
+            value: old_response_content.to_string().into_bytes(),
+            hit_counter: 0,
+        }))
+    });
+    storage.expect_insert().times(1).return_once(|request| {
+        assert_eq!(request.value, response_content.to_string().into_bytes());
+        assert!(request.last_modified > get_dummy_date());
+        Ok(())
+    });
     storage
         .expect_get_storage_size()
         .times(1)
-        .return_once(|| Ok(2usize));
+        .return_once(|_| Ok(2usize));
     storage
-        .expect_delete_oldest_context()
+        .expect_delete_oldest()
         .times(1)
-        .return_once(|| Ok(()));
+        .return_once(|_| Ok(()));
 
-    let loader = CachingLoader {
-        cache_size: 1,
-        cache_refresh_timeout: Duration::seconds(99999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(storage),
-    };
+    let loader = JsonLdCachingLoader::new(
+        1,
+        Duration::seconds(99999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
 
     assert_eq!(response_content, loader.load_context(&url).await.unwrap());
 }
@@ -238,39 +222,36 @@ async fn test_load_context_success_cache_hit_but_too_old_304_with_last_modified_
     let url = format!("{}/context", mock_server.uri());
 
     let cloned_url = url.clone();
-    let mut storage = MockJsonLdContextStorage::default();
-    storage
-        .expect_get_json_ld_context_by_url()
-        .return_once(move |_| {
-            Ok(Some(JsonLdContext {
-                last_modified: get_dummy_date(),
-                context: response_content.to_string().into_bytes(),
-                url: cloned_url.parse().unwrap(),
-                hit_counter: 0,
-            }))
-        });
-    storage
-        .expect_insert_json_ld_context()
-        .times(1)
-        .return_once(|request| {
-            assert_eq!(request.last_modified, datetime!(2006-04-02 21:37 +1));
-            Ok(())
-        });
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(move |_| {
+        Ok(Some(RemoteEntity {
+            last_modified: get_dummy_date(),
+            value: response_content.to_string().into_bytes(),
+            key: cloned_url,
+            hit_counter: 0,
+            entity_type: RemoteEntityType::JsonLdContext,
+        }))
+    });
+    storage.expect_insert().times(1).return_once(|request| {
+        assert_eq!(request.last_modified, datetime!(2006-04-02 21:37 +1));
+        Ok(())
+    });
     storage
         .expect_get_storage_size()
         .times(1)
-        .return_once(|| Ok(2usize));
+        .return_once(|_| Ok(2usize));
     storage
-        .expect_delete_oldest_context()
+        .expect_delete_oldest()
         .times(1)
-        .return_once(|| Ok(()));
+        .return_once(|_| Ok(()));
 
-    let loader = CachingLoader {
-        cache_size: 1,
-        cache_refresh_timeout: Duration::seconds(99999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(storage),
-    };
+    let loader = JsonLdCachingLoader::new(
+        1,
+        Duration::seconds(99999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
 
     assert_eq!(response_content, loader.load_context(&url).await.unwrap());
 }
@@ -285,20 +266,19 @@ async fn test_load_context_success_cache_hit_but_too_old_304_without_last_modifi
     let url = format!("{}/context", mock_server.uri());
 
     let cloned_url = url.clone();
-    let mut storage = MockJsonLdContextStorage::default();
-    storage
-        .expect_get_json_ld_context_by_url()
-        .return_once(move |_| {
-            Ok(Some(JsonLdContext {
-                last_modified: get_dummy_date(),
-                context: response_content.to_string().into_bytes(),
-                url: cloned_url.parse().unwrap(),
-                hit_counter: 0,
-            }))
-        });
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(move |_| {
+        Ok(Some(RemoteEntity {
+            last_modified: get_dummy_date(),
+            value: response_content.to_string().into_bytes(),
+            key: cloned_url.parse().unwrap(),
+            hit_counter: 0,
+            entity_type: RemoteEntityType::JsonLdContext,
+        }))
+    });
     let now = OffsetDateTime::now_utc();
     storage
-        .expect_insert_json_ld_context()
+        .expect_insert()
         .times(1)
         .return_once(move |request| {
             assert!(request.last_modified > now);
@@ -307,18 +287,92 @@ async fn test_load_context_success_cache_hit_but_too_old_304_without_last_modifi
     storage
         .expect_get_storage_size()
         .times(1)
-        .return_once(|| Ok(2usize));
+        .return_once(|_| Ok(2usize));
     storage
-        .expect_delete_oldest_context()
+        .expect_delete_oldest()
         .times(1)
-        .return_once(|| Ok(()));
+        .return_once(|_| Ok(()));
 
-    let loader = CachingLoader {
-        cache_size: 1,
-        cache_refresh_timeout: Duration::seconds(99999),
-        client: Default::default(),
-        json_ld_context_storage: Arc::new(storage),
-    };
+    let loader = JsonLdCachingLoader::new(
+        1,
+        Duration::seconds(99999),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
 
     assert_eq!(response_content, loader.load_context(&url).await.unwrap());
+}
+
+#[tokio::test]
+async fn test_load_context_success_cache_hit_older_than_refreshafter_younger_than_timeout() {
+    let old_response_content = "old_content";
+
+    let url = "http://127.0.0.2/context";
+
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(move |_| {
+        Ok(Some(RemoteEntity {
+            last_modified: get_dummy_date(),
+            value: old_response_content.to_string().into_bytes(),
+            key: url.to_string(),
+            hit_counter: 0,
+            entity_type: RemoteEntityType::JsonLdContext,
+        }))
+    });
+    storage.expect_insert().times(1).return_once(|request| {
+        assert_eq!(request.value, old_response_content.to_string().into_bytes());
+        assert_eq!(request.hit_counter, 1);
+        Ok(())
+    });
+    storage
+        .expect_get_storage_size()
+        .times(1)
+        .return_once(|_| Ok(2usize));
+    storage
+        .expect_delete_oldest()
+        .times(1)
+        .return_once(|_| Ok(()));
+
+    let refresh_timeout = OffsetDateTime::now_utc() - get_dummy_date() + Duration::seconds(99999);
+    let loader = JsonLdCachingLoader::new(
+        1,
+        refresh_timeout,
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
+
+    assert_eq!(
+        old_response_content,
+        loader.load_context(url).await.unwrap()
+    );
+}
+
+#[tokio::test]
+async fn test_load_context_failed_cache_hit_older_than_refreshafter_and_failed_to_fetch() {
+    let old_response_content = "old_content";
+
+    let url = "http://127.0.0.2/context";
+
+    let mut storage = MockRemoteEntityStorage::default();
+    storage.expect_get_by_key().return_once(move |_| {
+        Ok(Some(RemoteEntity {
+            last_modified: get_dummy_date(),
+            value: old_response_content.to_string().into_bytes(),
+            key: url.to_string(),
+            hit_counter: 0,
+            entity_type: RemoteEntityType::JsonLdContext,
+        }))
+    });
+
+    let loader = JsonLdCachingLoader::new(
+        99999,
+        Duration::seconds(301),
+        Duration::seconds(300),
+        Default::default(),
+        Arc::new(storage),
+    );
+
+    assert!(loader.load_context(url).await.is_err());
 }

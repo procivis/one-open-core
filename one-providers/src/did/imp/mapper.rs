@@ -147,3 +147,34 @@ impl From<DidVerificationMethodDTO> for DidVerificationMethod {
         }
     }
 }
+
+impl From<DidDocument> for DidDocumentDTO {
+    fn from(value: DidDocument) -> Self {
+        Self {
+            context: value.context,
+            id: value.id,
+            verification_method: value
+                .verification_method
+                .into_iter()
+                .map(|v| v.into())
+                .collect(),
+            authentication: value.authentication,
+            assertion_method: value.assertion_method,
+            key_agreement: value.key_agreement,
+            capability_invocation: value.capability_invocation,
+            capability_delegation: value.capability_delegation,
+            rest: value.rest,
+        }
+    }
+}
+
+impl From<DidVerificationMethod> for DidVerificationMethodDTO {
+    fn from(value: DidVerificationMethod) -> Self {
+        Self {
+            id: value.id,
+            r#type: value.r#type,
+            controller: value.controller,
+            public_key_jwk: value.public_key_jwk.into(),
+        }
+    }
+}

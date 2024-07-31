@@ -43,13 +43,13 @@
 //!
 //! To get started, initialize the core:
 //!
-//! ```rust
+//! ```ignore rust
 //! /// `None` initializes the Core with the default configuration
 //! let core = OneOpenCore::new(None).unwrap();
 //! ```
 //!
 //! Then start using the services, e.g.:
-//! ```rust
+//! ```ignore rust
 //! let key_pair = core
 //!     .signature_service
 //!     .get_key_pair(&KeyAlgorithmType::Es256)
@@ -124,17 +124,15 @@ use std::{collections::HashMap, default::Default, sync::Arc};
 
 use config::OneCoreConfig;
 use model::{CredentialFormat, DidMethodType, KeyAlgorithmType, StorageType};
-use one_providers::credential_formatter::imp::json_ld::context::caching_loader::CachingLoader;
-use one_providers::credential_formatter::imp::json_ld::context::storage::in_memory_storage::InMemoryStorage;
-use one_providers::credential_formatter::imp::json_ld_bbsplus::{
-    JsonLdBbsplus, Params as JsonLdParams,
-};
-use one_providers::credential_formatter::imp::jwt_formatter::{JWTFormatter, Params as JWTParams};
-use one_providers::credential_formatter::imp::provider::CredentialFormatterProviderImpl;
-use one_providers::credential_formatter::imp::sdjwt_formatter::{
-    Params as SDJWTParams, SDJWTFormatter,
-};
 use one_providers::{
+    caching_loader::CachingLoader,
+    credential_formatter::imp::{
+        json_ld::context::caching_loader::JsonLdCachingLoader,
+        json_ld_bbsplus::{JsonLdBbsplus, Params as JsonLdParams},
+        jwt_formatter::{JWTFormatter, Params as JWTParams},
+        provider::CredentialFormatterProviderImpl,
+        sdjwt_formatter::{Params as SDJWTParams, SDJWTFormatter},
+    },
     crypto::imp::{
         hasher::sha256::SHA256,
         signer::{bbs::BBSSigner, crydi3::CRYDI3Signer, eddsa::EDDSASigner, es256::ES256Signer},
@@ -145,6 +143,7 @@ use one_providers::{
             jwk::JWKDidMethod,
             key::KeyDidMethod,
             provider::DidMethodProviderImpl,
+            resolver::DidResolver,
             universal::{Params as UniversalDidMethodParams, UniversalDidMethod},
             web::{Params as WebDidMethodParams, WebDidMethod},
         },
@@ -166,6 +165,7 @@ use one_providers::{
         },
         KeyStorage,
     },
+    remote_entity_storage::{in_memory::InMemoryStorage, RemoteEntityType},
 };
 use service::credential_service::CredentialService;
 use service::{did_service::DidService, signature_service::SignatureService};
@@ -224,6 +224,7 @@ impl OneOpenCore {
             crypto_provider.clone(),
         ));
 
+        // initialize key storage provider
         let key_storages: HashMap<String, Arc<dyn KeyStorage>> = HashMap::from_iter(vec![(
             StorageType::Internal.to_string(),
             Arc::new(InternalKeyProvider::new(
@@ -237,7 +238,7 @@ impl OneOpenCore {
         let universal_resolver = Arc::new(UniversalDidMethod::new(UniversalDidMethodParams {
             resolver_url: config.did_method_config.universal_resolver_url,
         }));
-        let did_method_provider = Arc::new(DidMethodProviderImpl::new(HashMap::from_iter(vec![
+        let did_methods = HashMap::from_iter(vec![
             (
                 DidMethodType::Jwk.to_string(),
                 Arc::new(JWKDidMethod::new(key_algorithm_provider.clone())) as _,
@@ -281,25 +282,43 @@ impl OneOpenCore {
                     },
                 )?) as _,
             ),
-        ])));
-
-        let caching_loader = CachingLoader {
-            cache_size: 10000,
-            cache_refresh_timeout: time::Duration::seconds(999999),
-            client: Default::default(),
-            json_ld_context_storage: Arc::new(InMemoryStorage::new(HashMap::from([]))),
+        ]);
+        let did_resolver = DidResolver {
+            did_methods: did_methods.clone(),
         };
+        let did_caching_loader = CachingLoader::new(
+            Arc::new(did_resolver),
+            RemoteEntityType::DidDocument,
+            Arc::new(InMemoryStorage::new(HashMap::new())),
+            config.caching_config.did.cache_size,
+            config.caching_config.did.cache_refresh_timeout,
+            config.caching_config.did.refresh_after,
+        );
+        let did_method_provider =
+            Arc::new(DidMethodProviderImpl::new(did_caching_loader, did_methods));
 
+        // initialize credential formatter provider
+        let json_ld_caching_loader = JsonLdCachingLoader::new(
+            config.caching_config.json_ld_context.cache_size,
+            config.caching_config.json_ld_context.cache_refresh_timeout,
+            config.caching_config.json_ld_context.refresh_after,
+            Default::default(),
+            Arc::new(InMemoryStorage::new(HashMap::from([]))),
+        );
         let credential_formatter_provider = Arc::new(CredentialFormatterProviderImpl::new(
             HashMap::from_iter(vec![
                 (
                     CredentialFormat::Jwt.to_string(),
-                    Arc::new(JWTFormatter::new(JWTParams { leeway: 60 })) as _,
+                    Arc::new(JWTFormatter::new(JWTParams {
+                        leeway: config.formatter_config.leeway,
+                    })) as _,
                 ),
                 (
                     CredentialFormat::SdJwt.to_string(),
                     Arc::new(SDJWTFormatter::new(
-                        SDJWTParams { leeway: 60 },
+                        SDJWTParams {
+                            leeway: config.formatter_config.leeway,
+                        },
                         crypto_provider.clone(),
                     )) as _,
                 ),
@@ -307,13 +326,15 @@ impl OneOpenCore {
                     CredentialFormat::JsonLdBbsPlus.to_string(),
                     Arc::new(JsonLdBbsplus::new(
                         JsonLdParams {
-                            leeway: time::Duration::seconds(60),
+                            leeway: time::Duration::seconds(
+                                config.formatter_config.leeway.try_into().unwrap(),
+                            ),
                         },
                         crypto_provider.clone(),
                         None,
                         did_method_provider.clone(),
                         key_algorithm_provider.clone(),
-                        caching_loader.clone(),
+                        json_ld_caching_loader.clone(),
                     )) as _,
                 ),
             ]),

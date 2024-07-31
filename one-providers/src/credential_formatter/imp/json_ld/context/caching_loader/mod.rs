@@ -7,20 +7,46 @@ use locspan::{Location, Meta};
 use rdf_types::IriVocabulary;
 use sophia_jsonld::loader::FutureExt;
 use time::{format_description::well_known::Rfc2822, macros::offset, OffsetDateTime};
+use tokio::sync::Mutex;
 
-use crate::credential_formatter::imp::json_ld::context::storage::{
-    JsonLdContext, JsonLdContextStorage, JsonLdContextStorageError,
+use crate::{
+    remote_entity_storage::{
+        RemoteEntity, RemoteEntityStorage, RemoteEntityStorageError, RemoteEntityType,
+    },
+    util::caching::{context_requires_update, ContextRequiresUpdate},
 };
 
 #[cfg(test)]
 mod test;
 
 #[derive(Clone)]
-pub struct CachingLoader {
+pub struct JsonLdCachingLoader {
     pub cache_size: usize,
     pub cache_refresh_timeout: time::Duration,
+    pub refresh_after: time::Duration,
+
     pub client: reqwest::Client,
-    pub json_ld_context_storage: Arc<dyn JsonLdContextStorage>,
+    pub remote_entity_storage: Arc<dyn RemoteEntityStorage>,
+    clean_old_mutex: Arc<Mutex<()>>,
+}
+
+impl JsonLdCachingLoader {
+    pub fn new(
+        cache_size: usize,
+        cache_refresh_timeout: time::Duration,
+        refresh_after: time::Duration,
+        client: reqwest::Client,
+        remote_entity_storage: Arc<dyn RemoteEntityStorage>,
+    ) -> Self {
+        Self {
+            cache_size,
+            cache_refresh_timeout,
+            refresh_after,
+            client,
+            remote_entity_storage,
+            clean_old_mutex: Arc::new(Mutex::new(())),
+        }
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -32,8 +58,6 @@ pub enum CachingLoaderError {
     #[error("HTTP error: unexpected status code: `{0}`")]
     UnexpectedStatusCode(String),
 
-    #[error("JSON-LD context storage error: `{0}`")]
-    JsonLdContextStorageError(#[from] JsonLdContextStorageError),
     #[error("From UTF-8 error: `{0}`")]
     FromUtf8Error(#[from] FromUtf8Error),
     #[error("JSON parse error: `{0}`")]
@@ -42,6 +66,8 @@ pub enum CachingLoaderError {
     MimeFromStrError(#[from] mime::FromStrError),
     #[error("OffsetDateTime parse error: `{0}`")]
     OffsetDateTimeError(#[from] time::error::Parse),
+    #[error("Remote entity storage error: `{0}`")]
+    RemoteEntityStorageError(#[from] RemoteEntityStorageError),
     #[error("HTTP error: `{0}`")]
     Reqwest(#[from] reqwest::Error),
     #[error("Time error: `{0}`")]
@@ -53,7 +79,7 @@ pub enum CachingLoaderError {
 type ArcIri = sophia_api::prelude::Iri<Arc<str>>;
 type JsonParseError = Meta<json_syntax::parse::Error<Location<ArcIri>>, Location<ArcIri>>;
 
-impl Loader<ArcIri, Location<ArcIri>> for CachingLoader {
+impl Loader<ArcIri, Location<ArcIri>> for JsonLdCachingLoader {
     type Output = json_syntax::Value<Location<ArcIri>>;
     type Error = CachingLoaderError;
 
@@ -89,12 +115,9 @@ impl Loader<ArcIri, Location<ArcIri>> for CachingLoader {
     }
 }
 
-impl CachingLoader {
+impl JsonLdCachingLoader {
     pub async fn load_context(&self, url: &str) -> Result<String, CachingLoaderError> {
-        let result = self
-            .json_ld_context_storage
-            .get_json_ld_context_by_url(url)
-            .await?;
+        let result = self.remote_entity_storage.get_by_key(url).await?;
 
         let context = match result {
             None => {
@@ -106,42 +129,58 @@ impl CachingLoader {
                 }?;
 
                 let now = OffsetDateTime::now_utc();
-                let context = JsonLdContext {
+                let context = RemoteEntity {
                     last_modified: now,
-                    context: context_str.to_owned().into_bytes(),
-                    url: url.parse()?,
+                    entity_type: RemoteEntityType::JsonLdContext,
+                    key: url.to_string(),
+                    value: context_str.to_owned().into_bytes(),
                     hit_counter: 0,
                 };
 
-                self.json_ld_context_storage
-                    .insert_json_ld_context(context)
-                    .await?;
+                self.remote_entity_storage.insert(context).await?;
 
                 context_str
             }
             Some(mut context) => {
-                if self.context_requires_update(context.last_modified) {
-                    let current_context_str = String::from_utf8(context.context.to_owned())?;
-                    let (context_str, last_modified) =
-                        match self.fetch_context(url, Some(context.last_modified)).await? {
+                let requires_update = context_requires_update(
+                    context.last_modified,
+                    self.cache_refresh_timeout,
+                    self.refresh_after,
+                );
+
+                if requires_update != ContextRequiresUpdate::IsRecent {
+                    let current_context_str = String::from_utf8(context.value.to_owned())?;
+
+                    let result = self
+                        .fetch_context(url, Some(context.last_modified))
+                        .await
+                        .map(|value| match value {
                             FetchContextResult::LastModifiedHeader(last_modified) => {
                                 (current_context_str, last_modified)
                             }
                             FetchContextResult::Value(context_str) => {
                                 (context_str, OffsetDateTime::now_utc())
                             }
-                        };
-
-                    context.last_modified = last_modified;
-                    context.context = context_str.into_bytes();
+                        });
+                    match result {
+                        Ok((context_str, last_modified)) => {
+                            context.last_modified = last_modified;
+                            context.value = context_str.into_bytes();
+                        }
+                        Err(error) => {
+                            if requires_update == ContextRequiresUpdate::MustBeUpdated {
+                                return Err(error);
+                            }
+                        }
+                    }
                 }
                 context.hit_counter = context.hit_counter.to_owned() + 1;
 
-                self.json_ld_context_storage
-                    .insert_json_ld_context(context.to_owned())
+                self.remote_entity_storage
+                    .insert(context.to_owned())
                     .await?;
 
-                String::from_utf8(context.context)?
+                String::from_utf8(context.value)?
             }
         };
 
@@ -150,18 +189,21 @@ impl CachingLoader {
         Ok(context)
     }
 
-    async fn clean_old_context_if_needed(&self) -> Result<(), JsonLdContextStorageError> {
-        if self.json_ld_context_storage.get_storage_size().await? > self.cache_size {
-            self.json_ld_context_storage.delete_oldest_context().await?;
+    async fn clean_old_context_if_needed(&self) -> Result<(), RemoteEntityStorageError> {
+        let _lock = self.clean_old_mutex.lock().await;
+
+        if self
+            .remote_entity_storage
+            .get_storage_size(RemoteEntityType::JsonLdContext)
+            .await?
+            > self.cache_size
+        {
+            self.remote_entity_storage
+                .delete_oldest(RemoteEntityType::JsonLdContext)
+                .await?;
         }
 
         Ok(())
-    }
-
-    fn context_requires_update(&self, last_modified: OffsetDateTime) -> bool {
-        let now = OffsetDateTime::now_utc();
-
-        last_modified + self.cache_refresh_timeout < now
     }
 
     async fn fetch_context(
