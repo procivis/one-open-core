@@ -1,4 +1,4 @@
-//! The **Procivis One Open Core** is a library for issuing, holding, and verifying
+//! The **Procivis One Open Core** is a library for issuing, holding and verifying
 //! verifiable credentials.
 //!
 //! Self-sovereign identity (SSI) is a model of digital identity that enables individuals
@@ -6,7 +6,7 @@
 //! they share them, without requesting permission from a centralized authority or
 //! identity provider.
 //!
-//! The library provides all SSI functionality needed to issue, hold, and
+//! The library provides all SSI functionality needed to issue, hold and
 //! verify credentials, including credential formats, exchange protocols, digital
 //! signature schemes and associated key handling, DID management and revocation
 //! methods.
@@ -58,7 +58,7 @@
 //! #### Examples
 //!
 //! Some examples of using the **Core** are provided in the **/examples** directory of
-//! the [repository][repo]. More examples will be added in the future. Examples include
+//! the [repository][repo]. More examples will be added in the future. Examples include:
 //!
 //! - `examples/signature_example`: Signing and verifying via the signature service
 //! - `examples/did_resolution_example`: Resolving DIDs via the DID service or using the
@@ -69,14 +69,14 @@
 //! The **Providers** contain the actual implementations of technologies. This includes all
 //! elements of issuing, holding and verifying credentials.
 //!
-//! - Credential format provider: implements credential formats, including seralizing and parsing of credentials.
-//! - DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating.
-//! - Key algorithm provider: implements cryptographic key pair generation and key representations.
-//! - Key storage provider: implements storage of cryptographic keys and the creation of digital signatures.
+//! - Credential format provider: implements credential formats, including seralizing and parsing of credentials
+//! - DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating
+//! - Key algorithm provider: implements cryptographic key pair generation and key representations
+//! - Key storage provider: implements storage of cryptographic keys and the creation of digital signatures
 //! - Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
-//! checking the revocation/suspension status for holders and verifiers.
+//! checking the revocation/suspension status for holders and verifiers
 //!
-//! This is where all the functions to issue, hold verify come from. These providers
+//! This is where all the functions to issue, hold and verify come from. These providers
 //! are described further in the relevant [doc][prov]. The library can be extended
 //! by adding new implementations in the relevant provider.
 //!
@@ -84,9 +84,8 @@
 //!
 //! This site provides descriptions of crates, modules, and traits for the providers.
 //!
-//! Additionally,
-//! higher-level documentation can be found at the root [Procivis One documentation][docs]
-//! site. This includes:
+//! Additionally, higher-level documentation can be found at the root
+//! [Procivis One documentation][docs] site. This includes:
 //!
 //! - The complete list of **Procivis One** supported technologies
 //! - Trial access to the full solution

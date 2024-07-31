@@ -1,13 +1,40 @@
-[![Procivis](docs/assets/Procivis_logo_on_white.svg#gh-light-mode-only)]
-[![Procivis](docs/assets/Procivis_logo_on_black.svg#gh-dark-mode-only)]
+![Procivis](docs/assets/Open_One_Core_light.png#gh-light-mode-only)
+![Procivis](docs/assets/Open_One_Core_dark.png#gh-dark-mode-only)
 
-The [Procivis](https://www.procivis.ch/) One Open Core is a high-performance
-Rust library for decentralized digital identities and credentials. Use it to
-issue, hold and verify digital identities and credentials on almost any device.
+# Procivis One Core
+
+The [Procivis](https://www.procivis.ch) One Core is a high-performance Rust library for decentralized
+digital identities and credentials. Use it to issue, hold and verify digital
+identities and credentials on almost any device.
+
+## Table of contents
+
+* [Background](#background)
+* [Project affiliation](#project-affiliation)
+* [Features](#features)
+* [Supported technologies](#supported-technologies)
+* [Repository structure](#repository-structure)
+* [Getting started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Install](#install)
+* [Usage](#usage)
+  * [Core](#core)
+    * [Examples](#examples)
+  * [Providers](#providers)
+* [Documentation](#documentation)
+* [License](#license)
+
+## Background
+
+Decentralized digital identities and credentials is an approach to identity that relocates
+digital credentials from the possession and control of centralized authorities to the digital
+wallet of the credentials holder. This eliminates the need for verifiers to "phone home" to
+issuers to verify credentials, keeping the wallet holder's interactions private between only
+those parties directly involved in each interaction.
 
 ## Project affiliation
 
-The Procivis One Open Core was developed with funding from the U.S. Department of
+The Procivis One Core was developed with funding from the U.S. Department of
 Homeland Security's (DHS) Silicon Valley Innovation Program (SVIP). The Core consists
 of two open-source libraries (OSL) for Issuers, Digital Wallets, and Verifiers:
 
@@ -25,7 +52,7 @@ These libraries are combined here for simplicity of use.
 ## Features
 
 - Issue, hold and verify digital credentials in different formats
-- Generate new key pairs, create and verify signatures
+- Generate new key pairs with different algorithms, create and verify signatures
 - Perform operations of multiple DID methods
 - Store keys in Azure Key Vault or an encrypted internal database
 - Issue credentials with different revocation methods; discover the status of credentials
@@ -62,13 +89,13 @@ The **Procivis One Core** allows the mixing and matching of different technologi
 technically possible) and handles the complexity so that issuance and verification
 flows remain simple.
 
-## Background
+## Repository structure
 
-Decentralized digital identities and credentials is an approach to identity that relocates
-digital credentials from the possession and control of centralized authorities to the digital
-wallet of the credentials holder. This eliminates the need for verifiers to "phone home" to
-issuers to verify credentials, keeping the wallet holder's interactions private between only
-those parties directly involved in each interaction.
+The library consists of two crates:
+
+- **Core**: Developer APIs for orchestrating the providers.
+- **Providers**: Implementations of the complete range of functionality. Most projects
+will use the providers, even if they take advantage of the services of the Core.
 
 ## Getting started
 
@@ -82,19 +109,14 @@ A stable version of Rust ≥ 1.75 is recommended.
 cargo install --git https://github.com/procivis/one-open-core
 ```
 
-### Usage
+## Usage
 
-The library consists of two crates:
-
-- **Core**: Developer APIs for orchestrating the providers.
-- **Providers**: Implementations of functionality; can be extended.
-
-#### Core
+### Core
 
 The **Core** provides developer APIs for simple and easy-to-use functionalities
 of the library and its supported technologies, without extension. As an orchestration
-layer, it provides
-the simplest access to related functions with the least amount of effort. Services currently available:
+layer, it provides the simplest access to related functions with the least amount of
+effort. Services currently available:
 
 - [Signature service](https://docs.procivis-one.com//one_open_core/service/signature_service/struct.SignatureService.html)
 - [DID resolver service](https://docs.procivis-one.com///one_open_core/service/did_service/struct.DidService.html)
@@ -125,18 +147,18 @@ More examples will be added in the future. Examples include:
 
 The services return provider implementations, covered next.
 
-#### Providers
+### Providers
 
 The **Providers** contain the actual implementations of technologies.
 
-- Credential format provider: implements credential formats, including seralizing and parsing of credentials.
-- DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating.
-- Key algorithm provider: implements cryptographic key pair generation and key representations.
-- Key storage provider: implements storage of cryptographic keys and the creation of digital signatures.
+- Credential format provider: implements credential formats, including seralizing and parsing of credentials
+- DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating
+- Key algorithm provider: implements cryptographic key pair generation and key representations
+- Key storage provider: implements storage of cryptographic keys and the creation of digital signatures
 - Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
-checking the revocation/suspension status for holders and verifiers.
+checking the revocation/suspension status for holders and verifiers
 
-The library can be extended (e.g. a new DID method or key signing algorithm) by adding
+The library can be extended (e.g. with a new DID method or key signing algorithm) by adding
 additional implementations in the relevant provider.
 
 Each provider is structured in a similar pattern, each containing some subset of:
@@ -171,5 +193,8 @@ See the [Procivis One documentation](https://docs.procivis.ch/) for:
 
 Some rights reserved. This library is published under the  [Apache License
 Version 2.0](./LICENSE).
+
+![Procivis AG](docs/assets/logo_light_Procivis@2x.png#gh-light-mode-only)
+![Procivis AG](docs/assets/logo_dark_Procivis@2x.png#gh-dark-mode-only)
 
 © Procivis AG, https://www.procivis.ch.
