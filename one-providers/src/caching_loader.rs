@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use thiserror::Error;
 use time::OffsetDateTime;
 use tokio::sync::Mutex;
 
@@ -15,9 +16,19 @@ use crate::{
 pub trait Resolver: Send + Sync {
     type Error: From<RemoteEntityStorageError>;
 
-    async fn do_resolve(&self, url: &str) -> Result<Vec<u8>, Self::Error>;
+    async fn do_resolve(
+        &self,
+        key: &str,
+        last_modified: Option<&OffsetDateTime>,
+    ) -> Result<ResolveResult, Self::Error>;
 }
 
+pub enum ResolveResult {
+    NewValue(Vec<u8>),
+    LastModificationDateUpdate(OffsetDateTime),
+}
+
+#[derive(Clone)]
 pub struct CachingLoader<E> {
     pub resolver: Arc<dyn Resolver<Error = E>>,
     pub remote_entity_type: RemoteEntityType,
@@ -30,7 +41,7 @@ pub struct CachingLoader<E> {
     clean_old_mutex: Arc<Mutex<()>>,
 }
 
-impl<E: From<RemoteEntityStorageError>> CachingLoader<E> {
+impl<E: From<CachingLoaderError> + From<RemoteEntityStorageError>> CachingLoader<E> {
     pub fn new(
         resolver: Arc<dyn Resolver<Error = E>>,
         remote_entity_type: RemoteEntityType,
@@ -53,19 +64,22 @@ impl<E: From<RemoteEntityStorageError>> CachingLoader<E> {
     pub async fn resolve(&self, url: &str) -> Result<Vec<u8>, E> {
         let context = match self.storage.get_by_key(url).await? {
             None => {
-                let document = self.resolver.do_resolve(url).await?;
+                let document = self.resolver.do_resolve(url, None).await?;
+                if let ResolveResult::NewValue(value) = document {
+                    self.storage
+                        .insert(RemoteEntity {
+                            last_modified: OffsetDateTime::now_utc(),
+                            entity_type: self.remote_entity_type,
+                            key: url.to_string(),
+                            value: value.to_owned(),
+                            hit_counter: 0,
+                        })
+                        .await?;
 
-                self.storage
-                    .insert(RemoteEntity {
-                        last_modified: OffsetDateTime::now_utc(),
-                        entity_type: self.remote_entity_type,
-                        key: url.to_string(),
-                        value: document.to_owned(),
-                        hit_counter: 0,
-                    })
-                    .await?;
-
-                Ok(document)
+                    Ok(value)
+                } else {
+                    Err(CachingLoaderError::UnexpectedResolveResult)
+                }
             }
             Some(mut context) => {
                 let requires_update = context_requires_update(
@@ -75,13 +89,21 @@ impl<E: From<RemoteEntityStorageError>> CachingLoader<E> {
                 );
 
                 if requires_update != ContextRequiresUpdate::IsRecent {
-                    let result = self.resolver.do_resolve(url).await;
+                    let result = self
+                        .resolver
+                        .do_resolve(url, Some(&context.last_modified))
+                        .await;
 
                     match result {
-                        Ok(value) => {
-                            context.last_modified = OffsetDateTime::now_utc();
-                            context.value = value;
-                        }
+                        Ok(value) => match value {
+                            ResolveResult::NewValue(value) => {
+                                context.last_modified = OffsetDateTime::now_utc();
+                                context.value = value;
+                            }
+                            ResolveResult::LastModificationDateUpdate(value) => {
+                                context.last_modified = value;
+                            }
+                        },
                         Err(error) => {
                             if requires_update == ContextRequiresUpdate::MustBeUpdated {
                                 return Err(error);
@@ -116,4 +138,10 @@ impl<E: From<RemoteEntityStorageError>> CachingLoader<E> {
 
         Ok(())
     }
+}
+
+#[derive(Clone, Debug, Error)]
+pub enum CachingLoaderError {
+    #[error("Unexpected resolve result")]
+    UnexpectedResolveResult,
 }

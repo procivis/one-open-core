@@ -1,16 +1,14 @@
 use std::{collections::HashMap, sync::Arc};
 
-use super::context::caching_loader::JsonLdCachingLoader;
+use super::context::caching_loader::{JsonLdCachingLoader, JsonLdResolver};
 use crate::remote_entity_storage::in_memory::InMemoryStorage;
 use crate::remote_entity_storage::{RemoteEntity, RemoteEntityType};
 use time::{Duration, OffsetDateTime};
 
 pub fn prepare_caching_loader() -> JsonLdCachingLoader {
     JsonLdCachingLoader::new(
-        10000,
-        Duration::seconds(999999),
-        Duration::seconds(300),
-        Default::default(),
+        Arc::new(JsonLdResolver::default()),
+        RemoteEntityType::JsonLdContext,
         Arc::new(InMemoryStorage::new(HashMap::from([
             (
                 "https://www.w3.org/ns/credentials/v2".to_string(),
@@ -33,6 +31,9 @@ pub fn prepare_caching_loader() -> JsonLdCachingLoader {
                 },
             ),
         ]))),
+        10000,
+        Duration::seconds(999999),
+        Duration::seconds(300),
     )
 }
 

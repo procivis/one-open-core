@@ -6,11 +6,31 @@ use wiremock::{
     Match, Mock, MockServer, Request, ResponseTemplate,
 };
 
-use crate::credential_formatter::imp::json_ld::context::caching_loader::JsonLdCachingLoader;
-use crate::remote_entity_storage::{MockRemoteEntityStorage, RemoteEntity, RemoteEntityType};
+use crate::{
+    credential_formatter::imp::json_ld::context::caching_loader::{
+        JsonLdCachingLoader, JsonLdResolver,
+    },
+    remote_entity_storage::{MockRemoteEntityStorage, RemoteEntity, RemoteEntityType},
+};
 
 pub fn get_dummy_date() -> OffsetDateTime {
     datetime!(2005-04-02 21:37 +1)
+}
+
+fn create_loader(
+    storage: MockRemoteEntityStorage,
+    cache_size: usize,
+    cache_refresh_timeout: Duration,
+    refresh_after: Duration,
+) -> JsonLdCachingLoader {
+    JsonLdCachingLoader::new(
+        Arc::new(JsonLdResolver::default()),
+        RemoteEntityType::JsonLdContext,
+        Arc::new(storage),
+        cache_size,
+        cache_refresh_timeout,
+        refresh_after,
+    )
 }
 
 #[tokio::test]
@@ -36,15 +56,17 @@ async fn test_load_context_success_cache_hit() {
         .times(1)
         .return_once(|_| Ok(1usize));
 
-    let loader = JsonLdCachingLoader::new(
+    let loader = create_loader(
+        storage,
         99999,
         Duration::seconds(99999),
         Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
     );
 
-    assert_eq!(response_content, loader.load_context(url).await.unwrap());
+    assert_eq!(
+        response_content,
+        String::from_utf8(loader.resolve(url).await.unwrap()).unwrap()
+    );
 }
 
 pub struct CustomMatcher;
@@ -123,15 +145,17 @@ async fn test_load_context_success_cache_miss_external_fetch_occured() {
         .times(1)
         .return_once(|_| Ok(1usize));
 
-    let loader = JsonLdCachingLoader::new(
+    let loader = create_loader(
+        storage,
         99999,
         Duration::seconds(99999),
         Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
     );
 
-    assert_eq!(response_content, loader.load_context(&url).await.unwrap());
+    assert_eq!(
+        response_content,
+        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+    );
 }
 
 #[tokio::test]
@@ -155,15 +179,12 @@ async fn test_load_context_success_cache_miss_overfilled_delete_oldest_entry_cal
         .times(1)
         .return_once(|_| Ok(()));
 
-    let loader = JsonLdCachingLoader::new(
-        1,
-        Duration::seconds(99999),
-        Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
-    );
+    let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
-    assert_eq!(response_content, loader.load_context(&url).await.unwrap());
+    assert_eq!(
+        response_content,
+        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+    );
 }
 
 #[tokio::test]
@@ -201,15 +222,12 @@ async fn test_load_context_success_cache_hit_but_too_old_200() {
         .times(1)
         .return_once(|_| Ok(()));
 
-    let loader = JsonLdCachingLoader::new(
-        1,
-        Duration::seconds(99999),
-        Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
-    );
+    let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
-    assert_eq!(response_content, loader.load_context(&url).await.unwrap());
+    assert_eq!(
+        response_content,
+        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+    );
 }
 
 #[tokio::test]
@@ -245,15 +263,12 @@ async fn test_load_context_success_cache_hit_but_too_old_304_with_last_modified_
         .times(1)
         .return_once(|_| Ok(()));
 
-    let loader = JsonLdCachingLoader::new(
-        1,
-        Duration::seconds(99999),
-        Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
-    );
+    let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
-    assert_eq!(response_content, loader.load_context(&url).await.unwrap());
+    assert_eq!(
+        response_content,
+        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+    );
 }
 
 #[tokio::test]
@@ -293,15 +308,12 @@ async fn test_load_context_success_cache_hit_but_too_old_304_without_last_modifi
         .times(1)
         .return_once(|_| Ok(()));
 
-    let loader = JsonLdCachingLoader::new(
-        1,
-        Duration::seconds(99999),
-        Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
-    );
+    let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
-    assert_eq!(response_content, loader.load_context(&url).await.unwrap());
+    assert_eq!(
+        response_content,
+        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+    );
 }
 
 #[tokio::test]
@@ -335,17 +347,11 @@ async fn test_load_context_success_cache_hit_older_than_refreshafter_younger_tha
         .return_once(|_| Ok(()));
 
     let refresh_timeout = OffsetDateTime::now_utc() - get_dummy_date() + Duration::seconds(99999);
-    let loader = JsonLdCachingLoader::new(
-        1,
-        refresh_timeout,
-        Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
-    );
+    let loader = create_loader(storage, 1, refresh_timeout, Duration::seconds(300));
 
     assert_eq!(
         old_response_content,
-        loader.load_context(url).await.unwrap()
+        String::from_utf8(loader.resolve(url).await.unwrap()).unwrap()
     );
 }
 
@@ -366,13 +372,12 @@ async fn test_load_context_failed_cache_hit_older_than_refreshafter_and_failed_t
         }))
     });
 
-    let loader = JsonLdCachingLoader::new(
+    let loader = create_loader(
+        storage,
         99999,
         Duration::seconds(301),
         Duration::seconds(300),
-        Default::default(),
-        Arc::new(storage),
     );
 
-    assert!(loader.load_context(url).await.is_err());
+    assert!(loader.resolve(url).await.is_err());
 }

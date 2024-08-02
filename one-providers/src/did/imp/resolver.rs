@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use time::OffsetDateTime;
 
 use crate::{
-    caching_loader::Resolver,
+    caching_loader::{CachingLoader, ResolveResult, Resolver},
     common_models::did::DidValue,
     did::{error::DidMethodProviderError, imp::dto::DidDocumentDTO, DidMethod},
 };
@@ -13,11 +14,17 @@ pub struct DidResolver {
     pub did_methods: HashMap<String, Arc<dyn DidMethod>>,
 }
 
+pub type DidCachingLoader = CachingLoader<DidMethodProviderError>;
+
 #[async_trait]
 impl Resolver for DidResolver {
     type Error = DidMethodProviderError;
 
-    async fn do_resolve(&self, did_value: &str) -> Result<Vec<u8>, Self::Error> {
+    async fn do_resolve(
+        &self,
+        did_value: &str,
+        _previous: Option<&OffsetDateTime>,
+    ) -> Result<ResolveResult, Self::Error> {
         let did_method_id = did_method_id_from_value(did_value)?;
 
         let method = self
@@ -29,7 +36,7 @@ impl Resolver for DidResolver {
         let document = method.resolve(&did_value).await?;
         let dto: DidDocumentDTO = document.into();
 
-        Ok(serde_json::to_vec(&dto)?)
+        Ok(ResolveResult::NewValue(serde_json::to_vec(&dto)?))
     }
 }
 

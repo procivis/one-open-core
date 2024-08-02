@@ -1,7 +1,9 @@
 //! Enumerates errors related to DID method provider.
 
-use crate::remote_entity_storage::RemoteEntityStorageError;
 use thiserror::Error;
+
+use crate::caching_loader::CachingLoaderError;
+use crate::remote_entity_storage::RemoteEntityStorageError;
 
 #[derive(Debug, Error)]
 pub enum DidMethodError {
@@ -29,6 +31,8 @@ pub enum DidMethodProviderError {
     #[error("Other: `{0}`")]
     Other(String),
 
+    #[error("Caching loader error: `{0}`")]
+    CachingLoader(#[from] CachingLoaderError),
     #[error("JSON parse error: `{0}`")]
     JsonParse(#[from] serde_json::Error),
     #[error("Remote entity storage error: `{0}`")]

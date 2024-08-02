@@ -3,6 +3,7 @@
 use thiserror::Error;
 
 use crate::{
+    caching_loader::CachingLoaderError,
     common_models::{
         credential::{CredentialId, CredentialStateEnum},
         did::{DidId, KeyRole},
@@ -35,6 +36,8 @@ pub enum RevocationError {
 
     #[error("Bitstring error: `{0}`")]
     BitstringError(#[from] BitstringError),
+    #[error("Caching loader error: `{0}`")]
+    CachingLoader(#[from] CachingLoaderError),
     #[error("Did method provider error: `{0}`")]
     DidMethodProviderError(#[from] DidMethodProviderError),
     #[error("Formatter error: `{0}`")]

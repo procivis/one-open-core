@@ -3,7 +3,6 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    caching_loader::CachingLoader,
     common_models::{
         credential::{Credential, CredentialId, CredentialStateEnum},
         did::{Did, DidId, DidValue, KeyRole},
@@ -17,6 +16,7 @@ use crate::{
         imp::bitstring_status_list::{
             jwt_formatter::BitstringStatusListJwtFormatter,
             model::{RevocationListPurpose, RevocationUpdateData, StatusPurpose},
+            resolver::StatusListCachingLoader,
         },
         model::{
             CredentialAdditionalData, CredentialDataByRole, CredentialRevocationInfo,
@@ -42,7 +42,7 @@ pub struct BitstringStatusList {
     pub key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
     pub did_method_provider: Arc<dyn DidMethodProvider>,
     pub key_provider: Arc<dyn KeyProvider>,
-    pub caching_loader: CachingLoader<RevocationError>,
+    pub caching_loader: StatusListCachingLoader,
 }
 
 #[async_trait::async_trait]

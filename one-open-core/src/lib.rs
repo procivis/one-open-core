@@ -127,7 +127,7 @@ use model::{CredentialFormat, DidMethodType, KeyAlgorithmType, StorageType};
 use one_providers::{
     caching_loader::CachingLoader,
     credential_formatter::imp::{
-        json_ld::context::caching_loader::JsonLdCachingLoader,
+        json_ld::context::caching_loader::{JsonLdCachingLoader, JsonLdResolver},
         json_ld_bbsplus::{JsonLdBbsplus, Params as JsonLdParams},
         jwt_formatter::{JWTFormatter, Params as JWTParams},
         provider::CredentialFormatterProviderImpl,
@@ -299,11 +299,12 @@ impl OneOpenCore {
 
         // initialize credential formatter provider
         let json_ld_caching_loader = JsonLdCachingLoader::new(
+            Arc::new(JsonLdResolver::default()),
+            RemoteEntityType::JsonLdContext,
+            Arc::new(InMemoryStorage::new(HashMap::new())),
             config.caching_config.json_ld_context.cache_size,
             config.caching_config.json_ld_context.cache_refresh_timeout,
             config.caching_config.json_ld_context.refresh_after,
-            Default::default(),
-            Arc::new(InMemoryStorage::new(HashMap::from([]))),
         );
         let credential_formatter_provider = Arc::new(CredentialFormatterProviderImpl::new(
             HashMap::from_iter(vec![

@@ -1,22 +1,24 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    caching_loader::CachingLoader,
     common_models::did::DidValue,
     did::{
-        error::DidMethodProviderError, imp::dto::DidDocumentDTO, model::DidDocument,
-        provider::DidMethodProvider, DidMethod,
+        error::DidMethodProviderError,
+        imp::{dto::DidDocumentDTO, resolver::DidCachingLoader},
+        model::DidDocument,
+        provider::DidMethodProvider,
+        DidMethod,
     },
 };
 
 pub struct DidMethodProviderImpl {
-    caching_loader: CachingLoader<DidMethodProviderError>,
+    caching_loader: DidCachingLoader,
     did_methods: HashMap<String, Arc<dyn DidMethod>>,
 }
 
 impl DidMethodProviderImpl {
     pub fn new(
-        caching_loader: CachingLoader<DidMethodProviderError>,
+        caching_loader: DidCachingLoader,
         did_methods: HashMap<String, Arc<dyn DidMethod>>,
     ) -> Self {
         Self {
