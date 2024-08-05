@@ -95,8 +95,7 @@ async fn main() -> Result<(), CredentialServiceError> {
         )
         .await
         .expect("Credential formatting failed");
-
-    println!("SDJWT token = {token}");
+    println!("SDJWT token = {token}\n");
 
     let credential_presentation_config = CredentialPresentation {
         token,
@@ -112,13 +111,13 @@ async fn main() -> Result<(), CredentialServiceError> {
         .format_credential_presentation(CredentialFormat::SdJwt, credential_presentation_config)
         .await
         .expect("Credential presentation creation failed");
-
-    println!("SDJWT credential presentation = {credential_presentation}");
+    println!("SDJWT credential presentation = {credential_presentation}\n");
 
     let details = credential_service
         .extract_credential(CredentialFormat::SdJwt, &credential_presentation)
         .await
         .expect("Credential extraction failed");
+    println!("Parsed presentation content: {:#?}\n", details);
 
     assert!(!details.claims.values.contains_key("root_item"));
     let root = details.claims.values.get("root").expect("root is missing");

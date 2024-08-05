@@ -1,11 +1,10 @@
-![Procivis](docs/assets/logo_light_mode_Open One Core.svg#gh-light-mode-only)
+![Procivis](docs/assets/logo_light_mode_Open_One_Core.svg#gh-light-mode-only)
 ![Procivis](docs/assets/logo_dark_mode_Open_One_Core.svg#gh-dark-mode-only)
 
-# Procivis One Core
+# Procivis One Open Core
 
-The [Procivis](https://www.procivis.ch) One Core is a high-performance Rust library for decentralized
-digital identities and credentials. Use it to issue, hold and verify digital
-identities and credentials on almost any device.
+The Procivis One Open Core library is a subset from our [Procivis One Core](https://docs.procivis.ch/) and includes specific services and protocols, developed with funding from the U.S. Department of
+Homeland Security.
 
 ## Table of contents
 
@@ -34,8 +33,8 @@ those parties directly involved in each interaction.
 
 ## Project affiliation
 
-The Procivis One Core was developed with funding from the U.S. Department of
-Homeland Security's (DHS) Silicon Valley Innovation Program (SVIP). The Core consists
+The Procivis One Open Core was developed with funding from the U.S. Department of
+Homeland Security's (DHS) Silicon Valley Innovation Program (SVIP). The Open Core consists
 of two open-source libraries (OSL) for Issuers, Digital Wallets, and Verifiers:
 
 * OSL (A): Cryptographic Tools SDK
@@ -68,7 +67,7 @@ Additional information and documentation about the supported technologies and me
 | [JSON-LD][jld]     | [LVVC][lvvc]       | [did:web][dw]              | [OpenID4VCI (draft 12)][vci]             | [ECDSA][ecd]                                | [Azure Key Vault][akv]      |
 | [JWT][jw]          | [Status list][sl]  | [did:key][dk]              | [OpenID4VCP (draft 20)][vp]              | [EdDSA][edd]                                | Internal encrypted database |
 | [SD-JWT][sdjwt]    |                    | [did:jwk][djw]             |                                          | [BBS+][bbs]                                 |                             |
-|                    |                    | [+ Universal DID resolver] |                                          | [Dilithium 3 (FIPS 204: post-quantum)][dil] |                             |
+|                    |                    | Universal DID resolver     |                                          | [Dilithium 3 (FIPS 204: post-quantum)][dil] |                             |
 
 [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
 [bbs]: https://w3c.github.io/vc-di-bbs/
