@@ -9,13 +9,8 @@ license = "Apache-2.0"
 thiserror        = { workspace = true }
 serde            = { workspace = true }
 serde_json       = { workspace = true }
-serde_with       = { version = "3.8", features = ["json", "time_0_3"] }
-zeroize          = { workspace = true, features = ["serde"] }
 ed25519-compact  = { version = "2.1" }
 p256             = { version = "0.13", features = ["jwk"] }
-bs58             = { version = "0.5" }
-blstrs           = { version = "0.7" }
-josekit          = { version = "0.8", features = ["vendored"] }
 pairing_crypto   = { version = "0.4", git = "https://github.com/Iskander508/pairing_crypto", rev = "517a424a989b57b987aacb3642bd7cd2c60b94d1" }
 mockall          = { version = "0.13", optional = true }
 hmac             = { version = "0.12" }
@@ -25,40 +20,11 @@ sha2             = { version = "0.10" }
 pbkdf2           = { version = "0.12", features = ["simple"] }
 chacha20poly1305 = { version = "0.10" }
 pqc_dilithium    = { version = "0.2.0", git = "https://github.com/ihor-rud/dilithium", rev = "e02a683" }
-anyhow           = { version = "1.0.86" }
 ct-codecs        = { version = "1.1.1" }
-uuid             = { version = "1.10.0", features = ["v4", "serde"] }
-async-trait      = { version = "0.1.81" }
-cocoon           = { version = "0.4" }
-url              = { version = "2.5", features = ["serde"] }
-tokio            = { version = "1.38", features = ["macros"] }
-reqwest          = { version = "0.12", default-features = false, features = ["rustls-tls", "rustls-tls-native-roots", "json"] }
-futures          = { version = "0.3" }
-json-syntax      = { version = "0.9" }
-locspan          = { version = "0.7" }
-mime             = { version = "0.3" }
-rdf-types        = { version = "0.15" }
-convert_case     = { version = "0.6" }
-ciborium         = { version = "0.2" }
-strum            = { version = "0.26", features = ["derive"] }
-sophia_jsonld    = { version = "0.8", features = ["http_client"] }
-sophia_api       = { version = "0.8" }
-sophia_c14n      = { version = "0.8" }
-urlencoding      = { version = "2.1" }
-itertools        = { version = "0.13" }
-json-ld          = { version = "0.15" }
-jsonptr          = { version = "0.4" }
-bit-vec          = { version = "0.8" }
-flate2           = { version = "1.0" }
-serde_urlencoded = { version = "0.7" }
-serde_qs         = { version = "0.13" }
 
-time.workspace = true
 
 [dev-dependencies]
-mockall  = { version = "0.13" }
-wiremock = { version = "0.6" }
-maplit   = { version = "1.0" }
+mockall = { version = "0.13" }
 
 [features]
 mock = ["mockall"]

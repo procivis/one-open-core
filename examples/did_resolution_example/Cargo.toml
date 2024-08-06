@@ -1,5 +1,5 @@
 [package]
-name = "did-resolution-example"
+name    = "did-resolution-example"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
@@ -7,5 +7,4 @@ license = "Apache-2.0"
 [dependencies]
 one-open-core = { path = "../../one-open-core" }
 one-providers = { path = "../../one-providers" }
-tokio = { version = "1.38.1", features = ["full"] }
-futures = "0.3.17"
+tokio         = { version = "1.38.1", features = ["full"] }

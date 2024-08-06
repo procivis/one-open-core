@@ -10,6 +10,5 @@ edition = "2021"
 one-open-core = { path = "../../one-open-core" }
 one-providers = { path = "../../one-providers" }
 tokio         = { version = "1.38.1", features = ["full"] }
-futures       = "0.3.17"
 time          = { version = "0.3", features = ["formatting", "macros", "parsing"] }
-uuid = { version = "1.10.0", features = ["v4"] }
+uuid          = { version = "1.10.0", features = ["v4"] }
