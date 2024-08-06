@@ -11,7 +11,7 @@ use wiremock::{
 
 use super::{dto::AzureHsmGetTokenResponse, AzureVaultKeyProvider, Params};
 use crate::{
-    common_models::key::Key,
+    common_models::key::OpenKey,
     crypto::{imp::CryptoProviderImpl, CryptoProvider, Hasher, MockHasher},
     key_storage::KeyStorage,
 };
@@ -167,7 +167,7 @@ async fn test_azure_vault_sign() {
     );
     let result = vault
         .sign(
-            &Key {
+            &OpenKey {
                 id: Uuid::new_v4().into(),
                 created_date: OffsetDateTime::now_utc(),
                 last_modified: OffsetDateTime::now_utc(),

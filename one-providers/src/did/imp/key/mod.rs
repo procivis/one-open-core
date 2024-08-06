@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
-        key::Key,
+        key::OpenKey,
     },
     did::{
         error::DidMethodError,
@@ -40,7 +40,7 @@ impl DidMethod for KeyDidMethod {
         &self,
         _id: &DidId,
         _params: &Option<serde_json::Value>,
-        keys: &[Key],
+        keys: &[OpenKey],
     ) -> Result<DidValue, DidMethodError> {
         let key = match keys {
             [key] => key,

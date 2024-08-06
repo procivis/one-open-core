@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::{error::KeyAlgorithmProviderError, model::ParsedPublicKeyJwk, KeyAlgorithm};
-use crate::{common_models::PublicKeyJwk, crypto::Signer};
+use crate::{common_models::OpenPublicKeyJwk, crypto::Signer};
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait KeyAlgorithmProvider: Send + Sync {
@@ -13,6 +13,6 @@ pub trait KeyAlgorithmProvider: Send + Sync {
 
     fn parse_jwk(
         &self,
-        key: &PublicKeyJwk,
+        key: &OpenPublicKeyJwk,
     ) -> Result<ParsedPublicKeyJwk, KeyAlgorithmProviderError>;
 }

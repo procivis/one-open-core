@@ -1,7 +1,7 @@
 use serde_json::json;
 
 use crate::{
-    common_models::{did::DidValue, PublicKeyJwk},
+    common_models::{did::DidValue, OpenPublicKeyJwk},
     did::model::DidVerificationMethod,
 };
 
@@ -18,7 +18,7 @@ pub fn jwk_context() -> serde_json::Value {
 pub fn jwk_verification_method(
     id: String,
     did: &DidValue,
-    jwk: PublicKeyJwk,
+    jwk: OpenPublicKeyJwk,
 ) -> DidVerificationMethod {
     DidVerificationMethod {
         id,

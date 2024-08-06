@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 use crate::{
-    common_models::did::{Did, DidValue},
+    common_models::did::{DidValue, OpenDid},
     credential_formatter::{
         error::FormatterError,
         imp::jwt::{model::JWTPayload, Jwt},
@@ -18,7 +18,7 @@ pub struct BitstringStatusListJwtFormatter {}
 impl BitstringStatusListJwtFormatter {
     pub async fn format_status_list(
         revocation_list_url: String,
-        issuer_did: &Did,
+        issuer_did: &OpenDid,
         encoded_list: String,
         algorithm: String,
         auth_fn: AuthenticationFn,

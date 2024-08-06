@@ -2,7 +2,7 @@ use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use pairing_crypto::bbs::ciphersuites::bls12_381::KeyPair;
 
 use crate::{
-    common_models::{PublicKeyJwk, PublicKeyJwkEllipticData},
+    common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
     crypto::imp::utilities::get_rng,
     key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
@@ -35,7 +35,7 @@ impl KeyAlgorithm for BBS {
         &self,
         bytes: &[u8],
         r#use: Option<String>,
-    ) -> Result<PublicKeyJwk, KeyAlgorithmError> {
+    ) -> Result<OpenPublicKeyJwk, KeyAlgorithmError> {
         let public = blstrs::G2Affine::from_compressed(
             bytes
                 .try_into()
@@ -51,7 +51,7 @@ impl KeyAlgorithm for BBS {
         let pk_uncompressed = public.to_uncompressed();
         let x = &pk_uncompressed[..96];
         let y = &pk_uncompressed[96..];
-        Ok(PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+        Ok(OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
             r#use,
             crv: "Bls12381G2".to_string(),
             x: Base64UrlSafeNoPadding::encode_to_string(x)
@@ -63,8 +63,8 @@ impl KeyAlgorithm for BBS {
         }))
     }
 
-    fn jwk_to_bytes(&self, jwk: &PublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError> {
-        if let PublicKeyJwk::Okp(data) = jwk {
+    fn jwk_to_bytes(&self, jwk: &OpenPublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError> {
+        if let OpenPublicKeyJwk::Okp(data) = jwk {
             let x = Base64UrlSafeNoPadding::decode_to_vec(&data.x, None)
                 .map_err(|e| KeyAlgorithmError::Failed(e.to_string()))?;
             let y = Base64UrlSafeNoPadding::decode_to_vec(

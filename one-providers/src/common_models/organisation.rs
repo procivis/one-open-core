@@ -11,7 +11,7 @@ impl_from!(OrganisationId; Uuid);
 impl_into!(OrganisationId; Uuid);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Organisation {
+pub struct OpenOrganisation {
     pub id: OrganisationId,
     pub created_date: OffsetDateTime,
     pub last_modified: OffsetDateTime,

@@ -6,7 +6,7 @@ use serde::Deserialize;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
-        key::Key,
+        key::OpenKey,
     },
     did::{
         error::DidMethodError,
@@ -48,7 +48,7 @@ impl DidMethod for UniversalDidMethod {
         &self,
         _id: &DidId,
         _params: &Option<serde_json::Value>,
-        _keys: &[Key],
+        _keys: &[OpenKey],
     ) -> Result<DidValue, DidMethodError> {
         Err(DidMethodError::NotSupported)
     }

@@ -10,7 +10,7 @@ use serde::Deserialize;
 use zeroize::Zeroizing;
 
 use crate::{
-    common_models::{PublicKeyJwk, PublicKeyJwkEllipticData},
+    common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
     crypto::imp::signer::es256::ES256Signer,
     key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
@@ -68,7 +68,7 @@ impl KeyAlgorithm for Es256 {
         &self,
         bytes: &[u8],
         r#use: Option<String>,
-    ) -> Result<PublicKeyJwk, KeyAlgorithmError> {
+    ) -> Result<OpenPublicKeyJwk, KeyAlgorithmError> {
         let pk = p256::PublicKey::from_sec1_bytes(bytes)
             .map_err(|e| KeyAlgorithmError::Failed(e.to_string()))?;
         let encoded_point = pk.to_encoded_point(false);
@@ -78,7 +78,7 @@ impl KeyAlgorithm for Es256 {
         let y = encoded_point
             .y()
             .ok_or(KeyAlgorithmError::Failed("Y is missing".to_string()))?;
-        Ok(PublicKeyJwk::Ec(PublicKeyJwkEllipticData {
+        Ok(OpenPublicKeyJwk::Ec(OpenPublicKeyJwkEllipticData {
             r#use,
             crv: "P-256".to_string(),
             x: Base64UrlSafeNoPadding::encode_to_string(x)
@@ -90,8 +90,8 @@ impl KeyAlgorithm for Es256 {
         }))
     }
 
-    fn jwk_to_bytes(&self, jwk: &PublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError> {
-        if let PublicKeyJwk::Ec(data) = jwk {
+    fn jwk_to_bytes(&self, jwk: &OpenPublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError> {
+        if let OpenPublicKeyJwk::Ec(data) = jwk {
             let x = Base64UrlSafeNoPadding::decode_to_vec(&data.x, None)
                 .map_err(|e| KeyAlgorithmError::Failed(e.to_string()))?;
             let y = Base64UrlSafeNoPadding::decode_to_vec(

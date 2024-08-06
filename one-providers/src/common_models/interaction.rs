@@ -12,7 +12,7 @@ impl_from!(InteractionId; Uuid);
 impl_into!(InteractionId; Uuid);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Interaction {
+pub struct OpenInteraction {
     pub id: InteractionId,
     pub created_date: OffsetDateTime,
     pub last_modified: OffsetDateTime,

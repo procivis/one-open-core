@@ -1,5 +1,5 @@
 use crate::{
-    common_models::{did::DidValue, PublicKeyJwk},
+    common_models::{did::DidValue, OpenPublicKeyJwk},
     did::{
         error::DidMethodError,
         imp::common::{jwk_context, jwk_verification_method},
@@ -55,7 +55,7 @@ pub fn decode_did(did: &DidValue) -> Result<DecodedDidKey, DidMethodError> {
 pub fn generate_document(
     decoded: DecodedDidKey,
     did: &DidValue,
-    public_key_jwk: PublicKeyJwk,
+    public_key_jwk: OpenPublicKeyJwk,
 ) -> Result<DidDocument, DidMethodError> {
     let verification_method = jwk_verification_method(
         format!("{}#{}", did, decoded.multibase),

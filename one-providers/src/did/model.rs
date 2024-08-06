@@ -1,6 +1,6 @@
 //! `struct`s and `enum`s for DID method provider.
 
-use crate::common_models::{did::DidValue, PublicKeyJwk};
+use crate::common_models::{did::DidValue, OpenPublicKeyJwk};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Operation {
@@ -40,7 +40,7 @@ pub struct DidVerificationMethod {
     pub id: String,
     pub r#type: String,
     pub controller: String,
-    pub public_key_jwk: PublicKeyJwk,
+    pub public_key_jwk: OpenPublicKeyJwk,
 }
 
 #[derive(Debug, Clone)]

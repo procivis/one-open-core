@@ -11,7 +11,7 @@ impl_from!(ClaimSchemaId; Uuid);
 impl_into!(ClaimSchemaId; Uuid);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ClaimSchema {
+pub struct OpenClaimSchema {
     pub id: ClaimSchemaId,
     pub key: String,
     pub data_type: String,

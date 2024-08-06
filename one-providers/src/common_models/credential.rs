@@ -4,15 +4,15 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use super::{
-    claim::Claim,
-    credential_schema::CredentialSchema,
+    claim::OpenClaim,
+    credential_schema::OpenCredentialSchema,
     did::DidId,
-    interaction::{Interaction, InteractionId},
+    interaction::{InteractionId, OpenInteraction},
     key::KeyId,
 };
 use crate::common_models::{
-    did::Did,
-    key::Key,
+    did::OpenDid,
+    key::OpenKey,
     macros::{impl_display, impl_from, impl_into},
 };
 
@@ -23,7 +23,7 @@ impl_from!(CredentialId; Uuid);
 impl_into!(CredentialId; Uuid);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Credential {
+pub struct OpenCredential {
     pub id: CredentialId,
     pub created_date: OffsetDateTime,
     pub issuance_date: OffsetDateTime,
@@ -32,28 +32,28 @@ pub struct Credential {
     pub credential: Vec<u8>,
     pub exchange: String,
     pub redirect_uri: Option<String>,
-    pub role: CredentialRole,
+    pub role: OpenCredentialRole,
 
     // Relations:
-    pub state: Option<Vec<CredentialState>>,
-    pub claims: Option<Vec<Claim>>,
-    pub issuer_did: Option<Did>,
-    pub holder_did: Option<Did>,
-    pub schema: Option<CredentialSchema>,
-    pub key: Option<Key>,
-    pub interaction: Option<Interaction>,
+    pub state: Option<Vec<OpenCredentialState>>,
+    pub claims: Option<Vec<OpenClaim>>,
+    pub issuer_did: Option<OpenDid>,
+    pub holder_did: Option<OpenDid>,
+    pub schema: Option<OpenCredentialSchema>,
+    pub key: Option<OpenKey>,
+    pub interaction: Option<OpenInteraction>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct CredentialState {
+pub struct OpenCredentialState {
     pub created_date: OffsetDateTime,
-    pub state: CredentialStateEnum,
+    pub state: OpenCredentialStateEnum,
     pub suspend_end_date: Option<OffsetDateTime>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize, Display)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum CredentialStateEnum {
+pub enum OpenCredentialStateEnum {
     Created,
     Pending,
     Offered,
@@ -66,20 +66,20 @@ pub enum CredentialStateEnum {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum CredentialRole {
+pub enum OpenCredentialRole {
     Holder,
     Issuer,
     Verifier,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct UpdateCredentialRequest {
+pub struct OpenUpdateCredentialRequest {
     pub id: CredentialId,
 
     pub credential: Option<Vec<u8>>,
     pub holder_did_id: Option<DidId>,
     pub issuer_did_id: Option<DidId>,
-    pub state: Option<CredentialState>,
+    pub state: Option<OpenCredentialState>,
     pub interaction: Option<InteractionId>,
     pub key: Option<KeyId>,
     pub redirect_uri: Option<Option<String>>,

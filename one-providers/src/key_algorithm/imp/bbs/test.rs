@@ -1,13 +1,13 @@
 use super::*;
-use crate::common_models::{PublicKeyJwk, PublicKeyJwkEllipticData};
+use crate::common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData};
 
 struct TestData {
-    jwk: PublicKeyJwk,
+    jwk: OpenPublicKeyJwk,
     serialized: Vec<u8>,
 }
 fn get_test_key() -> TestData {
     TestData {
-        jwk: PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+        jwk: OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
             r#use: None,
             crv: "Bls12381G2".to_owned(),
             x: "Ajs8lstTgoTgXMF6QXdyh3m8k2ixxURGYLMaYylVK_x0F8HhE8zk0YWiGV3CHwpQEa2sH4PBZLaYCn8se-1clmCORDsKxbbw3Js_Alu4OmkV9gmbJsy1YF2rt7Vxzs6S".to_owned(),

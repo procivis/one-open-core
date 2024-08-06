@@ -24,15 +24,15 @@ use thiserror::Error;
 use url::Url;
 
 use crate::common_dto::PublicKeyJwkDTO;
-use crate::common_models::claim::Claim;
-use crate::common_models::credential::{Credential, CredentialId};
-use crate::common_models::credential_schema::{CredentialSchema, CredentialSchemaId};
-use crate::common_models::did::{Did, DidId, DidValue};
-use crate::common_models::interaction::{Interaction, InteractionId};
-use crate::common_models::key::Key;
+use crate::common_models::claim::OpenClaim;
+use crate::common_models::credential::{CredentialId, OpenCredential};
+use crate::common_models::credential_schema::{CredentialSchemaId, OpenCredentialSchema};
+use crate::common_models::did::{DidId, DidValue, OpenDid};
+use crate::common_models::interaction::{InteractionId, OpenInteraction};
 use crate::common_models::key::KeyId;
-use crate::common_models::organisation::Organisation;
-use crate::common_models::proof::Proof;
+use crate::common_models::key::OpenKey;
+use crate::common_models::organisation::OpenOrganisation;
+use crate::common_models::proof::OpenProof;
 use crate::credential_formatter::model::DetailCredential;
 
 pub mod error;
@@ -90,23 +90,26 @@ pub enum ExchangeProtocolError {
 #[async_trait::async_trait]
 pub trait StorageProxy: Send + Sync {
     /// Store an interaction with a chosen storage layer.
-    async fn create_interaction(&self, interaction: Interaction) -> anyhow::Result<InteractionId>;
+    async fn create_interaction(
+        &self,
+        interaction: OpenInteraction,
+    ) -> anyhow::Result<InteractionId>;
     /// Get a credential schema from a chosen storage layer.
-    async fn get_schema(&self, schema_id: &str) -> anyhow::Result<Option<CredentialSchema>>;
+    async fn get_schema(&self, schema_id: &str) -> anyhow::Result<Option<OpenCredentialSchema>>;
     /// Get credentials from a specified schema ID, from a chosen storage layer.
     async fn get_credentials_by_credential_schema_id(
         &self,
         schema_id: &str,
-    ) -> anyhow::Result<Vec<Credential>>;
+    ) -> anyhow::Result<Vec<OpenCredential>>;
     /// Create a credential schema in a chosen storage layer.
     async fn create_credential_schema(
         &self,
-        schema: CredentialSchema,
+        schema: OpenCredentialSchema,
     ) -> anyhow::Result<CredentialSchemaId>;
     /// Create a DID in a chosen storage layer.
-    async fn create_did(&self, did: Did) -> anyhow::Result<DidId>;
+    async fn create_did(&self, did: OpenDid) -> anyhow::Result<DidId>;
     /// Obtain a DID by its address, from a chosen storage layer.
-    async fn get_did_by_value(&self, value: &DidValue) -> anyhow::Result<Option<Did>>;
+    async fn get_did_by_value(&self, value: &DidValue) -> anyhow::Result<Option<OpenDid>>;
 }
 pub type StorageAccess = dyn StorageProxy;
 
@@ -116,8 +119,8 @@ pub struct BasicSchemaData {
 }
 
 pub struct BuildCredentialSchemaResponse {
-    pub claims: Vec<Claim>,
-    pub schema: CredentialSchema,
+    pub claims: Vec<OpenClaim>,
+    pub schema: OpenCredentialSchema,
 }
 
 /// Interface to be implemented in order to use an exchange protocol.
@@ -176,16 +179,16 @@ pub trait ExchangeProtocolImpl: Send + Sync {
     ) -> Result<InvitationResponseDTO, ExchangeProtocolError>;
 
     /// Rejects a verifier's request for credential presentation.
-    async fn reject_proof(&self, proof: &Proof) -> Result<(), ExchangeProtocolError>;
+    async fn reject_proof(&self, proof: &OpenProof) -> Result<(), ExchangeProtocolError>;
 
     /// Submits a presentation to a verifier.
     #[allow(clippy::too_many_arguments)]
     async fn submit_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         credential_presentations: Vec<PresentedCredential>,
-        holder_did: &Did,
-        key: &Key,
+        holder_did: &OpenDid,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
         format_map: HashMap<String, String>,
         presentation_format_map: HashMap<String, String>,
@@ -196,17 +199,19 @@ pub trait ExchangeProtocolImpl: Send + Sync {
     /// Storage access must be implemented.
     async fn accept_credential(
         &self,
-        credential: &Credential,
-        holder_did: &Did,
-        key: &Key,
+        credential: &OpenCredential,
+        holder_did: &OpenDid,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
         format: &str,
         storage_access: &StorageAccess,
     ) -> Result<UpdateResponse<SubmitIssuerResponse>, ExchangeProtocolError>;
 
     /// Rejects an offered credential.
-    async fn reject_credential(&self, credential: &Credential)
-        -> Result<(), ExchangeProtocolError>;
+    async fn reject_credential(
+        &self,
+        credential: &OpenCredential,
+    ) -> Result<(), ExchangeProtocolError>;
 
     /// Takes a proof request and filters held credentials,
     /// returning those which are acceptable for the request.
@@ -214,19 +219,19 @@ pub trait ExchangeProtocolImpl: Send + Sync {
     /// Storage access is needed to check held credentials.
     async fn get_presentation_definition(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         context: Self::VPInteractionContext,
         storage_access: &StorageAccess,
         format_map: HashMap<String, String>,
         types: HashMap<String, DatatypeType>,
-        organisation: Organisation,
+        organisation: OpenOrganisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError>;
 
     // Issuer methods:
     /// Generates QR-code content to start the credential issuance flow.
     async fn share_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         credential_format: &str,
     ) -> Result<ShareResponse<Self::VCInteractionContext>, ExchangeProtocolError>;
 
@@ -234,7 +239,7 @@ pub trait ExchangeProtocolImpl: Send + Sync {
     /// Generates QR-code content to start the proof request flow.
     async fn share_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         format_to_type_mapper: FormatMapper,
         key_id: KeyId,
         encryption_key_jwk: PublicKeyJwkDTO,
@@ -245,7 +250,7 @@ pub trait ExchangeProtocolImpl: Send + Sync {
     /// Checks if the submitted presentation complies with the given proof request.
     async fn verifier_handle_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         submission: &[u8],
     ) -> Result<Vec<DetailCredential>, ExchangeProtocolError>;
 }

@@ -4,7 +4,7 @@ use serde::Deserialize;
 use zeroize::Zeroizing;
 
 use crate::{
-    common_models::{PublicKeyJwk, PublicKeyJwkEllipticData},
+    common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
     crypto::SignerError,
     key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
@@ -58,8 +58,8 @@ impl KeyAlgorithm for Eddsa {
         &self,
         bytes: &[u8],
         r#use: Option<String>,
-    ) -> Result<PublicKeyJwk, KeyAlgorithmError> {
-        Ok(PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+    ) -> Result<OpenPublicKeyJwk, KeyAlgorithmError> {
+        Ok(OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
             r#use,
             crv: "Ed25519".to_string(),
             x: Base64UrlSafeNoPadding::encode_to_string(bytes)
@@ -68,8 +68,8 @@ impl KeyAlgorithm for Eddsa {
         }))
     }
 
-    fn jwk_to_bytes(&self, jwk: &PublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError> {
-        if let PublicKeyJwk::Okp(data) = jwk {
+    fn jwk_to_bytes(&self, jwk: &OpenPublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError> {
+        if let OpenPublicKeyJwk::Okp(data) = jwk {
             let x = Base64UrlSafeNoPadding::decode_to_vec(&data.x, None)
                 .map_err(|e| KeyAlgorithmError::Failed(e.to_string()))?;
 

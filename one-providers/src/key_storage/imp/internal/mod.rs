@@ -8,7 +8,7 @@ use sha2::{Digest, Sha256};
 use zeroize::Zeroizing;
 
 use crate::{
-    common_models::key::{Key, KeyId},
+    common_models::key::{KeyId, OpenKey},
     crypto::{imp::utilities, SignerError},
     key_algorithm::provider::KeyAlgorithmProvider,
     key_storage::{
@@ -45,7 +45,7 @@ impl InternalKeyProvider {
 
 #[async_trait::async_trait]
 impl KeyStorage for InternalKeyProvider {
-    async fn sign(&self, key: &Key, message: &[u8]) -> Result<Vec<u8>, SignerError> {
+    async fn sign(&self, key: &OpenKey, message: &[u8]) -> Result<Vec<u8>, SignerError> {
         let signer = self
             .key_algorithm_provider
             .get_signer(&key.key_type)
@@ -77,7 +77,7 @@ impl KeyStorage for InternalKeyProvider {
         })
     }
 
-    fn secret_key_as_jwk(&self, key: &Key) -> Result<Zeroizing<String>, KeyStorageError> {
+    fn secret_key_as_jwk(&self, key: &OpenKey) -> Result<Zeroizing<String>, KeyStorageError> {
         let private_key = decrypt_if_password_is_provided(&key.key_reference, &self.encryption_key)
             .map(Zeroizing::new)
             .map_err(|err| {

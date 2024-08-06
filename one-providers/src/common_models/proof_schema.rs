@@ -1,7 +1,7 @@
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-use super::{claim_schema::ClaimSchema, credential_schema::CredentialSchema};
+use super::{claim_schema::OpenClaimSchema, credential_schema::OpenCredentialSchema};
 use crate::common_models::macros::{impl_display, impl_from, impl_into};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
@@ -11,7 +11,7 @@ impl_from!(ProofSchemaId; Uuid);
 impl_into!(ProofSchemaId; Uuid);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ProofSchema {
+pub struct OpenProofSchema {
     pub id: ProofSchemaId,
     pub created_date: OffsetDateTime,
     pub last_modified: OffsetDateTime,
@@ -20,21 +20,21 @@ pub struct ProofSchema {
     pub expire_duration: u32,
 
     // Relations
-    pub input_schemas: Option<Vec<ProofInputSchema>>,
+    pub input_schemas: Option<Vec<OpenProofInputSchema>>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Default)]
-pub struct ProofInputSchema {
+pub struct OpenProofInputSchema {
     pub validity_constraint: Option<i64>,
 
     // Relations
-    pub claim_schemas: Option<Vec<ProofInputClaimSchema>>,
-    pub credential_schema: Option<CredentialSchema>,
+    pub claim_schemas: Option<Vec<OpenProofInputClaimSchema>>,
+    pub credential_schema: Option<OpenCredentialSchema>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ProofInputClaimSchema {
-    pub schema: ClaimSchema,
+pub struct OpenProofInputClaimSchema {
+    pub schema: OpenClaimSchema,
     pub required: bool,
     pub order: u32,
 }

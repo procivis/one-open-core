@@ -12,21 +12,23 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 
 use super::{build_claims_keys_for_mdoc, OpenID4VCHTTP, OpenID4VCParams};
 use crate::common_dto::{PublicKeyJwkDTO, PublicKeyJwkEllipticDataDTO};
-use crate::common_models::claim::Claim;
-use crate::common_models::claim_schema::ClaimSchema;
+use crate::common_models::claim::OpenClaim;
+use crate::common_models::claim_schema::OpenClaimSchema;
 use crate::common_models::credential::{
-    Credential, CredentialRole, CredentialState, CredentialStateEnum,
+    OpenCredential, OpenCredentialRole, OpenCredentialState, OpenCredentialStateEnum,
 };
 use crate::common_models::credential_schema::{
-    CredentialSchema, CredentialSchemaClaim, LayoutType, WalletStorageTypeEnum,
+    OpenCredentialSchema, OpenCredentialSchemaClaim, OpenLayoutType, OpenWalletStorageTypeEnum,
 };
-use crate::common_models::did::{Did, DidType, KeyRole, RelatedKey};
-use crate::common_models::interaction::Interaction;
-use crate::common_models::key::Key;
-use crate::common_models::organisation::Organisation;
-use crate::common_models::proof::{Proof, ProofState, ProofStateEnum};
-use crate::common_models::proof_schema::{ProofInputClaimSchema, ProofInputSchema, ProofSchema};
-use crate::common_models::{PublicKeyJwk, PublicKeyJwkEllipticData};
+use crate::common_models::did::{DidType, KeyRole, OpenDid, RelatedKey};
+use crate::common_models::interaction::OpenInteraction;
+use crate::common_models::key::OpenKey;
+use crate::common_models::organisation::OpenOrganisation;
+use crate::common_models::proof::{OpenProof, OpenProofState, OpenProofStateEnum};
+use crate::common_models::proof_schema::{
+    OpenProofInputClaimSchema, OpenProofInputSchema, OpenProofSchema,
+};
+use crate::common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData};
 use crate::credential_formatter::provider::MockCredentialFormatterProvider;
 use crate::exchange_protocol::openid4vc::imp::mappers::get_parent_claim_paths;
 use crate::exchange_protocol::openid4vc::model::{
@@ -71,10 +73,10 @@ fn setup_protocol(inputs: TestInputs) -> OpenID4VCHTTP {
     )
 }
 
-fn construct_proof_with_state(transport: &str) -> Proof {
+fn construct_proof_with_state(transport: &str) -> OpenProof {
     let now = OffsetDateTime::now_utc();
 
-    Proof {
+    OpenProof {
         id: Uuid::new_v4().into(),
         created_date: OffsetDateTime::now_utc(),
         last_modified: OffsetDateTime::now_utc(),
@@ -82,22 +84,22 @@ fn construct_proof_with_state(transport: &str) -> Proof {
         transport: transport.to_string(),
         exchange: "OPENID4VC".to_string(),
         redirect_uri: None,
-        state: Some(vec![ProofState {
+        state: Some(vec![OpenProofState {
             created_date: OffsetDateTime::now_utc(),
             last_modified: OffsetDateTime::now_utc(),
-            state: ProofStateEnum::Pending,
+            state: OpenProofStateEnum::Pending,
         }]),
-        schema: Some(ProofSchema {
+        schema: Some(OpenProofSchema {
             id: Uuid::new_v4().into(),
             created_date: OffsetDateTime::now_utc(),
             last_modified: OffsetDateTime::now_utc(),
             deleted_at: None,
             name: "schema".to_string(),
             expire_duration: 10,
-            input_schemas: Some(vec![ProofInputSchema {
+            input_schemas: Some(vec![OpenProofInputSchema {
                 validity_constraint: None,
-                claim_schemas: Some(vec![ProofInputClaimSchema {
-                    schema: ClaimSchema {
+                claim_schemas: Some(vec![OpenProofInputClaimSchema {
+                    schema: OpenClaimSchema {
                         id: Uuid::new_v4().into(),
                         key: "first_name".to_string(),
                         data_type: "STRING".to_string(),
@@ -108,17 +110,17 @@ fn construct_proof_with_state(transport: &str) -> Proof {
                     required: true,
                     order: 0,
                 }]),
-                credential_schema: Some(CredentialSchema {
+                credential_schema: Some(OpenCredentialSchema {
                     id: Uuid::new_v4().into(),
                     deleted_at: None,
                     created_date: OffsetDateTime::now_utc(),
                     last_modified: OffsetDateTime::now_utc(),
-                    wallet_storage_type: Some(WalletStorageTypeEnum::Software),
+                    wallet_storage_type: Some(OpenWalletStorageTypeEnum::Software),
                     name: "credential schema".to_string(),
                     format: "JWT".to_string(),
                     revocation_method: "NONE".to_string(),
                     claim_schemas: None,
-                    layout_type: LayoutType::Card,
+                    layout_type: OpenLayoutType::Card,
                     layout_properties: None,
                     schema_type: "ProcivisOneSchema2024".into(),
                     schema_id: "CredentialSchemaId".to_owned(),
@@ -126,7 +128,7 @@ fn construct_proof_with_state(transport: &str) -> Proof {
             }]),
         }),
         claims: None,
-        verifier_did: Some(Did {
+        verifier_did: Some(OpenDid {
             id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb966")
                 .unwrap()
                 .into(),
@@ -138,7 +140,7 @@ fn construct_proof_with_state(transport: &str) -> Proof {
             did_method: "KEY".to_string(),
             keys: Some(vec![RelatedKey {
                 role: KeyRole::KeyAgreement,
-                key: Key {
+                key: OpenKey {
                     id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
                         .unwrap()
                         .into(),
@@ -160,10 +162,10 @@ fn construct_proof_with_state(transport: &str) -> Proof {
     }
 }
 
-fn generic_credential() -> Credential {
+fn generic_credential() -> OpenCredential {
     let now = OffsetDateTime::now_utc();
 
-    let claim_schema = ClaimSchema {
+    let claim_schema = OpenClaimSchema {
         id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
             .unwrap()
             .into(),
@@ -177,7 +179,7 @@ fn generic_credential() -> Credential {
     let credential_id = Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
         .unwrap()
         .into();
-    Credential {
+    OpenCredential {
         id: credential_id,
         created_date: now,
         issuance_date: now,
@@ -186,13 +188,13 @@ fn generic_credential() -> Credential {
         credential: vec![],
         exchange: "PROCIVIS_TEMPORARY".to_string(),
         redirect_uri: None,
-        role: CredentialRole::Issuer,
-        state: Some(vec![CredentialState {
+        role: OpenCredentialRole::Issuer,
+        state: Some(vec![OpenCredentialState {
             created_date: now,
-            state: CredentialStateEnum::Created,
+            state: OpenCredentialStateEnum::Created,
             suspend_end_date: None,
         }]),
-        claims: Some(vec![Claim {
+        claims: Some(vec![OpenClaim {
             id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
                 .unwrap()
                 .into(),
@@ -203,7 +205,7 @@ fn generic_credential() -> Credential {
             path: claim_schema.key.to_owned(),
             schema: Some(claim_schema.clone()),
         }]),
-        issuer_did: Some(Did {
+        issuer_did: Some(OpenDid {
             id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
                 .unwrap()
                 .into(),
@@ -217,27 +219,27 @@ fn generic_credential() -> Credential {
             deactivated: false,
         }),
         holder_did: None,
-        schema: Some(CredentialSchema {
+        schema: Some(OpenCredentialSchema {
             id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
                 .unwrap()
                 .into(),
             deleted_at: None,
             created_date: now,
-            wallet_storage_type: Some(WalletStorageTypeEnum::Software),
+            wallet_storage_type: Some(OpenWalletStorageTypeEnum::Software),
             last_modified: now,
             name: "schema".to_string(),
             format: "JWT".to_string(),
             revocation_method: "NONE".to_string(),
-            claim_schemas: Some(vec![CredentialSchemaClaim {
+            claim_schemas: Some(vec![OpenCredentialSchemaClaim {
                 schema: claim_schema,
                 required: true,
             }]),
-            layout_type: LayoutType::Card,
+            layout_type: OpenLayoutType::Card,
             layout_properties: None,
             schema_type: "ProcivisOneSchema2024".into(),
             schema_id: "CredentialSchemaId".to_owned(),
         }),
-        interaction: Some(Interaction {
+        interaction: Some(OpenInteraction {
             id: Uuid::from_str("c322aa7f-9803-410d-b891-939b279fb965")
                 .unwrap()
                 .into(),
@@ -349,7 +351,7 @@ async fn test_generate_share_proof_open_id_flow_success() {
     let mut key_algorithm_provider = MockKeyAlgorithmProvider::default();
 
     key_algorithm.expect_bytes_to_jwk().return_once(|_, _| {
-        Ok(PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+        Ok(OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
             r#use: None,
             crv: "123".to_string(),
             x: "456".to_string(),
@@ -387,9 +389,9 @@ async fn test_generate_share_proof_open_id_flow_success() {
         .starts_with(r#"openid4vp://?response_type=vp_token"#))
 }
 
-fn generic_organisation() -> Organisation {
+fn generic_organisation() -> OpenOrganisation {
     let now = OffsetDateTime::now_utc();
-    Organisation {
+    OpenOrganisation {
         id: Uuid::new_v4().into(),
         created_date: now,
         last_modified: now,

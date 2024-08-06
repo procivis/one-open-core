@@ -6,11 +6,13 @@ use time::macros::datetime;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
-use crate::common_models::claim_schema::ClaimSchema;
-use crate::common_models::credential_schema::{CredentialSchema, LayoutType};
+use crate::common_models::claim_schema::OpenClaimSchema;
+use crate::common_models::credential_schema::{OpenCredentialSchema, OpenLayoutType};
 use crate::common_models::did::DidValue;
-use crate::common_models::proof::{Proof, ProofState, ProofStateEnum};
-use crate::common_models::proof_schema::{ProofInputClaimSchema, ProofInputSchema, ProofSchema};
+use crate::common_models::proof::{OpenProof, OpenProofState, OpenProofStateEnum};
+use crate::common_models::proof_schema::{
+    OpenProofInputClaimSchema, OpenProofInputSchema, OpenProofSchema,
+};
 use crate::credential_formatter::model::{CredentialSubject, DetailCredential};
 use crate::exchange_protocol::openid4vc::error::{OpenID4VCError, OpenID4VCIError};
 use crate::exchange_protocol::openid4vc::mapper::vec_last_position_from_token_path;
@@ -74,13 +76,13 @@ fn generic_detail_credential() -> DetailCredential {
     }
 }
 
-fn generic_proof_input_schema() -> ProofInputSchema {
+fn generic_proof_input_schema() -> OpenProofInputSchema {
     let now = OffsetDateTime::now_utc();
 
-    ProofInputSchema {
+    OpenProofInputSchema {
         validity_constraint: Some(100),
         claim_schemas: None,
-        credential_schema: Some(CredentialSchema {
+        credential_schema: Some(OpenCredentialSchema {
             id: Uuid::new_v4().into(),
             deleted_at: None,
             created_date: now,
@@ -89,7 +91,7 @@ fn generic_proof_input_schema() -> ProofInputSchema {
             format: "JWT".to_string(),
             revocation_method: "None".to_string(),
             wallet_storage_type: None,
-            layout_type: LayoutType::Card,
+            layout_type: OpenLayoutType::Card,
             layout_properties: None,
             schema_id: "".to_string(),
             schema_type: "".to_string(),
@@ -111,8 +113,8 @@ fn test_validate_claims_success_nested_claims() {
 
     let mut proof_input_schema = generic_proof_input_schema();
     proof_input_schema.claim_schemas = Some(vec![
-        ProofInputClaimSchema {
-            schema: ClaimSchema {
+        OpenProofInputClaimSchema {
+            schema: OpenClaimSchema {
                 id: Uuid::new_v4().into(),
                 key: "location/X".to_owned(),
                 data_type: "STRING".to_owned(),
@@ -123,8 +125,8 @@ fn test_validate_claims_success_nested_claims() {
             required: true,
             order: 0,
         },
-        ProofInputClaimSchema {
-            schema: ClaimSchema {
+        OpenProofInputClaimSchema {
+            schema: OpenClaimSchema {
                 id: Uuid::new_v4().into(),
                 key: "location/Y".to_owned(),
                 data_type: "STRING".to_owned(),
@@ -153,8 +155,8 @@ fn test_validate_claims_failed_malformed_claim() {
 
     let mut proof_input_schema = generic_proof_input_schema();
     proof_input_schema.claim_schemas = Some(vec![
-        ProofInputClaimSchema {
-            schema: ClaimSchema {
+        OpenProofInputClaimSchema {
+            schema: OpenClaimSchema {
                 id: Uuid::new_v4().into(),
                 key: "location/X".to_owned(),
                 data_type: "STRING".to_owned(),
@@ -165,8 +167,8 @@ fn test_validate_claims_failed_malformed_claim() {
             required: true,
             order: 0,
         },
-        ProofInputClaimSchema {
-            schema: ClaimSchema {
+        OpenProofInputClaimSchema {
+            schema: OpenClaimSchema {
                 id: Uuid::new_v4().into(),
                 key: "location/Y".to_owned(),
                 data_type: "STRING".to_owned(),
@@ -224,7 +226,7 @@ fn interaction_content() -> OpenID4VPInteractionContent {
 
 #[test]
 fn test_oidc_verifier_presentation_definition_success() {
-    let proof = Proof {
+    let proof = OpenProof {
         id: Uuid::new_v4().into(),
         created_date: get_dummy_date(),
         last_modified: get_dummy_date(),
@@ -232,22 +234,22 @@ fn test_oidc_verifier_presentation_definition_success() {
         exchange: "OPENID4VC".to_string(),
         transport: "HTTP".to_string(),
         redirect_uri: None,
-        state: Some(vec![ProofState {
+        state: Some(vec![OpenProofState {
             created_date: get_dummy_date(),
             last_modified: get_dummy_date(),
-            state: ProofStateEnum::Pending,
+            state: OpenProofStateEnum::Pending,
         }]),
-        schema: Some(ProofSchema {
+        schema: Some(OpenProofSchema {
             id: Uuid::default().into(),
             created_date: get_dummy_date(),
             last_modified: get_dummy_date(),
             deleted_at: None,
             name: "test".to_string(),
             expire_duration: 0,
-            input_schemas: Some(vec![ProofInputSchema {
+            input_schemas: Some(vec![OpenProofInputSchema {
                 validity_constraint: Some(100),
-                claim_schemas: Some(vec![ProofInputClaimSchema {
-                    schema: ClaimSchema {
+                claim_schemas: Some(vec![OpenProofInputClaimSchema {
+                    schema: OpenClaimSchema {
                         id: Uuid::from_str("2fa85f64-5717-4562-b3fc-2c963f66afa6")
                             .unwrap()
                             .into(),
@@ -260,7 +262,7 @@ fn test_oidc_verifier_presentation_definition_success() {
                     required: true,
                     order: 0,
                 }]),
-                credential_schema: Some(CredentialSchema {
+                credential_schema: Some(OpenCredentialSchema {
                     id: Uuid::from_str("3fa85f64-5717-4562-b3fc-2c963f66afa6")
                         .unwrap()
                         .into(),
@@ -272,7 +274,7 @@ fn test_oidc_verifier_presentation_definition_success() {
                     revocation_method: "NONE".to_owned(),
                     wallet_storage_type: None,
                     claim_schemas: None,
-                    layout_type: LayoutType::Card,
+                    layout_type: OpenLayoutType::Card,
                     layout_properties: None,
                     schema_type: "".to_string(),
                     schema_id: "CredentialSchemaId".to_owned(),

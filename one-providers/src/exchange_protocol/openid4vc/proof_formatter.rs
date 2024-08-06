@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
 use crate::{
-    common_models::did::Did,
+    common_models::did::OpenDid,
     credential_formatter::{
         error::FormatterError,
         imp::jwt::{model::JWTPayload, Jwt},
@@ -24,7 +24,7 @@ impl OpenID4VCIProofJWTFormatter {
     }
     pub async fn format_proof(
         issuer_url: String,
-        holder_did: &Did,
+        holder_did: &OpenDid,
         algorithm: String,
         auth_fn: AuthenticationFn,
     ) -> Result<String, FormatterError> {

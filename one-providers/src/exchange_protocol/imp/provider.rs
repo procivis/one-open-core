@@ -8,11 +8,11 @@ use serde::Serialize;
 use url::Url;
 
 use crate::common_dto::PublicKeyJwkDTO;
-use crate::common_models::credential::Credential;
-use crate::common_models::did::Did;
-use crate::common_models::key::{Key, KeyId};
-use crate::common_models::organisation::Organisation;
-use crate::common_models::proof::Proof;
+use crate::common_models::credential::OpenCredential;
+use crate::common_models::did::OpenDid;
+use crate::common_models::key::{KeyId, OpenKey};
+use crate::common_models::organisation::OpenOrganisation;
+use crate::common_models::proof::OpenProof;
 use crate::credential_formatter::model::DetailCredential;
 use crate::exchange_protocol::openid4vc::model::{
     DatatypeType, InvitationResponseDTO, OpenID4VPFormat, PresentationDefinitionResponseDTO,
@@ -65,16 +65,16 @@ where
             .await
     }
 
-    async fn reject_proof(&self, proof: &Proof) -> Result<(), ExchangeProtocolError> {
+    async fn reject_proof(&self, proof: &OpenProof) -> Result<(), ExchangeProtocolError> {
         self.inner.reject_proof(proof).await
     }
 
     async fn submit_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         credential_presentations: Vec<PresentedCredential>,
-        holder_did: &Did,
-        key: &Key,
+        holder_did: &OpenDid,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
         format_map: HashMap<String, String>,
         presentation_format_map: HashMap<String, String>,
@@ -94,9 +94,9 @@ where
 
     async fn accept_credential(
         &self,
-        credential: &Credential,
-        holder_did: &Did,
-        key: &Key,
+        credential: &OpenCredential,
+        holder_did: &OpenDid,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
         format: &str,
         storage_access: &StorageAccess,
@@ -115,19 +115,19 @@ where
 
     async fn reject_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
     ) -> Result<(), ExchangeProtocolError> {
         self.inner.reject_credential(credential).await
     }
 
     async fn get_presentation_definition(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         interaction_data: Self::VPInteractionContext,
         storage_access: &StorageAccess,
         format_map: HashMap<String, String>,
         types: HashMap<String, DatatypeType>,
-        organisation: Organisation,
+        organisation: OpenOrganisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError> {
         let interaction_data =
             serde_json::from_value(interaction_data).map_err(ExchangeProtocolError::JsonError)?;
@@ -145,7 +145,7 @@ where
 
     async fn share_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         credential_format: &str,
     ) -> Result<ShareResponse<Self::VCInteractionContext>, ExchangeProtocolError> {
         self.inner
@@ -160,7 +160,7 @@ where
 
     async fn share_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         format_to_type_mapper: FormatMapper,
         key_id: KeyId,
         encryption_key_jwk: PublicKeyJwkDTO,
@@ -186,7 +186,7 @@ where
 
     async fn verifier_handle_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         submission: &[u8],
     ) -> Result<Vec<DetailCredential>, ExchangeProtocolError> {
         self.inner.verifier_handle_proof(proof, submission).await

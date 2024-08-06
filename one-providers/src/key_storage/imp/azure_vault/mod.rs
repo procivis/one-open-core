@@ -18,7 +18,7 @@ use uuid::Uuid;
 use zeroize::Zeroizing;
 
 use crate::{
-    common_models::key::{Key, KeyId},
+    common_models::key::{KeyId, OpenKey},
     crypto::{imp::signer::es256::ES256Signer, CryptoProvider, SignerError},
     key_storage::{
         error::KeyStorageError,
@@ -99,7 +99,7 @@ impl KeyStorage for AzureVaultKeyProvider {
         })
     }
 
-    async fn sign(&self, key: &Key, message: &[u8]) -> Result<Vec<u8>, SignerError> {
+    async fn sign(&self, key: &OpenKey, message: &[u8]) -> Result<Vec<u8>, SignerError> {
         let key_reference = String::from_utf8(key.key_reference.to_owned())
             .map_err(|e| SignerError::CouldNotSign(e.to_string()))?;
         let url = Url::parse(&format!("{key_reference}/sign?api-version=7.4"))
@@ -131,7 +131,7 @@ impl KeyStorage for AzureVaultKeyProvider {
         Ok(decoded)
     }
 
-    fn secret_key_as_jwk(&self, _key: &Key) -> Result<Zeroizing<String>, KeyStorageError> {
+    fn secret_key_as_jwk(&self, _key: &OpenKey) -> Result<Zeroizing<String>, KeyStorageError> {
         unimplemented!()
     }
 

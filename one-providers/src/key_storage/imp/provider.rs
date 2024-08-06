@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    common_models::key::Key,
+    common_models::key::OpenKey,
     credential_formatter::model::SignatureProvider,
     crypto::SignerError,
     key_storage::{provider::KeyProvider, KeyStorage},
@@ -25,7 +25,7 @@ impl KeyProvider for KeyProviderImpl {
 
 pub(crate) struct SignatureProviderImpl {
     pub storage: Arc<dyn KeyStorage>,
-    pub key: Key,
+    pub key: OpenKey,
     pub jwk_key_id: Option<String>,
 }
 

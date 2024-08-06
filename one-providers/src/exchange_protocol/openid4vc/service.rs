@@ -22,16 +22,16 @@ use super::model::{
     ValidatedProofClaimDTO,
 };
 use crate::common_dto::PublicKeyJwkDTO;
-use crate::common_models::claim::Claim;
-use crate::common_models::claim_schema::ClaimSchema;
-use crate::common_models::credential::{Credential, CredentialStateEnum};
+use crate::common_models::claim::OpenClaim;
+use crate::common_models::claim_schema::OpenClaimSchema;
+use crate::common_models::credential::{OpenCredential, OpenCredentialStateEnum};
 use crate::common_models::credential_schema::{
-    CredentialSchema, CredentialSchemaId, WalletStorageTypeEnum,
+    CredentialSchemaId, OpenCredentialSchema, OpenWalletStorageTypeEnum,
 };
 use crate::common_models::did::KeyRole;
-use crate::common_models::interaction::{Interaction, InteractionId};
+use crate::common_models::interaction::{InteractionId, OpenInteraction};
 use crate::common_models::key::KeyId;
-use crate::common_models::proof::{Proof, ProofStateEnum};
+use crate::common_models::proof::{OpenProof, OpenProofStateEnum};
 use crate::credential_formatter::error::FormatterError;
 use crate::credential_formatter::model::{DetailCredential, ExtractPresentationCtx};
 use crate::credential_formatter::provider::CredentialFormatterProvider;
@@ -60,7 +60,7 @@ pub fn create_issuer_metadata_response(
     schema_id: &str,
     schema_type: &str,
     schema_name: &str,
-    wallet_storage_type: Option<WalletStorageTypeEnum>,
+    wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
 ) -> Result<OpenID4VCIIssuerMetadataResponseDTO, OpenID4VCIError> {
     let credentials_supported = credentials_supported(
         wallet_storage_type,
@@ -77,7 +77,7 @@ pub fn create_issuer_metadata_response(
 }
 
 fn credentials_supported(
-    wallet_storage_type: Option<WalletStorageTypeEnum>,
+    wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
     oidc_format: &str,
     schema_id: &str,
     schema_type: &str,
@@ -150,10 +150,10 @@ pub fn get_credential_schema_base_url(
 }
 
 pub fn oidc_verifier_presentation_definition(
-    proof: Proof,
+    proof: OpenProof,
     mut interaction_content: OpenID4VPInteractionContent,
 ) -> Result<OpenID4VPPresentationDefinition, OpenID4VCError> {
-    throw_if_latest_proof_state_not_eq(&proof, ProofStateEnum::Pending)?;
+    throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Pending)?;
 
     let proof_schema = proof.schema.as_ref().ok_or(OpenID4VCError::MappingError(
         "Proof schema not found".to_string(),
@@ -199,7 +199,7 @@ pub fn oidc_verifier_presentation_definition(
 #[allow(clippy::too_many_arguments)]
 pub async fn oidc_verifier_direct_post(
     request: RequestData,
-    proof: Proof,
+    proof: OpenProof,
     interaction_data: &[u8],
     did_method_provider: &Arc<dyn DidMethodProvider>,
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
@@ -208,7 +208,7 @@ pub async fn oidc_verifier_direct_post(
     fn_map_oidc_to_core: FnMapOidcVpFormatToCore,
     fn_map_oidc_to_core_real: FnMapOidcFormatToCoreReal,
 ) -> Result<(AcceptProofResult, OpenID4VPDirectPostResponseDTO), OpenID4VCError> {
-    throw_if_latest_proof_state_not_eq(&proof, ProofStateEnum::Pending)?;
+    throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Pending)?;
 
     let proved_claims = process_proof_submission(
         request,
@@ -233,7 +233,7 @@ pub type FnMapOidcFormatToCoreReal = fn(&str, &str) -> Result<String, OpenID4VCE
 #[allow(clippy::too_many_arguments)]
 async fn process_proof_submission(
     submission: RequestData,
-    proof: &Proof,
+    proof: &OpenProof,
     interaction_data: &[u8],
     did_method_provider: &Arc<dyn DidMethodProvider>,
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
@@ -474,7 +474,7 @@ fn build_key_verification(
 }
 
 async fn accept_proof(
-    proof: Proof,
+    proof: OpenProof,
     proved_claims: Vec<ValidatedProofClaimDTO>,
 ) -> Result<AcceptProofResult, OpenID4VCError> {
     let proof_schema = proof.schema.ok_or(OpenID4VCError::MappingError(
@@ -510,10 +510,10 @@ async fn accept_proof(
 
     #[derive(Debug)]
     struct ProvedClaim {
-        claim_schema: ClaimSchema,
+        claim_schema: OpenClaimSchema,
         value: serde_json::Value,
         credential: DetailCredential,
-        credential_schema: CredentialSchema,
+        credential_schema: OpenCredentialSchema,
     }
     let proved_claims = proved_claims
         .into_iter()
@@ -537,9 +537,9 @@ async fn accept_proof(
 
     let mut proved_credentials = vec![];
 
-    let mut proof_claims: Vec<Claim> = vec![];
+    let mut proof_claims: Vec<OpenClaim> = vec![];
     for (credential_schema_id, credential_claims) in claims_per_credential {
-        let claims: Vec<(serde_json::Value, ClaimSchema)> = credential_claims
+        let claims: Vec<(serde_json::Value, OpenClaimSchema)> = credential_claims
             .iter()
             .map(|claim| (claim.value.to_owned(), claim.claim_schema.to_owned()))
             .collect();
@@ -614,9 +614,9 @@ pub fn create_credential_offer(
 }
 
 pub fn credentials_format(
-    wallet_storage_type: Option<WalletStorageTypeEnum>,
+    wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
     oidc_format: &str,
-    claims: &[Claim],
+    claims: &[OpenClaim],
 ) -> Result<Vec<OpenID4VCICredentialOfferCredentialDTO>, OpenID4VCError> {
     Ok(vec![OpenID4VCICredentialOfferCredentialDTO {
         wallet_storage_type,
@@ -644,8 +644,8 @@ pub fn credentials_format(
 
 pub fn oidc_create_token(
     mut interaction_data: OpenID4VCIInteractionDataDTO,
-    credentials: &[Credential],
-    interaction: &Interaction,
+    credentials: &[OpenCredential],
+    interaction: &OpenInteraction,
     request: &OpenID4VCITokenRequestDTO,
     pre_authorization_expires_in: Duration,
     access_token_expires_in: Duration,
@@ -668,7 +668,10 @@ pub fn oidc_create_token(
             throw_if_interaction_pre_authorized_code_used(&interaction_data)?;
 
             credentials.iter().try_for_each(|credential| {
-                throw_if_latest_credential_state_not_eq(credential, CredentialStateEnum::Pending)
+                throw_if_latest_credential_state_not_eq(
+                    credential,
+                    OpenCredentialStateEnum::Pending,
+                )
             })?;
 
             interaction_data.pre_authorized_code_used = true;

@@ -4,7 +4,7 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::common_models::{
-    key::Key,
+    key::OpenKey,
     macros::{impl_display, impl_from, impl_into},
 };
 
@@ -29,7 +29,7 @@ impl DidValue {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Did {
+pub struct OpenDid {
     pub id: DidId,
     pub created_date: OffsetDateTime,
     pub last_modified: OffsetDateTime,
@@ -62,5 +62,5 @@ pub enum KeyRole {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RelatedKey {
     pub role: KeyRole,
-    pub key: Key,
+    pub key: OpenKey,
 }

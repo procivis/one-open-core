@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    common_models::PublicKeyJwk,
+    common_models::OpenPublicKeyJwk,
     crypto::{CryptoProvider, Signer},
     key_algorithm::{
         error::KeyAlgorithmProviderError, model::ParsedPublicKeyJwk,
@@ -40,7 +40,7 @@ impl KeyAlgorithmProvider for KeyAlgorithmProviderImpl {
 
     fn parse_jwk(
         &self,
-        key: &PublicKeyJwk,
+        key: &OpenPublicKeyJwk,
     ) -> Result<ParsedPublicKeyJwk, KeyAlgorithmProviderError> {
         for algorithm in self.algorithms.values() {
             if let Ok(public_key_bytes) = algorithm.jwk_to_bytes(key) {

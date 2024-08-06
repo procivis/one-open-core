@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::{
     macros::{impl_display, impl_from, impl_into},
-    organisation::Organisation,
+    organisation::OpenOrganisation,
 };
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -14,7 +14,7 @@ impl_from!(KeyId; Uuid);
 impl_into!(KeyId; Uuid);
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Key {
+pub struct OpenKey {
     pub id: KeyId,
     pub created_date: OffsetDateTime,
     pub last_modified: OffsetDateTime,
@@ -25,5 +25,5 @@ pub struct Key {
     pub key_type: String,
 
     // Relations:
-    pub organisation: Option<Organisation>,
+    pub organisation: Option<OpenOrganisation>,
 }

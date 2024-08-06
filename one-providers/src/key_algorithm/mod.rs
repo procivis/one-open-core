@@ -12,7 +12,7 @@ use error::KeyAlgorithmError;
 use model::GeneratedKey;
 use zeroize::Zeroizing;
 
-use crate::common_models::PublicKeyJwk;
+use crate::common_models::OpenPublicKeyJwk;
 
 pub mod error;
 pub mod imp;
@@ -36,10 +36,10 @@ pub trait KeyAlgorithm: Send + Sync {
         &self,
         bytes: &[u8],
         r#use: Option<String>,
-    ) -> Result<PublicKeyJwk, KeyAlgorithmError>;
+    ) -> Result<OpenPublicKeyJwk, KeyAlgorithmError>;
 
     /// Converts JWK to key bytes.
-    fn jwk_to_bytes(&self, jwk: &PublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError>;
+    fn jwk_to_bytes(&self, jwk: &OpenPublicKeyJwk) -> Result<Vec<u8>, KeyAlgorithmError>;
 
     /// Converts a private key to JWK. **Use carefully.**
     ///

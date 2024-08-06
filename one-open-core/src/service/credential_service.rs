@@ -11,7 +11,7 @@ use std::sync::Arc;
 use one_providers::{
     common_models::{
         did::{DidValue, KeyRole},
-        key::Key,
+        key::OpenKey,
     },
     credential_formatter::{
         model::{CredentialData, CredentialPresentation, DetailCredential},
@@ -57,7 +57,7 @@ impl CredentialService {
         format: CredentialFormat,
         algorithm: KeyAlgorithmType,
         holder_did: DidValue,
-        key: Key,
+        key: OpenKey,
     ) -> Result<String, CredentialServiceError> {
         let auth_fn = self
             .key_storage_provider

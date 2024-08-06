@@ -5,7 +5,7 @@ use thiserror::Error;
 use crate::{
     caching_loader::CachingLoaderError,
     common_models::{
-        credential::{CredentialId, CredentialStateEnum},
+        credential::{CredentialId, OpenCredentialStateEnum},
         did::{DidId, KeyRole},
     },
     credential_formatter::error::FormatterError,
@@ -22,7 +22,7 @@ pub enum RevocationError {
     #[error("Formatter not found: `{0}`")]
     FormatterNotFound(String),
     #[error("Invalid credential state: `{0}`")]
-    InvalidCredentialState(CredentialStateEnum),
+    InvalidCredentialState(OpenCredentialStateEnum),
     #[error("Key with role `{0}` not found`")]
     KeyWithRoleNotFound(KeyRole),
     #[error("Mapping error: `{0}`")]

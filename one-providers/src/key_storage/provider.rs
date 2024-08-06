@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::{error::KeyStorageProviderError, imp::provider::SignatureProviderImpl, KeyStorage};
-use crate::{common_models::key::Key, credential_formatter::model::AuthenticationFn};
+use crate::{common_models::key::OpenKey, credential_formatter::model::AuthenticationFn};
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait KeyProvider: Send + Sync {
@@ -11,7 +11,7 @@ pub trait KeyProvider: Send + Sync {
 
     fn get_signature_provider(
         &self,
-        key: &Key,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
     ) -> Result<AuthenticationFn, KeyStorageProviderError> {
         let storage = self.get_key_storage(&key.storage_type).ok_or(

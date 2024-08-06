@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_jwk_to_bytes() {
-    let jwk = PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+    let jwk = OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
         r#use: None,
         crv: "Ed25519".to_owned(),
         x: "m7AE5UQdjLuCOnZHB1gCFfo2uvhM6W_4xFmpJK02r7s".to_owned(),

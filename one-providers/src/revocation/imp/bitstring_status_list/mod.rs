@@ -4,8 +4,8 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     common_models::{
-        credential::{Credential, CredentialId, CredentialStateEnum},
-        did::{Did, DidId, DidValue, KeyRole},
+        credential::{CredentialId, OpenCredential, OpenCredentialStateEnum},
+        did::{DidId, DidValue, KeyRole, OpenDid},
     },
     credential_formatter::model::CredentialStatus,
     did::provider::DidMethodProvider,
@@ -53,7 +53,7 @@ impl RevocationMethod for BitstringStatusList {
 
     async fn add_issued_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         additional_data: Option<CredentialAdditionalData>,
     ) -> Result<(Option<RevocationUpdate>, Vec<CredentialRevocationInfo>), RevocationError> {
         let data = additional_data.ok_or(RevocationError::MappingError(
@@ -98,7 +98,7 @@ impl RevocationMethod for BitstringStatusList {
 
     async fn mark_credential_as(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         new_state: CredentialRevocationState,
         additional_data: Option<CredentialAdditionalData>,
     ) -> Result<RevocationUpdate, RevocationError> {
@@ -222,7 +222,7 @@ impl RevocationMethod for BitstringStatusList {
 impl BitstringStatusList {
     async fn get_credential_index_on_revocation_list(
         &self,
-        credentials_by_issuer_did: &[Credential],
+        credentials_by_issuer_did: &[OpenCredential],
         credential_id: &CredentialId,
         issuer_did_id: &DidId,
     ) -> Result<usize, RevocationError> {
@@ -264,7 +264,7 @@ impl BitstringStatusList {
     async fn mark_credential_as_impl(
         &self,
         purpose: RevocationListPurpose,
-        credential: &Credential,
+        credential: &OpenCredential,
         new_revocation_value: bool,
         data: CredentialAdditionalData,
     ) -> Result<RevocationUpdate, RevocationError> {
@@ -316,10 +316,10 @@ pub struct BitstringCredentialInfo {
     pub value: bool,
 }
 
-pub fn purpose_to_credential_state_enum(purpose: RevocationListPurpose) -> CredentialStateEnum {
+pub fn purpose_to_credential_state_enum(purpose: RevocationListPurpose) -> OpenCredentialStateEnum {
     match purpose {
-        RevocationListPurpose::Revocation => CredentialStateEnum::Revoked,
-        RevocationListPurpose::Suspension => CredentialStateEnum::Suspended,
+        RevocationListPurpose::Revocation => OpenCredentialStateEnum::Revoked,
+        RevocationListPurpose::Suspension => OpenCredentialStateEnum::Suspended,
     }
 }
 
@@ -332,7 +332,7 @@ pub fn purpose_to_bitstring_status_purpose(purpose: RevocationListPurpose) -> St
 
 pub async fn format_status_list_credential(
     revocation_list_id: &RevocationListId,
-    issuer_did: &Did,
+    issuer_did: &OpenDid,
     encoded_list: String,
     purpose: RevocationListPurpose,
     key_provider: &Arc<dyn KeyProvider>,
@@ -370,8 +370,8 @@ pub async fn format_status_list_credential(
 }
 
 pub async fn generate_bitstring_from_credentials(
-    credentials_by_issuer_did: &[Credential],
-    matching_state: CredentialStateEnum,
+    credentials_by_issuer_did: &[OpenCredential],
+    matching_state: OpenCredentialStateEnum,
     additionally_changed_credential: Option<BitstringCredentialInfo>,
 ) -> Result<String, RevocationError> {
     let states = credentials_by_issuer_did

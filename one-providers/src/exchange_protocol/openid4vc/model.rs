@@ -12,21 +12,22 @@ use super::error::OpenID4VCIError;
 use super::mapper::unix_timestamp;
 use crate::common_dto::PublicKeyJwkDTO;
 use crate::common_mappers::deserialize_with_serde_json;
-use crate::common_models::claim::Claim;
+use crate::common_models::claim::OpenClaim;
 use crate::common_models::claim_schema::ClaimSchemaId;
 use crate::common_models::credential::{
-    Credential, CredentialId, CredentialRole, CredentialStateEnum, UpdateCredentialRequest,
+    CredentialId, OpenCredential, OpenCredentialRole, OpenCredentialStateEnum,
+    OpenUpdateCredentialRequest,
 };
 use crate::common_models::credential_schema::{
-    CredentialFormat, CredentialSchema, CredentialSchemaId, LayoutType, RevocationMethod,
-    UpdateCredentialSchemaRequest, WalletStorageTypeEnum,
+    CredentialFormat, CredentialSchemaId, OpenCredentialSchema, OpenLayoutType,
+    OpenUpdateCredentialSchemaRequest, OpenWalletStorageTypeEnum, RevocationMethod,
 };
-use crate::common_models::did::{Did, DidId, DidType, DidValue};
+use crate::common_models::did::{DidId, DidType, DidValue, OpenDid};
 use crate::common_models::interaction::InteractionId;
 use crate::common_models::key::KeyId;
 use crate::common_models::organisation::OrganisationId;
-use crate::common_models::proof::{Proof, UpdateProofRequest};
-use crate::common_models::proof_schema::ProofInputClaimSchema;
+use crate::common_models::proof::{OpenProof, OpenUpdateProofRequest};
+use crate::common_models::proof_schema::OpenProofInputClaimSchema;
 use crate::credential_formatter::model::DetailCredential;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -45,7 +46,7 @@ pub struct OpenID4VCIIssuerMetadataCredentialSupportedResponseDTO {
     pub credential_definition: Option<OpenID4VCIIssuerMetadataCredentialDefinitionResponseDTO>,
     pub doctype: Option<String>,
     pub display: Option<Vec<OpenID4VCIIssuerMetadataCredentialSupportedDisplayDTO>>,
-    pub wallet_storage_type: Option<WalletStorageTypeEnum>,
+    pub wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -238,9 +239,9 @@ pub struct OpenID4VCIDiscoveryResponseDTO {
 
 #[derive(Clone, Debug)]
 pub(super) struct ValidatedProofClaimDTO {
-    pub proof_input_claim: ProofInputClaimSchema,
+    pub proof_input_claim: OpenProofInputClaimSchema,
     pub credential: DetailCredential,
-    pub credential_schema: CredentialSchema,
+    pub credential_schema: OpenCredentialSchema,
     pub value: serde_json::Value,
 }
 
@@ -339,25 +340,25 @@ pub struct RequestData {
 
 #[derive(Clone, Debug)]
 pub struct ProvedCredential {
-    pub credential: Credential,
+    pub credential: OpenCredential,
     pub issuer_did_value: DidValue,
     pub holder_did_value: DidValue,
 }
 
 pub struct AcceptProofResult {
     pub proved_credentials: Vec<ProvedCredential>,
-    pub proved_claims: Vec<Claim>,
+    pub proved_claims: Vec<OpenClaim>,
 }
 
 #[derive(Clone, Debug)]
 pub enum InvitationResponseDTO {
     Credential {
         interaction_id: InteractionId,
-        credentials: Vec<Credential>,
+        credentials: Vec<OpenCredential>,
     },
     ProofRequest {
         interaction_id: InteractionId,
-        proof: Box<Proof>,
+        proof: Box<OpenProof>,
     },
 }
 
@@ -419,14 +420,14 @@ pub struct CredentialDetailResponseDTO {
     pub issuance_date: OffsetDateTime,
     #[serde(with = "time::serde::rfc3339::option")]
     pub revocation_date: Option<OffsetDateTime>,
-    pub state: CredentialStateEnum,
+    pub state: OpenCredentialStateEnum,
     #[serde(with = "time::serde::rfc3339")]
     pub last_modified: OffsetDateTime,
     pub schema: DetailCredentialSchemaResponseDTO,
     pub issuer_did: Option<DidListItemResponseDTO>,
     pub claims: Vec<DetailCredentialClaimResponseDTO>,
     pub redirect_uri: Option<String>,
-    pub role: CredentialRole,
+    pub role: OpenCredentialRole,
     #[serde(with = "time::serde::rfc3339::option")]
     pub lvvc_issuance_date: Option<OffsetDateTime>,
     #[serde(default, with = "time::serde::rfc3339::option")]
@@ -447,11 +448,11 @@ pub struct DetailCredentialSchemaResponseDTO {
     pub format: CredentialFormat,
     pub revocation_method: RevocationMethod,
     pub organisation_id: OrganisationId,
-    pub wallet_storage_type: Option<WalletStorageTypeEnum>,
+    pub wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
     pub schema_id: String,
     pub schema_type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub layout_type: Option<LayoutType>,
+    pub layout_type: Option<OpenLayoutType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub layout_properties: Option<CredentialSchemaLayoutPropertiesRequestDTO>,
 }
@@ -557,7 +558,7 @@ pub enum DetailCredentialClaimValueResponseDTO {
 #[derive(Clone, Debug)]
 pub struct PresentedCredential {
     pub presentation: String,
-    pub credential_schema: CredentialSchema,
+    pub credential_schema: OpenCredentialSchema,
     pub request: PresentationDefinitionRequestedCredentialResponseDTO,
 }
 
@@ -578,10 +579,10 @@ pub struct SubmitIssuerResponse {
 #[derive(Clone, Debug, Default)]
 pub struct UpdateResponse<T> {
     pub result: T,
-    pub update_proof: Option<UpdateProofRequest>,
-    pub create_did: Option<Did>,
-    pub update_credential: Option<UpdateCredentialRequest>,
-    pub update_credential_schema: Option<UpdateCredentialSchemaRequest>,
+    pub update_proof: Option<OpenUpdateProofRequest>,
+    pub create_did: Option<OpenDid>,
+    pub update_credential: Option<OpenUpdateCredentialRequest>,
+    pub update_credential_schema: Option<OpenUpdateCredentialSchemaRequest>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -607,7 +608,7 @@ pub struct OpenID4VCICredentialOfferCredentialDTO {
     pub format: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub credential_definition: Option<OpenID4VCICredentialDefinition>,
-    pub wallet_storage_type: Option<WalletStorageTypeEnum>,
+    pub wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub doctype: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -689,10 +690,10 @@ pub struct CredentialSchemaDetailResponseDTO {
     pub revocation_method: RevocationMethod,
     pub organisation_id: OrganisationId,
     pub claims: Vec<CredentialClaimSchemaDTO>,
-    pub wallet_storage_type: Option<WalletStorageTypeEnum>,
+    pub wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
     pub schema_id: String,
     pub schema_type: String,
-    pub layout_type: Option<LayoutType>,
+    pub layout_type: Option<OpenLayoutType>,
     pub layout_properties: Option<CredentialSchemaLayoutPropertiesRequestDTO>,
 }
 
@@ -725,8 +726,8 @@ pub struct CreateCredentialSchemaRequestDTO {
     pub revocation_method: String,
     pub organisation_id: OrganisationId,
     pub claims: Vec<CredentialClaimSchemaRequestDTO>,
-    pub wallet_storage_type: Option<WalletStorageTypeEnum>,
-    pub layout_type: LayoutType,
+    pub wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
+    pub layout_type: OpenLayoutType,
     pub layout_properties: Option<CredentialSchemaLayoutPropertiesRequestDTO>,
     pub schema_id: Option<String>,
 }
@@ -746,7 +747,7 @@ pub struct CredentialGroup {
     pub name: Option<String>,
     pub purpose: Option<String>,
     pub claims: Vec<CredentialGroupItem>,
-    pub applicable_credentials: Vec<Credential>,
+    pub applicable_credentials: Vec<OpenCredential>,
     pub validity_credential_nbf: Option<OffsetDateTime>,
 }
 
@@ -784,7 +785,7 @@ pub struct ProofCredentialSchema {
     pub name: String,
     pub format: String,
     pub revocation_method: String,
-    pub wallet_storage_type: Option<WalletStorageTypeEnum>,
+    pub wallet_storage_type: Option<OpenWalletStorageTypeEnum>,
     pub schema_type: String,
     pub schema_id: String,
 }

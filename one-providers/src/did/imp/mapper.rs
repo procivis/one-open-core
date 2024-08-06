@@ -4,8 +4,8 @@ use crate::{
         PublicKeyJwkOctDataDTO, PublicKeyJwkRsaDataDTO,
     },
     common_models::{
-        PublicKeyJwk, PublicKeyJwkEllipticData, PublicKeyJwkMlweData, PublicKeyJwkOctData,
-        PublicKeyJwkRsaData,
+        OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData, OpenPublicKeyJwkMlweData,
+        OpenPublicKeyJwkOctData, OpenPublicKeyJwkRsaData,
     },
     did::{
         imp::dto::{DidDocumentDTO, DidVerificationMethodDTO},
@@ -13,19 +13,19 @@ use crate::{
     },
 };
 
-impl From<PublicKeyJwkDTO> for PublicKeyJwk {
+impl From<PublicKeyJwkDTO> for OpenPublicKeyJwk {
     fn from(value: PublicKeyJwkDTO) -> Self {
         match value {
-            PublicKeyJwkDTO::Ec(value) => PublicKeyJwk::Ec(value.into()),
-            PublicKeyJwkDTO::Rsa(value) => PublicKeyJwk::Rsa(value.into()),
-            PublicKeyJwkDTO::Okp(value) => PublicKeyJwk::Okp(value.into()),
-            PublicKeyJwkDTO::Oct(value) => PublicKeyJwk::Oct(value.into()),
-            PublicKeyJwkDTO::Mlwe(value) => PublicKeyJwk::Mlwe(value.into()),
+            PublicKeyJwkDTO::Ec(value) => OpenPublicKeyJwk::Ec(value.into()),
+            PublicKeyJwkDTO::Rsa(value) => OpenPublicKeyJwk::Rsa(value.into()),
+            PublicKeyJwkDTO::Okp(value) => OpenPublicKeyJwk::Okp(value.into()),
+            PublicKeyJwkDTO::Oct(value) => OpenPublicKeyJwk::Oct(value.into()),
+            PublicKeyJwkDTO::Mlwe(value) => OpenPublicKeyJwk::Mlwe(value.into()),
         }
     }
 }
 
-impl From<PublicKeyJwkEllipticDataDTO> for PublicKeyJwkEllipticData {
+impl From<PublicKeyJwkEllipticDataDTO> for OpenPublicKeyJwkEllipticData {
     fn from(value: PublicKeyJwkEllipticDataDTO) -> Self {
         Self {
             r#use: value.r#use,
@@ -36,7 +36,7 @@ impl From<PublicKeyJwkEllipticDataDTO> for PublicKeyJwkEllipticData {
     }
 }
 
-impl From<PublicKeyJwkRsaDataDTO> for PublicKeyJwkRsaData {
+impl From<PublicKeyJwkRsaDataDTO> for OpenPublicKeyJwkRsaData {
     fn from(value: PublicKeyJwkRsaDataDTO) -> Self {
         Self {
             r#use: value.r#use,
@@ -46,7 +46,7 @@ impl From<PublicKeyJwkRsaDataDTO> for PublicKeyJwkRsaData {
     }
 }
 
-impl From<PublicKeyJwkOctDataDTO> for PublicKeyJwkOctData {
+impl From<PublicKeyJwkOctDataDTO> for OpenPublicKeyJwkOctData {
     fn from(value: PublicKeyJwkOctDataDTO) -> Self {
         Self {
             r#use: value.r#use,
@@ -55,7 +55,7 @@ impl From<PublicKeyJwkOctDataDTO> for PublicKeyJwkOctData {
     }
 }
 
-impl From<PublicKeyJwkMlweDataDTO> for PublicKeyJwkMlweData {
+impl From<PublicKeyJwkMlweDataDTO> for OpenPublicKeyJwkMlweData {
     fn from(value: PublicKeyJwkMlweDataDTO) -> Self {
         Self {
             r#use: value.r#use,
@@ -65,20 +65,20 @@ impl From<PublicKeyJwkMlweDataDTO> for PublicKeyJwkMlweData {
     }
 }
 
-impl From<PublicKeyJwk> for PublicKeyJwkDTO {
-    fn from(value: PublicKeyJwk) -> Self {
+impl From<OpenPublicKeyJwk> for PublicKeyJwkDTO {
+    fn from(value: OpenPublicKeyJwk) -> Self {
         match value {
-            PublicKeyJwk::Ec(value) => PublicKeyJwkDTO::Ec(value.into()),
-            PublicKeyJwk::Rsa(value) => PublicKeyJwkDTO::Rsa(value.into()),
-            PublicKeyJwk::Okp(value) => PublicKeyJwkDTO::Okp(value.into()),
-            PublicKeyJwk::Oct(value) => PublicKeyJwkDTO::Oct(value.into()),
-            PublicKeyJwk::Mlwe(value) => PublicKeyJwkDTO::Mlwe(value.into()),
+            OpenPublicKeyJwk::Ec(value) => PublicKeyJwkDTO::Ec(value.into()),
+            OpenPublicKeyJwk::Rsa(value) => PublicKeyJwkDTO::Rsa(value.into()),
+            OpenPublicKeyJwk::Okp(value) => PublicKeyJwkDTO::Okp(value.into()),
+            OpenPublicKeyJwk::Oct(value) => PublicKeyJwkDTO::Oct(value.into()),
+            OpenPublicKeyJwk::Mlwe(value) => PublicKeyJwkDTO::Mlwe(value.into()),
         }
     }
 }
 
-impl From<PublicKeyJwkEllipticData> for PublicKeyJwkEllipticDataDTO {
-    fn from(value: PublicKeyJwkEllipticData) -> Self {
+impl From<OpenPublicKeyJwkEllipticData> for PublicKeyJwkEllipticDataDTO {
+    fn from(value: OpenPublicKeyJwkEllipticData) -> Self {
         Self {
             r#use: value.r#use,
             crv: value.crv,
@@ -88,8 +88,8 @@ impl From<PublicKeyJwkEllipticData> for PublicKeyJwkEllipticDataDTO {
     }
 }
 
-impl From<PublicKeyJwkRsaData> for PublicKeyJwkRsaDataDTO {
-    fn from(value: PublicKeyJwkRsaData) -> Self {
+impl From<OpenPublicKeyJwkRsaData> for PublicKeyJwkRsaDataDTO {
+    fn from(value: OpenPublicKeyJwkRsaData) -> Self {
         Self {
             r#use: value.r#use,
             e: value.e,
@@ -98,8 +98,8 @@ impl From<PublicKeyJwkRsaData> for PublicKeyJwkRsaDataDTO {
     }
 }
 
-impl From<PublicKeyJwkOctData> for PublicKeyJwkOctDataDTO {
-    fn from(value: PublicKeyJwkOctData) -> Self {
+impl From<OpenPublicKeyJwkOctData> for PublicKeyJwkOctDataDTO {
+    fn from(value: OpenPublicKeyJwkOctData) -> Self {
         Self {
             r#use: value.r#use,
             k: value.k,
@@ -107,8 +107,8 @@ impl From<PublicKeyJwkOctData> for PublicKeyJwkOctDataDTO {
     }
 }
 
-impl From<PublicKeyJwkMlweData> for PublicKeyJwkMlweDataDTO {
-    fn from(value: PublicKeyJwkMlweData) -> Self {
+impl From<OpenPublicKeyJwkMlweData> for PublicKeyJwkMlweDataDTO {
+    fn from(value: OpenPublicKeyJwkMlweData) -> Self {
         Self {
             r#use: value.r#use,
             alg: value.alg,

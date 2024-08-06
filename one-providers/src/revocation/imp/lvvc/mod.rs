@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use crate::{
     common_models::{
-        credential::{Credential, CredentialStateEnum},
+        credential::{OpenCredential, OpenCredentialStateEnum},
         did::{DidValue, KeyRole},
     },
     credential_formatter::{
@@ -86,7 +86,7 @@ impl LvvcProvider {
 
     fn formatter(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
     ) -> Result<Arc<dyn CredentialFormatter>, RevocationError> {
         let format = credential
             .schema
@@ -106,7 +106,7 @@ impl LvvcProvider {
 
     async fn create_lvvc_with_status(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         status: LvvcStatus,
     ) -> Result<RevocationUpdate, RevocationError> {
         Ok(RevocationUpdate {
@@ -129,7 +129,7 @@ impl LvvcProvider {
 
     async fn check_revocation_status_as_holder(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         credential_status: &CredentialStatus,
     ) -> Result<CredentialRevocationState, RevocationError> {
         let bearer_token = prepare_bearer_token(credential, self.key_provider.clone()).await?;
@@ -173,7 +173,7 @@ impl LvvcProvider {
 
     async fn check_revocation_status_as_issuer(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
     ) -> Result<CredentialRevocationState, RevocationError> {
         let states = credential
             .state
@@ -184,9 +184,9 @@ impl LvvcProvider {
         ))?;
 
         Ok(match latest_state.state {
-            CredentialStateEnum::Accepted => CredentialRevocationState::Valid,
-            CredentialStateEnum::Revoked => CredentialRevocationState::Revoked,
-            CredentialStateEnum::Suspended => CredentialRevocationState::Suspended {
+            OpenCredentialStateEnum::Accepted => CredentialRevocationState::Valid,
+            OpenCredentialStateEnum::Revoked => CredentialRevocationState::Revoked,
+            OpenCredentialStateEnum::Suspended => CredentialRevocationState::Suspended {
                 suspend_end_date: latest_state.suspend_end_date,
             },
             _ => {
@@ -280,7 +280,7 @@ impl RevocationMethod for LvvcProvider {
 
     async fn add_issued_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         _additional_data: Option<CredentialAdditionalData>,
     ) -> Result<(Option<RevocationUpdate>, Vec<CredentialRevocationInfo>), RevocationError> {
         let base_url = self.get_base_url()?;
@@ -306,7 +306,7 @@ impl RevocationMethod for LvvcProvider {
 
     async fn mark_credential_as(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         new_state: CredentialRevocationState,
         _additional_data: Option<CredentialAdditionalData>,
     ) -> Result<RevocationUpdate, RevocationError> {
@@ -367,7 +367,7 @@ impl RevocationMethod for LvvcProvider {
 
 #[allow(clippy::too_many_arguments)]
 pub async fn create_lvvc_with_status(
-    credential: &Credential,
+    credential: &OpenCredential,
     status: LvvcStatus,
     core_base_url: &Option<String>,
     credential_expiry: time::Duration,
@@ -463,7 +463,7 @@ pub async fn create_lvvc_with_status(
 }
 
 pub async fn prepare_bearer_token(
-    credential: &Credential,
+    credential: &OpenCredential,
     key_provider: Arc<dyn KeyProvider>,
 ) -> Result<String, RevocationError> {
     let holder_did = credential

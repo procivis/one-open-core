@@ -9,8 +9,8 @@ use super::KeyDidMethod;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
-        key::Key,
-        PublicKeyJwk, PublicKeyJwkEllipticData,
+        key::OpenKey,
+        OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData,
     },
     crypto::MockCryptoProvider,
     did::{
@@ -44,7 +44,7 @@ async fn test_did_key_resolve_details_eddsa() {
         )
         .once()
         .returning(|_, _| {
-            Ok(PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+            Ok(OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
                 r#use: None,
                 crv: "Ed25519".to_owned(),
                 x: "4zvwRjXUKGfvwnParsHAS3HuSVzV5cA4McphgmoCtajS".to_owned(),
@@ -73,8 +73,8 @@ async fn test_did_key_resolve_details_eddsa() {
                 id: "did:key:z6MkiTBz1ymuepAQ4HEHYSF1H8quG5GLVVQR3djdX3mDooWp#z6MkiTBz1ymuepAQ4HEHYSF1H8quG5GLVVQR3djdX3mDooWp".to_owned(),
                 r#type: "JsonWebKey2020".to_owned(),
                 controller: "did:key:z6MkiTBz1ymuepAQ4HEHYSF1H8quG5GLVVQR3djdX3mDooWp".to_owned(),
-                public_key_jwk: PublicKeyJwk::Okp(
-                    PublicKeyJwkEllipticData {
+                public_key_jwk: OpenPublicKeyJwk::Okp(
+                    OpenPublicKeyJwkEllipticData {
                         r#use: None,
                         crv: "Ed25519".to_owned(),
                         x: "4zvwRjXUKGfvwnParsHAS3HuSVzV5cA4McphgmoCtajS".to_owned(),
@@ -127,7 +127,7 @@ async fn test_did_key_resolve_details_es256() {
         )
         .once()
         .returning(|_, _| {
-            Ok(PublicKeyJwk::Ec(PublicKeyJwkEllipticData {
+            Ok(OpenPublicKeyJwk::Ec(OpenPublicKeyJwkEllipticData {
                 r#use: None,
                 crv: "P-256".to_string(),
                 x: "igrFmi0whuihKnj9R3Om1SoMph72wUGeFaBbzG2vzns".to_owned(),
@@ -156,8 +156,8 @@ async fn test_did_key_resolve_details_es256() {
                 id: "did:key:zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv#zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv".to_owned(),
                 r#type: "JsonWebKey2020".to_owned(),
                 controller: "did:key:zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv".to_owned(),
-                public_key_jwk: PublicKeyJwk::Ec(
-                    PublicKeyJwkEllipticData {
+                public_key_jwk: OpenPublicKeyJwk::Ec(
+                    OpenPublicKeyJwkEllipticData {
                         r#use: None,
                         crv: "P-256".to_owned(),
                         x: "igrFmi0whuihKnj9R3Om1SoMph72wUGeFaBbzG2vzns".to_owned(),
@@ -210,7 +210,7 @@ async fn test_did_key_resolve_details_bbs() {
         ]), predicate::eq(None))
         .once()
         .returning(|_, _| {
-            Ok(PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+            Ok(OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
                 r#use: None,
                 crv: "Bls12381G2".to_string(),
                 x: "Ajs8lstTgoTgXMF6QXdyh3m8k2ixxURGYLMaYylVK_x0F8HhE8zk0YWiGV3CHwpQEa2sH4PBZLaYCn8se-1clmCORDsKxbbw3Js_Alu4OmkV9gmbJsy1YF2rt7Vxzs6S".to_owned(),
@@ -238,8 +238,8 @@ async fn test_did_key_resolve_details_bbs() {
                 id: "did:key:zUC71hWmiaLNZL97NxPkesvV6jV5UuxT2UUMo9fMGfsh5nV5NLU2HVFdX2DcDn8dQDKvur2U1tMjy34nnjEFF3dfdJgYRCBi5Sxup75PNNZrtJTrqrM23m9tUZ7KX9TM9dT38mo#zUC71hWmiaLNZL97NxPkesvV6jV5UuxT2UUMo9fMGfsh5nV5NLU2HVFdX2DcDn8dQDKvur2U1tMjy34nnjEFF3dfdJgYRCBi5Sxup75PNNZrtJTrqrM23m9tUZ7KX9TM9dT38mo".to_owned(),
                 r#type: "JsonWebKey2020".to_owned(),
                 controller: "did:key:zUC71hWmiaLNZL97NxPkesvV6jV5UuxT2UUMo9fMGfsh5nV5NLU2HVFdX2DcDn8dQDKvur2U1tMjy34nnjEFF3dfdJgYRCBi5Sxup75PNNZrtJTrqrM23m9tUZ7KX9TM9dT38mo".to_owned(),
-                public_key_jwk: PublicKeyJwk::Okp(
-                    PublicKeyJwkEllipticData {
+                public_key_jwk: OpenPublicKeyJwk::Okp(
+                    OpenPublicKeyJwkEllipticData {
                         r#use: None,
                         crv: "Bls12381G2".to_string(),
                         x: "Ajs8lstTgoTgXMF6QXdyh3m8k2ixxURGYLMaYylVK_x0F8HhE8zk0YWiGV3CHwpQEa2sH4PBZLaYCn8se-1clmCORDsKxbbw3Js_Alu4OmkV9gmbJsy1YF2rt7Vxzs6S".to_owned(),
@@ -281,7 +281,7 @@ async fn test_did_key_resolve_details_bbs() {
 async fn test_create_did_success() {
     let key_id = Uuid::new_v4();
 
-    let key = Key {
+    let key = OpenKey {
         id: key_id.into(),
         created_date: OffsetDateTime::now_utc(),
         last_modified: OffsetDateTime::now_utc(),

@@ -15,36 +15,36 @@ pub mod proof_schema;
 pub const NESTED_CLAIM_MARKER: char = '/';
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum PublicKeyJwk {
-    Ec(PublicKeyJwkEllipticData),
-    Rsa(PublicKeyJwkRsaData),
-    Okp(PublicKeyJwkEllipticData),
-    Oct(PublicKeyJwkOctData),
-    Mlwe(PublicKeyJwkMlweData),
+pub enum OpenPublicKeyJwk {
+    Ec(OpenPublicKeyJwkEllipticData),
+    Rsa(OpenPublicKeyJwkRsaData),
+    Okp(OpenPublicKeyJwkEllipticData),
+    Oct(OpenPublicKeyJwkOctData),
+    Mlwe(OpenPublicKeyJwkMlweData),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PublicKeyJwkRsaData {
+pub struct OpenPublicKeyJwkRsaData {
     pub r#use: Option<String>,
     pub e: String,
     pub n: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PublicKeyJwkOctData {
+pub struct OpenPublicKeyJwkOctData {
     pub r#use: Option<String>,
     pub k: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PublicKeyJwkMlweData {
+pub struct OpenPublicKeyJwkMlweData {
     pub r#use: Option<String>,
     pub alg: String,
     pub x: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PublicKeyJwkEllipticData {
+pub struct OpenPublicKeyJwkEllipticData {
     pub r#use: Option<String>,
     pub crv: String,
     pub x: String,

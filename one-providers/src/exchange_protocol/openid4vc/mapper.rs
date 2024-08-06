@@ -9,20 +9,20 @@ use super::model::{
     DetailCredentialSchemaResponseDTO, DidListItemResponseDTO,
 };
 use super::{ExchangeProtocolError, FormatMapper, TypeToDescriptorMapper};
-use crate::common_models::claim::Claim;
-use crate::common_models::claim_schema::ClaimSchema;
+use crate::common_models::claim::OpenClaim;
+use crate::common_models::claim_schema::OpenClaimSchema;
 use crate::common_models::credential::{
-    Credential, CredentialId, CredentialRole, CredentialState, CredentialStateEnum,
+    CredentialId, OpenCredential, OpenCredentialRole, OpenCredentialState, OpenCredentialStateEnum,
 };
 use crate::common_models::credential_schema::{
-    BackgroundProperties, CodeProperties, CodeTypeEnum, CredentialSchema, CredentialSchemaClaim,
-    LayoutProperties, LogoProperties,
+    OpenBackgroundProperties, OpenCodeProperties, OpenCodeTypeEnum, OpenCredentialSchema,
+    OpenCredentialSchemaClaim, OpenLayoutProperties, OpenLogoProperties,
 };
-use crate::common_models::did::{Did, DidValue};
+use crate::common_models::did::{DidValue, OpenDid};
 use crate::common_models::interaction::InteractionId;
 use crate::common_models::organisation::OrganisationId;
-use crate::common_models::proof::Proof;
-use crate::common_models::proof_schema::ProofInputClaimSchema;
+use crate::common_models::proof::OpenProof;
+use crate::common_models::proof_schema::OpenProofInputClaimSchema;
 use crate::common_models::NESTED_CLAIM_MARKER;
 use crate::credential_formatter::imp::json_ld::get_crypto_suite;
 use crate::credential_formatter::model::ExtractPresentationCtx;
@@ -129,9 +129,9 @@ pub fn map_from_oidc_vp_format_to_core(format: &str) -> Result<String, OpenID4VC
 }
 
 pub fn extracted_credential_to_model(
-    claim_schemas: &[CredentialSchemaClaim],
-    credential_schema: CredentialSchema,
-    claims: Vec<(serde_json::Value, ClaimSchema)>,
+    claim_schemas: &[OpenCredentialSchemaClaim],
+    credential_schema: OpenCredentialSchema,
+    claims: Vec<(serde_json::Value, OpenClaimSchema)>,
     issuer_did: &DidValue,
     holder_did: &DidValue,
 ) -> Result<ProvedCredential, OpenID4VCError> {
@@ -151,7 +151,7 @@ pub fn extracted_credential_to_model(
     }
 
     Ok(ProvedCredential {
-        credential: Credential {
+        credential: OpenCredential {
             id: credential_id,
             created_date: now,
             issuance_date: now,
@@ -159,9 +159,9 @@ pub fn extracted_credential_to_model(
             deleted_at: None,
             credential: vec![],
             exchange: "OPENID4VC".to_string(),
-            state: Some(vec![CredentialState {
+            state: Some(vec![OpenCredentialState {
                 created_date: now,
-                state: CredentialStateEnum::Accepted,
+                state: OpenCredentialStateEnum::Accepted,
                 suspend_end_date: None,
             }]),
             claims: Some(model_claims.to_owned()),
@@ -170,7 +170,7 @@ pub fn extracted_credential_to_model(
             schema: Some(credential_schema),
             redirect_uri: None,
             key: None,
-            role: CredentialRole::Verifier,
+            role: OpenCredentialRole::Verifier,
             interaction: None,
         },
         issuer_did_value: issuer_did.to_owned(),
@@ -180,12 +180,12 @@ pub fn extracted_credential_to_model(
 
 fn value_to_model_claims(
     credential_id: CredentialId,
-    claim_schemas: &[CredentialSchemaClaim],
+    claim_schemas: &[OpenCredentialSchemaClaim],
     json_value: &serde_json::Value,
     now: OffsetDateTime,
-    claim_schema: &ClaimSchema,
+    claim_schema: &OpenClaimSchema,
     path: &str,
-) -> Result<Vec<Claim>, OpenID4VCError> {
+) -> Result<Vec<OpenClaim>, OpenID4VCError> {
     let mut model_claims = vec![];
 
     match json_value {
@@ -209,7 +209,7 @@ fn value_to_model_claims(
                 }
             };
 
-            model_claims.push(Claim {
+            model_claims.push(OpenClaim {
                 id: Uuid::new_v4().into(),
                 credential_id,
                 created_date: now,
@@ -261,7 +261,7 @@ fn value_to_model_claims(
     Ok(model_claims)
 }
 
-impl From<CredentialSchemaBackgroundPropertiesRequestDTO> for BackgroundProperties {
+impl From<CredentialSchemaBackgroundPropertiesRequestDTO> for OpenBackgroundProperties {
     fn from(value: CredentialSchemaBackgroundPropertiesRequestDTO) -> Self {
         Self {
             color: value.color,
@@ -270,7 +270,7 @@ impl From<CredentialSchemaBackgroundPropertiesRequestDTO> for BackgroundProperti
     }
 }
 
-impl From<CredentialSchemaLogoPropertiesRequestDTO> for LogoProperties {
+impl From<CredentialSchemaLogoPropertiesRequestDTO> for OpenLogoProperties {
     fn from(value: CredentialSchemaLogoPropertiesRequestDTO) -> Self {
         Self {
             font_color: value.font_color,
@@ -280,7 +280,7 @@ impl From<CredentialSchemaLogoPropertiesRequestDTO> for LogoProperties {
     }
 }
 
-impl From<CredentialSchemaCodePropertiesRequestDTO> for CodeProperties {
+impl From<CredentialSchemaCodePropertiesRequestDTO> for OpenCodeProperties {
     fn from(value: CredentialSchemaCodePropertiesRequestDTO) -> Self {
         Self {
             attribute: value.attribute,
@@ -289,7 +289,7 @@ impl From<CredentialSchemaCodePropertiesRequestDTO> for CodeProperties {
     }
 }
 
-impl From<CredentialSchemaCodeTypeEnum> for CodeTypeEnum {
+impl From<CredentialSchemaCodeTypeEnum> for OpenCodeTypeEnum {
     fn from(value: CredentialSchemaCodeTypeEnum) -> Self {
         match value {
             CredentialSchemaCodeTypeEnum::Barcode => Self::Barcode,
@@ -299,7 +299,7 @@ impl From<CredentialSchemaCodeTypeEnum> for CodeTypeEnum {
     }
 }
 
-impl From<CredentialSchemaLayoutPropertiesRequestDTO> for LayoutProperties {
+impl From<CredentialSchemaLayoutPropertiesRequestDTO> for OpenLayoutProperties {
     fn from(value: CredentialSchemaLayoutPropertiesRequestDTO) -> Self {
         Self {
             background: value.background.map(Into::into),
@@ -314,7 +314,7 @@ impl From<CredentialSchemaLayoutPropertiesRequestDTO> for LayoutProperties {
 
 pub fn create_open_id_for_vp_presentation_definition(
     interaction_id: InteractionId,
-    proof: &Proof,
+    proof: &OpenProof,
     format_type_to_input_descriptor_format: TypeToDescriptorMapper,
     format_to_type_mapper: FormatMapper, // Credential schema format to format type mapper
 ) -> Result<OpenID4VPPresentationDefinition, ExchangeProtocolError> {
@@ -322,7 +322,7 @@ pub fn create_open_id_for_vp_presentation_definition(
         "Proof schema not found".to_string(),
     ))?;
     // using vec to keep the original order of claims/credentials in the proof request
-    let requested_credentials: Vec<(CredentialSchema, Option<Vec<ProofInputClaimSchema>>)> =
+    let requested_credentials: Vec<(OpenCredentialSchema, Option<Vec<OpenProofInputClaimSchema>>)> =
         match proof_schema.input_schemas.as_ref() {
             Some(proof_input) if !proof_input.is_empty() => proof_input
                 .iter()
@@ -332,7 +332,7 @@ pub fn create_open_id_for_vp_presentation_definition(
                     let claims = input.claim_schemas.as_ref().map(|schemas| {
                         schemas
                             .iter()
-                            .map(|claim_schema| ProofInputClaimSchema {
+                            .map(|claim_schema| OpenProofInputClaimSchema {
                                 order: claim_schema.order,
                                 required: claim_schema.required,
                                 schema: claim_schema.schema.to_owned(),
@@ -372,8 +372,8 @@ pub fn create_open_id_for_vp_presentation_definition(
 
 pub fn create_open_id_for_vp_presentation_definition_input_descriptor(
     index: usize,
-    credential_schema: CredentialSchema,
-    claim_schemas: Vec<ProofInputClaimSchema>,
+    credential_schema: OpenCredentialSchema,
+    claim_schemas: Vec<OpenProofInputClaimSchema>,
     presentation_format_type: &str,
     format_to_type_mapper: TypeToDescriptorMapper,
 ) -> Result<OpenID4VPPresentationDefinitionInputDescriptor, ExchangeProtocolError> {
@@ -456,8 +456,8 @@ pub mod unix_timestamp {
     }
 }
 
-impl From<Did> for DidListItemResponseDTO {
-    fn from(value: Did) -> Self {
+impl From<OpenDid> for DidListItemResponseDTO {
+    fn from(value: OpenDid) -> Self {
         Self {
             id: value.id,
             created_date: value.created_date,
@@ -471,8 +471,8 @@ impl From<Did> for DidListItemResponseDTO {
     }
 }
 
-impl From<LayoutProperties> for CredentialSchemaLayoutPropertiesRequestDTO {
-    fn from(value: LayoutProperties) -> Self {
+impl From<OpenLayoutProperties> for CredentialSchemaLayoutPropertiesRequestDTO {
+    fn from(value: OpenLayoutProperties) -> Self {
         Self {
             background: value.background.map(|value| {
                 CredentialSchemaBackgroundPropertiesRequestDTO {
@@ -495,9 +495,9 @@ impl From<LayoutProperties> for CredentialSchemaLayoutPropertiesRequestDTO {
                 .map(|v| CredentialSchemaCodePropertiesRequestDTO {
                     attribute: v.attribute,
                     r#type: match v.r#type {
-                        CodeTypeEnum::Barcode => CredentialSchemaCodeTypeEnum::Barcode,
-                        CodeTypeEnum::Mrz => CredentialSchemaCodeTypeEnum::Mrz,
-                        CodeTypeEnum::QrCode => CredentialSchemaCodeTypeEnum::QrCode,
+                        OpenCodeTypeEnum::Barcode => CredentialSchemaCodeTypeEnum::Barcode,
+                        OpenCodeTypeEnum::Mrz => CredentialSchemaCodeTypeEnum::Mrz,
+                        OpenCodeTypeEnum::QrCode => CredentialSchemaCodeTypeEnum::QrCode,
                     },
                 }),
         }
@@ -505,7 +505,7 @@ impl From<LayoutProperties> for CredentialSchemaLayoutPropertiesRequestDTO {
 }
 
 pub fn map_credential_schema_to_detailed(
-    value: CredentialSchema,
+    value: OpenCredentialSchema,
     organisation_id: OrganisationId,
 ) -> DetailCredentialSchemaResponseDTO {
     DetailCredentialSchemaResponseDTO {
@@ -525,8 +525,8 @@ pub fn map_credential_schema_to_detailed(
     }
 }
 
-impl From<CredentialSchemaClaim> for CredentialClaimSchemaDTO {
-    fn from(value: CredentialSchemaClaim) -> Self {
+impl From<OpenCredentialSchemaClaim> for CredentialClaimSchemaDTO {
+    fn from(value: OpenCredentialSchemaClaim) -> Self {
         Self {
             id: value.schema.id,
             created_date: value.schema.created_date,

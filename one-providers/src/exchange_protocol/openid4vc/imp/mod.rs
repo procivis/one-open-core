@@ -42,13 +42,13 @@ use super::{
     StorageAccess, TypeToDescriptorMapper,
 };
 use crate::common_dto::PublicKeyJwkDTO;
-use crate::common_models::credential::{Credential, CredentialId, UpdateCredentialRequest};
-use crate::common_models::credential_schema::UpdateCredentialSchemaRequest;
-use crate::common_models::did::{Did, DidType};
-use crate::common_models::interaction::Interaction;
-use crate::common_models::key::{Key, KeyId};
-use crate::common_models::organisation::Organisation;
-use crate::common_models::proof::{Proof, UpdateProofRequest};
+use crate::common_models::credential::{CredentialId, OpenCredential, OpenUpdateCredentialRequest};
+use crate::common_models::credential_schema::OpenUpdateCredentialSchemaRequest;
+use crate::common_models::did::{DidType, OpenDid};
+use crate::common_models::interaction::OpenInteraction;
+use crate::common_models::key::{KeyId, OpenKey};
+use crate::common_models::organisation::OpenOrganisation;
+use crate::common_models::proof::{OpenProof, OpenUpdateProofRequest};
 use crate::credential_formatter::model::{DetailCredential, FormatPresentationCtx};
 use crate::credential_formatter::provider::CredentialFormatterProvider;
 use crate::crypto::imp::utilities;
@@ -183,16 +183,16 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
         }
     }
 
-    async fn reject_proof(&self, _proof: &Proof) -> Result<(), ExchangeProtocolError> {
+    async fn reject_proof(&self, _proof: &OpenProof) -> Result<(), ExchangeProtocolError> {
         Err(ExchangeProtocolError::OperationNotSupported)
     }
 
     async fn submit_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         credential_presentations: Vec<PresentedCredential>,
-        holder_did: &Did,
-        key: &Key,
+        holder_did: &OpenDid,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
         // LOCAL_CREDENTIAL_FORMAT -> oidc_vc_format
         format_map: HashMap<String, String>,
@@ -358,7 +358,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
         if let Ok(value) = response {
             Ok(UpdateResponse {
                 result: (),
-                update_proof: Some(UpdateProofRequest {
+                update_proof: Some(OpenUpdateProofRequest {
                     id: proof.id,
                     redirect_uri: Some(value.redirect_uri),
                     holder_did_id: None,
@@ -383,9 +383,9 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
     async fn accept_credential(
         &self,
-        credential: &Credential,
-        holder_did: &Did,
-        key: &Key,
+        credential: &OpenCredential,
+        holder_did: &OpenDid,
+        key: &OpenKey,
         jwk_key_id: Option<String>,
         credential_format: &str,
         storage_access: &StorageAccess,
@@ -512,7 +512,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
                 (
                     id,
-                    Some(Did {
+                    Some(OpenDid {
                         id,
                         name: format!("issuer {id}"),
                         created_date: now,
@@ -533,13 +533,13 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             result: response_value,
             update_proof: None,
             create_did,
-            update_credential_schema: Some(UpdateCredentialSchemaRequest {
+            update_credential_schema: Some(OpenUpdateCredentialSchemaRequest {
                 id: schema.id,
                 revocation_method,
                 format: Some(real_format),
                 claim_schemas: None,
             }),
-            update_credential: Some(UpdateCredentialRequest {
+            update_credential: Some(OpenUpdateCredentialRequest {
                 id: credential.id,
                 issuer_did_id: Some(issuer_did_id),
                 redirect_uri: Some(redirect_uri),
@@ -554,14 +554,14 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
     async fn reject_credential(
         &self,
-        _credential: &Credential,
+        _credential: &OpenCredential,
     ) -> Result<(), ExchangeProtocolError> {
         Err(ExchangeProtocolError::OperationNotSupported)
     }
 
     async fn share_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         credential_format: &str,
     ) -> Result<ShareResponse<Self::VCInteractionContext>, ExchangeProtocolError> {
         let interaction_id = Uuid::new_v4();
@@ -637,7 +637,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
     async fn share_proof(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         format_to_type_mapper: FormatMapper, // Credential schema format to format type mapper
         key_id: KeyId,
         encryption_key_jwk: PublicKeyJwkDTO,
@@ -688,12 +688,12 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
     async fn get_presentation_definition(
         &self,
-        proof: &Proof,
+        proof: &OpenProof,
         _interaction_data: Self::VPInteractionContext,
         storage_access: &StorageAccess,
         format_map: HashMap<String, String>,
         types: HashMap<String, DatatypeType>,
-        organisation: Organisation,
+        organisation: OpenOrganisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError> {
         let presentation_definition =
             deserialize_interaction_data::<OpenID4VPInteractionData>(proof.interaction.as_ref())?
@@ -785,7 +785,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
     async fn verifier_handle_proof(
         &self,
-        _proof: &Proof,
+        _proof: &OpenProof,
         _submission: &[u8],
     ) -> Result<Vec<DetailCredential>, ExchangeProtocolError> {
         Err(ExchangeProtocolError::OperationNotSupported)
@@ -1044,7 +1044,7 @@ async fn create_and_store_interaction(
     storage_access: &StorageAccess,
     credential_issuer_endpoint: Url,
     data: Vec<u8>,
-) -> Result<Interaction, ExchangeProtocolError> {
+) -> Result<OpenInteraction, ExchangeProtocolError> {
     let now = OffsetDateTime::now_utc();
 
     let interaction =

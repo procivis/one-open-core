@@ -6,22 +6,22 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::{
-    common_models::{credential::Credential, proof_schema::ProofInputSchema},
+    common_models::{credential::OpenCredential, proof_schema::OpenProofInputSchema},
     credential_formatter::model::{CredentialStatus, DetailCredential},
 };
 
 pub type RevocationListId = Uuid;
 
 pub struct CredentialAdditionalData {
-    pub credentials_by_issuer_did: Vec<Credential>,
+    pub credentials_by_issuer_did: Vec<OpenCredential>,
     pub revocation_list_id: RevocationListId,
     pub suspension_list_id: RevocationListId,
 }
 
 #[derive(Clone)]
 pub enum CredentialDataByRole {
-    Holder(Credential),
-    Issuer(Credential),
+    Holder(OpenCredential),
+    Issuer(OpenCredential),
     Verifier(Box<VerifierCredentialData>),
 }
 
@@ -29,7 +29,7 @@ pub enum CredentialDataByRole {
 pub struct VerifierCredentialData {
     pub credential: DetailCredential,
     pub extracted_lvvcs: Vec<DetailCredential>,
-    pub proof_input: ProofInputSchema,
+    pub proof_input: OpenProofInputSchema,
 }
 
 pub struct CredentialRevocationInfo {

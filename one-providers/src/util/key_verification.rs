@@ -86,7 +86,7 @@ mod test {
     use serde_json::json;
     use std::sync::Arc;
 
-    use crate::common_models::{PublicKeyJwk, PublicKeyJwkEllipticData};
+    use crate::common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData};
     use crate::crypto::MockSigner;
     use crate::did::error::DidMethodProviderError;
     use crate::did::model::{DidDocument, DidVerificationMethod};
@@ -103,8 +103,8 @@ mod test {
                     id: "did:key:zDnaeTiq1PdzvZXUaMdezchcMJQpBdH2VN4pgrrEhMCCbmwSb#zDnaeTiq1PdzvZXUaMdezchcMJQpBdH2VN4pgrrEhMCCbmwSb".to_owned(),
                     r#type: "JsonWebKey2020".to_owned(),
                     controller: "did:key:zDnaeTiq1PdzvZXUaMdezchcMJQpBdH2VN4pgrrEhMCCbmwSb".to_owned(),
-                    public_key_jwk: PublicKeyJwk::Ec(
-                        PublicKeyJwkEllipticData {
+                    public_key_jwk: OpenPublicKeyJwk::Ec(
+                        OpenPublicKeyJwkEllipticData {
                             r#use: None,
                             crv: "P-256".to_owned(),
                             x: "AjDk2GBBiI_M6HvEmgfzXiVhJCWiVFqvoItknJgc-oEE".to_owned(),

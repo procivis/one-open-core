@@ -5,17 +5,17 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::common_dto::PublicKeyJwkDTO;
-use crate::common_models::claim::Claim;
-use crate::common_models::claim_schema::ClaimSchema;
+use crate::common_models::claim::OpenClaim;
+use crate::common_models::claim_schema::OpenClaimSchema;
 use crate::common_models::credential::{
-    Credential, CredentialId, CredentialRole, CredentialState, CredentialStateEnum,
+    CredentialId, OpenCredential, OpenCredentialRole, OpenCredentialState, OpenCredentialStateEnum,
 };
-use crate::common_models::credential_schema::{CredentialSchema, CredentialSchemaClaim};
-use crate::common_models::did::Did;
-use crate::common_models::interaction::{Interaction, InteractionId};
-use crate::common_models::key::{Key, KeyId};
+use crate::common_models::credential_schema::{OpenCredentialSchema, OpenCredentialSchemaClaim};
+use crate::common_models::did::OpenDid;
+use crate::common_models::interaction::{InteractionId, OpenInteraction};
+use crate::common_models::key::{KeyId, OpenKey};
 use crate::common_models::organisation::OrganisationId;
-use crate::common_models::proof::{self, Proof, ProofId, ProofStateEnum};
+use crate::common_models::proof::{self, OpenProof, OpenProofStateEnum, ProofId};
 use crate::common_models::NESTED_CLAIM_MARKER;
 use crate::credential_formatter::model::FormatPresentationCtx;
 use crate::exchange_protocol::openid4vc::mapper::{
@@ -39,10 +39,10 @@ use crate::exchange_protocol::openid4vc::{
 use crate::key_algorithm::provider::KeyAlgorithmProvider;
 
 pub fn map_offered_claims_to_credential_schema(
-    credential_schema: &CredentialSchema,
+    credential_schema: &OpenCredentialSchema,
     credential_id: CredentialId,
     claim_keys: &HashMap<String, OpenID4VCICredentialValueDetails>,
-) -> Result<Vec<Claim>, ExchangeProtocolError> {
+) -> Result<Vec<OpenClaim>, ExchangeProtocolError> {
     let claim_schemas =
         credential_schema
             .claim_schemas
@@ -60,7 +60,7 @@ pub fn map_offered_claims_to_credential_schema(
         let credential_value_details = &claim_keys.get(&claim_schema.schema.key);
         match credential_value_details {
             Some(value_details) => {
-                let claim = Claim {
+                let claim = OpenClaim {
                     id: Uuid::new_v4().into(),
                     credential_id,
                     created_date: now,
@@ -92,13 +92,13 @@ pub fn proof_from_handle_invitation(
     proof_id: &ProofId,
     protocol: &str,
     redirect_uri: Option<String>,
-    verifier_did: Option<Did>,
-    interaction: Interaction,
+    verifier_did: Option<OpenDid>,
+    interaction: OpenInteraction,
     now: OffsetDateTime,
-    verifier_key: Option<Key>,
+    verifier_key: Option<OpenKey>,
     transport: &str,
-) -> Proof {
-    Proof {
+) -> OpenProof {
+    OpenProof {
         id: proof_id.to_owned(),
         created_date: now,
         last_modified: now,
@@ -106,10 +106,10 @@ pub fn proof_from_handle_invitation(
         exchange: protocol.to_owned(),
         redirect_uri,
         transport: transport.to_owned(),
-        state: Some(vec![proof::ProofState {
+        state: Some(vec![proof::OpenProofState {
             created_date: now,
             last_modified: now,
-            state: ProofStateEnum::Pending,
+            state: OpenProofStateEnum::Pending,
         }]),
         schema: None,
         claims: None,
@@ -124,8 +124,8 @@ pub fn interaction_from_handle_invitation(
     host: Url,
     data: Option<Vec<u8>>,
     now: OffsetDateTime,
-) -> Interaction {
-    Interaction {
+) -> OpenInteraction {
+    OpenInteraction {
         id: Uuid::new_v4().into(),
         created_date: now,
         last_modified: now,
@@ -136,14 +136,14 @@ pub fn interaction_from_handle_invitation(
 
 pub fn create_credential(
     credential_id: CredentialId,
-    credential_schema: CredentialSchema,
-    claims: Vec<Claim>,
-    interaction: Interaction,
+    credential_schema: OpenCredentialSchema,
+    claims: Vec<OpenClaim>,
+    interaction: OpenInteraction,
     redirect_uri: Option<String>,
-) -> Credential {
+) -> OpenCredential {
     let now = OffsetDateTime::now_utc();
 
-    Credential {
+    OpenCredential {
         id: credential_id,
         created_date: now,
         issuance_date: now,
@@ -152,10 +152,10 @@ pub fn create_credential(
         credential: vec![],
         exchange: "OPENID4VC".to_string(),
         redirect_uri,
-        role: CredentialRole::Holder,
-        state: Some(vec![CredentialState {
+        role: OpenCredentialRole::Holder,
+        state: Some(vec![OpenCredentialState {
             created_date: now,
-            state: CredentialStateEnum::Pending,
+            state: OpenCredentialStateEnum::Pending,
             suspend_end_date: None,
         }]),
         claims: Some(claims),
@@ -182,15 +182,15 @@ pub fn map_from_oidc_format_to_core(format: &str) -> Result<String, ExchangeProt
 pub fn create_claims_from_credential_definition(
     credential_id: CredentialId,
     claim_keys: &HashMap<String, OpenID4VCICredentialValueDetails>,
-) -> Result<(Vec<CredentialSchemaClaim>, Vec<Claim>), ExchangeProtocolError> {
+) -> Result<(Vec<OpenCredentialSchemaClaim>, Vec<OpenClaim>), ExchangeProtocolError> {
     let now = OffsetDateTime::now_utc();
-    let mut claim_schemas: Vec<CredentialSchemaClaim> = vec![];
-    let mut claims: Vec<Claim> = vec![];
+    let mut claim_schemas: Vec<OpenCredentialSchemaClaim> = vec![];
+    let mut claims: Vec<OpenClaim> = vec![];
     let mut object_claim_schemas: Vec<&str> = vec![];
 
     for (key, value_details) in claim_keys {
-        let new_schema_claim = CredentialSchemaClaim {
-            schema: ClaimSchema {
+        let new_schema_claim = OpenCredentialSchemaClaim {
+            schema: OpenClaimSchema {
                 id: Uuid::new_v4().into(),
                 key: key.to_string(),
                 data_type: value_details.value_type.to_string(),
@@ -201,7 +201,7 @@ pub fn create_claims_from_credential_definition(
             required: false,
         };
 
-        let claim = Claim {
+        let claim = OpenClaim {
             id: Uuid::new_v4().into(),
             credential_id,
             created_date: now,
@@ -224,8 +224,8 @@ pub fn create_claims_from_credential_definition(
     }
 
     for object_claim in object_claim_schemas {
-        claim_schemas.push(CredentialSchemaClaim {
-            schema: ClaimSchema {
+        claim_schemas.push(OpenCredentialSchemaClaim {
+            schema: OpenClaimSchema {
                 id: Uuid::new_v4().into(),
                 key: object_claim.into(),
                 data_type: "OBJECT".to_string(),
@@ -254,7 +254,7 @@ pub fn get_parent_claim_paths(path: &str) -> Vec<&str> {
 }
 
 pub(crate) fn detect_correct_format(
-    credential_schema: &CredentialSchema,
+    credential_schema: &OpenCredentialSchema,
     credential_content: &str,
 ) -> Result<String, ExchangeProtocolError> {
     let format = if credential_schema.format.eq("JSON_LD") {
@@ -270,7 +270,7 @@ pub(crate) fn detect_correct_format(
 
 pub(crate) fn get_credential_offer_url(
     base_url: Option<String>,
-    credential: &Credential,
+    credential: &OpenCredential,
 ) -> Result<String, ExchangeProtocolError> {
     let credential_schema = credential
         .schema
@@ -336,7 +336,7 @@ pub(crate) fn create_open_id_for_vp_sharing_url_encoded(
     base_url: Option<String>,
     interaction_id: InteractionId,
     nonce: String,
-    proof: &Proof,
+    proof: &OpenProof,
     client_metadata_by_value: bool,
     presentation_definition_by_value: bool,
     key_algorithm_provider: &dyn KeyAlgorithmProvider,
@@ -403,7 +403,7 @@ pub(crate) fn create_open_id_for_vp_sharing_url_encoded(
 
 pub(super) fn presentation_definition_from_interaction_data(
     proof_id: ProofId,
-    credentials: Vec<Credential>,
+    credentials: Vec<OpenCredential>,
     credential_groups: Vec<CredentialGroup>,
     types: &HashMap<String, DatatypeType>,
     organisation_id: OrganisationId,
@@ -453,7 +453,7 @@ pub(super) fn presentation_definition_from_interaction_data(
 
 pub fn create_presentation_definition_field(
     field: CredentialGroupItem,
-    credentials: &[Credential],
+    credentials: &[OpenCredential],
 ) -> Result<PresentationDefinitionFieldDTO, ExchangeProtocolError> {
     let mut key_map: HashMap<String, String> = HashMap::new();
     let key = field.key;
@@ -485,7 +485,7 @@ pub fn create_presentation_definition_field(
 }
 
 pub fn credential_model_to_credential_dto(
-    credentials: Vec<Credential>,
+    credentials: Vec<OpenCredential>,
     types: &HashMap<String, DatatypeType>,
     organisation_id: OrganisationId,
 ) -> Result<Vec<CredentialDetailResponseDTO>, ExchangeProtocolError> {
@@ -496,7 +496,7 @@ pub fn credential_model_to_credential_dto(
 }
 
 pub fn credential_detail_response_from_model(
-    value: Credential,
+    value: OpenCredential,
     types: &HashMap<String, DatatypeType>,
     organisation_id: OrganisationId,
 ) -> Result<CredentialDetailResponseDTO, ExchangeProtocolError> {
@@ -533,8 +533,8 @@ pub fn credential_detail_response_from_model(
     })
 }
 
-fn get_revocation_date(latest_state: &CredentialState) -> Option<OffsetDateTime> {
-    if latest_state.state == CredentialStateEnum::Revoked {
+fn get_revocation_date(latest_state: &OpenCredentialState) -> Option<OffsetDateTime> {
+    if latest_state.state == OpenCredentialStateEnum::Revoked {
         Some(latest_state.created_date)
     } else {
         None
@@ -542,8 +542,8 @@ fn get_revocation_date(latest_state: &CredentialState) -> Option<OffsetDateTime>
 }
 
 pub fn from_vec_claim(
-    claims: Vec<Claim>,
-    credential_schema: &CredentialSchema,
+    claims: Vec<OpenClaim>,
+    credential_schema: &OpenCredentialSchema,
     types: &HashMap<String, DatatypeType>,
 ) -> Result<Vec<DetailCredentialClaimResponseDTO>, ExchangeProtocolError> {
     let claim_schemas =
@@ -667,8 +667,8 @@ fn remove_first_nesting_layer(name: &str) -> String {
 }
 
 pub fn claim_to_dto(
-    claim: &Claim,
-    claim_schema: &CredentialSchemaClaim,
+    claim: &OpenClaim,
+    claim_schema: &OpenCredentialSchemaClaim,
     types: &HashMap<String, DatatypeType>,
 ) -> Result<DetailCredentialClaimResponseDTO, ExchangeProtocolError> {
     let value = match types
@@ -745,7 +745,7 @@ pub(super) fn extract_index_from_path<'a>(path: &'a str, prefix: &'a str) -> &'a
 pub(super) fn renest_arrays(
     claims: Vec<DetailCredentialClaimResponseDTO>,
     prefix: &str,
-    claim_schemas: &[CredentialSchemaClaim],
+    claim_schemas: &[OpenCredentialSchemaClaim],
     types: &HashMap<String, DatatypeType>,
 ) -> Result<Vec<DetailCredentialClaimResponseDTO>, ExchangeProtocolError> {
     let object_datatypes = types
@@ -858,7 +858,7 @@ pub(super) fn renest_arrays(
 fn group_subitems(
     items: Vec<DetailCredentialClaimResponseDTO>,
     prefix: &str,
-    claim_schemas: &[CredentialSchemaClaim],
+    claim_schemas: &[OpenCredentialSchemaClaim],
     types: &HashMap<String, DatatypeType>,
 ) -> Result<Vec<DetailCredentialClaimResponseDTO>, ExchangeProtocolError> {
     let mut current_index = 0;
@@ -915,8 +915,8 @@ fn group_subitems(
 
 fn find_schema_for_path(
     path: &str,
-    claim_schemas: &[CredentialSchemaClaim],
-) -> Result<CredentialSchemaClaim, ExchangeProtocolError> {
+    claim_schemas: &[OpenCredentialSchemaClaim],
+) -> Result<OpenCredentialSchemaClaim, ExchangeProtocolError> {
     let result = claim_schemas
         .iter()
         .find(|schema| schema.schema.key == path);

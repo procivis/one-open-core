@@ -7,7 +7,7 @@ use async_trait;
 use zeroize::Zeroizing;
 
 use crate::{
-    common_models::key::{Key, KeyId},
+    common_models::key::{KeyId, OpenKey},
     crypto::SignerError,
 };
 
@@ -28,14 +28,15 @@ pub trait KeyStorage: Send + Sync {
     ) -> Result<model::StorageGeneratedKey, error::KeyStorageError>;
 
     /// Sign with a private key via the key reference.
-    async fn sign(&self, key: &Key, message: &[u8]) -> Result<Vec<u8>, SignerError>;
+    async fn sign(&self, key: &OpenKey, message: &[u8]) -> Result<Vec<u8>, SignerError>;
 
     /// Converts a private key to JWK (thus exposing it).
     ///
     /// **Use carefully.**
     ///
     /// May not be implemented for some storage providers (e.g. Azure Key Vault).
-    fn secret_key_as_jwk(&self, key: &Key) -> Result<Zeroizing<String>, error::KeyStorageError>;
+    fn secret_key_as_jwk(&self, key: &OpenKey)
+        -> Result<Zeroizing<String>, error::KeyStorageError>;
 
     #[doc = include_str!("../../../docs/capabilities.md")]
     ///

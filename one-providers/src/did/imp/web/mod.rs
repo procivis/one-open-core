@@ -6,7 +6,7 @@ use url::Url;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
-        key::Key,
+        key::OpenKey,
     },
     did::{
         error::DidMethodError,
@@ -65,7 +65,7 @@ impl DidMethod for WebDidMethod {
         &self,
         id: &DidId,
         _params: &Option<serde_json::Value>,
-        _key: &[Key],
+        _key: &[OpenKey],
     ) -> Result<DidValue, DidMethodError> {
         let did_base_string =
             self.did_base_string

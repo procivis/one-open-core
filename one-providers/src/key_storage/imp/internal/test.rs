@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use super::InternalKeyProvider;
 use crate::{
-    common_models::key::Key,
+    common_models::key::OpenKey,
     crypto::MockSigner,
     key_algorithm::{model::GeneratedKey, provider::MockKeyAlgorithmProvider, MockKeyAlgorithm},
     key_storage::{imp::internal::Params, KeyStorage},
@@ -109,7 +109,7 @@ async fn test_internal_sign_with_encryption() {
 
     let generated_key = provider.generate(&Uuid::new_v4().into(), "").await.unwrap();
 
-    let key = Key {
+    let key = OpenKey {
         id: Uuid::new_v4().into(),
         created_date: OffsetDateTime::now_utc(),
         last_modified: OffsetDateTime::now_utc(),

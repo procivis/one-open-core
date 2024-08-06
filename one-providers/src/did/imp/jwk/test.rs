@@ -5,7 +5,7 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::{
-    common_models::{did::DidValue, key::Key, PublicKeyJwk, PublicKeyJwkEllipticData},
+    common_models::{did::DidValue, key::OpenKey, OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
     did::{
         error::DidMethodError,
         imp::jwk::JWKDidMethod,
@@ -36,7 +36,7 @@ async fn test_resolve_jwk_did_without_use_field() {
             id: "did:jwk:eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImFjYklRaXVNczNpOF91c3pFakoydHBUdFJNNEVVM3l6OTFQSDZDZEgyVjAiLCJ5IjoiX0tjeUxqOXZXTXB0bm1LdG00NkdxRHo4d2Y3NEk1TEtncmwyR3pIM25TRSJ9#0".to_string(),
             r#type: "JsonWebKey2020".to_string(),
             controller: "did:jwk:eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImFjYklRaXVNczNpOF91c3pFakoydHBUdFJNNEVVM3l6OTFQSDZDZEgyVjAiLCJ5IjoiX0tjeUxqOXZXTXB0bm1LdG00NkdxRHo4d2Y3NEk1TEtncmwyR3pIM25TRSJ9".to_string(),
-            public_key_jwk: PublicKeyJwk::Ec(PublicKeyJwkEllipticData {
+            public_key_jwk: OpenPublicKeyJwk::Ec(OpenPublicKeyJwkEllipticData {
                 r#use: None,
                 crv: "P-256".to_string(),
                 x: "acbIQiuMs3i8_uszEjJ2tpTtRM4EU3yz91PH6CdH2V0".to_string(),
@@ -74,7 +74,7 @@ async fn test_resolve_jwk_did_with_use_enc_field() {
             id: "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJYMjU1MTkiLCJ1c2UiOiJlbmMiLCJ4IjoiM3A3YmZYdDl3YlRUVzJIQzdPUTFOei1EUThoYmVHZE5yZngtRkctSUswOCJ9#0".to_string(),
             r#type: "JsonWebKey2020".to_string(),
             controller: "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJYMjU1MTkiLCJ1c2UiOiJlbmMiLCJ4IjoiM3A3YmZYdDl3YlRUVzJIQzdPUTFOei1EUThoYmVHZE5yZngtRkctSUswOCJ9".to_string(),
-            public_key_jwk: PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+            public_key_jwk: OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
                 r#use: Some("enc".to_string()),
                 crv: "X25519".to_string(),
                 x: "3p7bfXt9wbTTW2HC7OQ1Nz-DQ8hbeGdNrfx-FG-IK08".to_string(),
@@ -112,7 +112,7 @@ async fn test_resolve_jwk_did_with_use_sig_field() {
             id: "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwidXNlIjoic2lnIiwieCI6IjNwN2JmWHQ5d2JUVFcySEM3T1ExTnotRFE4aGJlR2ROcmZ4LUZHLUlLMDgifQ#0".to_string(),
             r#type: "JsonWebKey2020".to_string(),
             controller: "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwidXNlIjoic2lnIiwieCI6IjNwN2JmWHQ5d2JUVFcySEM3T1ExTnotRFE4aGJlR2ROcmZ4LUZHLUlLMDgifQ".to_string(),
-            public_key_jwk: PublicKeyJwk::Okp(PublicKeyJwkEllipticData {
+            public_key_jwk: OpenPublicKeyJwk::Okp(OpenPublicKeyJwkEllipticData {
                 r#use: Some("sig".to_string()),
                 crv: "Ed25519".to_string(),
                 x: "3p7bfXt9wbTTW2HC7OQ1Nz-DQ8hbeGdNrfx-FG-IK08".to_string(),
@@ -173,7 +173,7 @@ async fn test_create_did_jwk_success() {
         .expect_bytes_to_jwk()
         .once()
         .returning(|_, _| {
-            Ok(PublicKeyJwk::Ec(PublicKeyJwkEllipticData {
+            Ok(OpenPublicKeyJwk::Ec(OpenPublicKeyJwkEllipticData {
                 r#use: None,
                 crv: "crv".to_string(),
                 x: "x".to_string(),
@@ -194,7 +194,7 @@ async fn test_create_did_jwk_success() {
         .create(
             &Uuid::new_v4().into(),
             &None,
-            &vec![Key {
+            &vec![OpenKey {
                 id: Uuid::new_v4().into(),
                 created_date: OffsetDateTime::now_utc(),
                 last_modified: OffsetDateTime::now_utc(),

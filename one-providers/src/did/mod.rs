@@ -12,7 +12,7 @@ use async_trait::async_trait;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
-        key::Key,
+        key::OpenKey,
     },
     did::{
         error::DidMethodError,
@@ -36,7 +36,7 @@ pub trait DidMethod: Send + Sync {
         &self,
         id: &DidId,
         params: &Option<serde_json::Value>,
-        keys: &[Key],
+        keys: &[OpenKey],
     ) -> Result<DidValue, DidMethodError>;
 
     /// Resolve a DID to its DID document.

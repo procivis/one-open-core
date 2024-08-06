@@ -5,10 +5,10 @@ use std::time::Duration;
 
 use time::OffsetDateTime;
 
-use crate::common_models::credential::{Credential, CredentialStateEnum};
-use crate::common_models::interaction::Interaction;
-use crate::common_models::proof::{Proof, ProofStateEnum};
-use crate::common_models::proof_schema::ProofInputSchema;
+use crate::common_models::credential::{OpenCredential, OpenCredentialStateEnum};
+use crate::common_models::interaction::OpenInteraction;
+use crate::common_models::proof::{OpenProof, OpenProofStateEnum};
+use crate::common_models::proof_schema::OpenProofInputSchema;
 use crate::common_models::NESTED_CLAIM_MARKER;
 use crate::credential_formatter::error::FormatterError;
 use crate::credential_formatter::model::{
@@ -31,8 +31,8 @@ use crate::revocation::provider::RevocationMethodProvider;
 use crate::util::key_verification::KeyVerification;
 
 pub(crate) fn throw_if_latest_proof_state_not_eq(
-    proof: &Proof,
-    state: ProofStateEnum,
+    proof: &OpenProof,
+    state: OpenProofStateEnum,
 ) -> Result<(), OpenID4VCError> {
     let latest_state = proof
         .state
@@ -121,7 +121,7 @@ pub(super) async fn validate_credential(
     presentation: Presentation,
     path_nested: &NestedPresentationSubmissionDescriptorDTO,
     extracted_lvvcs: &[DetailCredential],
-    proof_schema_input: &ProofInputSchema,
+    proof_schema_input: &OpenProofInputSchema,
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
     key_verification: Box<KeyVerification>,
     revocation_method_provider: &Arc<dyn RevocationMethodProvider>,
@@ -257,7 +257,7 @@ pub(crate) fn validate_expiration_time(
 
 pub(super) fn validate_claims(
     received_credential: DetailCredential,
-    proof_input_schema: &ProofInputSchema,
+    proof_input_schema: &OpenProofInputSchema,
 ) -> Result<Vec<ValidatedProofClaimDTO>, OpenID4VCError> {
     let expected_credential_claims = proof_input_schema
         .claim_schemas
@@ -348,7 +348,7 @@ pub(crate) fn throw_if_token_request_invalid(
 
 pub(crate) fn throw_if_interaction_created_date(
     pre_authorization_expires_in: time::Duration,
-    interaction: &Interaction,
+    interaction: &OpenInteraction,
 ) -> Result<(), OpenID4VCError> {
     if interaction.created_date + pre_authorization_expires_in < OffsetDateTime::now_utc() {
         return Err(OpenID4VCError::OpenID4VCI(OpenID4VCIError::InvalidGrant));
@@ -366,8 +366,8 @@ pub(crate) fn throw_if_interaction_pre_authorized_code_used(
 }
 
 pub(crate) fn throw_if_latest_credential_state_not_eq(
-    credential: &Credential,
-    state: CredentialStateEnum,
+    credential: &OpenCredential,
+    state: OpenCredentialStateEnum,
 ) -> Result<(), OpenID4VCError> {
     let latest_state = &credential
         .state

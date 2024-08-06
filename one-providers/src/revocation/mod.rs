@@ -7,7 +7,7 @@
 //! This module provides tools for changing the suspension or revocation status of a
 //! credential and for retrieving the validity status of a credential.
 
-use crate::common_models::credential::Credential;
+use crate::common_models::credential::OpenCredential;
 use crate::common_models::did::DidValue;
 use crate::credential_formatter::model::CredentialStatus;
 use crate::revocation::error::RevocationError;
@@ -34,7 +34,7 @@ pub trait RevocationMethod: Send + Sync {
     /// For LVVC, the URL used by the holder to obtain a new LVVC is returned.
     async fn add_issued_credential(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         additional_data: Option<CredentialAdditionalData>,
     ) -> Result<(Option<RevocationUpdate>, Vec<CredentialRevocationInfo>), RevocationError>;
 
@@ -43,7 +43,7 @@ pub trait RevocationMethod: Send + Sync {
     /// For list-based revocation methods, use `additional_data` to specify the ID of the associated list.
     async fn mark_credential_as(
         &self,
-        credential: &Credential,
+        credential: &OpenCredential,
         new_state: CredentialRevocationState,
         additional_data: Option<CredentialAdditionalData>,
     ) -> Result<RevocationUpdate, RevocationError>;
