@@ -628,7 +628,7 @@ pub fn credentials_format(
                 keys: HashMap::from_iter(claims.iter().filter_map(|claim| {
                     claim.schema.as_ref().map(|schema| {
                         (
-                            schema.key.clone(),
+                            claim.path.clone(),
                             OpenID4VCICredentialValueDetails {
                                 value: claim.value.clone(),
                                 value_type: schema.data_type.clone(),
