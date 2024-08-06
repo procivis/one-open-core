@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use mockall::predicate;
+use one_crypto::MockCryptoProvider;
 use serde_json::json;
 use time::OffsetDateTime;
 use uuid::Uuid;
@@ -12,7 +13,6 @@ use crate::{
         key::OpenKey,
         OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData,
     },
-    crypto::MockCryptoProvider,
     did::{
         model::{AmountOfKeys, DidDocument, DidVerificationMethod},
         DidMethod,

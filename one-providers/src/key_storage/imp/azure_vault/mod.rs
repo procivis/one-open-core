@@ -17,9 +17,10 @@ use url::Url;
 use uuid::Uuid;
 use zeroize::Zeroizing;
 
+use one_crypto::{imp::signer::es256::ES256Signer, CryptoProvider, SignerError};
+
 use crate::{
     common_models::key::{KeyId, OpenKey},
-    crypto::{imp::signer::es256::ES256Signer, CryptoProvider, SignerError},
     key_storage::{
         error::KeyStorageError,
         model::{KeySecurity, KeyStorageCapabilities, StorageGeneratedKey},

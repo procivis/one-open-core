@@ -3,17 +3,16 @@ use std::collections::HashMap;
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder};
 
 use super::{super::json_ld::model::LdCredential, JsonLdBbsplus};
-use crate::{
-    credential_formatter::{
-        error::FormatterError,
-        imp::{
-            json_ld,
-            json_ld_bbsplus::model::{BbsDerivedProofComponents, CBOR_PREFIX_DERIVED},
-        },
-        model::{DetailCredential, VerificationFn},
+use crate::credential_formatter::{
+    error::FormatterError,
+    imp::{
+        json_ld,
+        json_ld_bbsplus::model::{BbsDerivedProofComponents, CBOR_PREFIX_DERIVED},
     },
-    crypto::imp::signer::bbs::{BBSSigner, BbsProofInput},
+    model::{DetailCredential, VerificationFn},
 };
+
+use one_crypto::imp::signer::bbs::{BBSSigner, BbsProofInput};
 
 impl JsonLdBbsplus {
     pub(super) async fn verify(

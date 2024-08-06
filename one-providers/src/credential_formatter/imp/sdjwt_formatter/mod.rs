@@ -4,6 +4,8 @@
 
 use std::sync::Arc;
 
+use one_crypto::CryptoProvider;
+
 use crate::common_models::did::DidValue;
 use crate::credential_formatter::error::FormatterError;
 use crate::credential_formatter::imp::jwt::model::DecomposedToken;
@@ -15,7 +17,6 @@ use crate::credential_formatter::model::{
     VerificationFn,
 };
 use crate::credential_formatter::CredentialFormatter;
-use crate::crypto::CryptoProvider;
 use async_trait::async_trait;
 use disclosures::extract_claims_from_disclosures;
 use disclosures::extract_disclosures;

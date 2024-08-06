@@ -7,9 +7,10 @@ use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use zeroize::Zeroizing;
 
+use one_crypto::{imp::utilities, SignerError};
+
 use crate::{
     common_models::key::{KeyId, OpenKey},
-    crypto::{imp::utilities, SignerError},
     key_algorithm::provider::KeyAlgorithmProvider,
     key_storage::{
         error::KeyStorageError,

@@ -2,7 +2,9 @@
 
 use thiserror::Error;
 
-use crate::{crypto::SignerError, key_algorithm::error::KeyAlgorithmError};
+use one_crypto::SignerError;
+
+use crate::key_algorithm::error::KeyAlgorithmError;
 
 #[derive(Debug, Error)]
 pub enum KeyStorageProviderError {

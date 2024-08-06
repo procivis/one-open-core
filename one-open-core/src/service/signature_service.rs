@@ -7,10 +7,9 @@
 
 use std::sync::Arc;
 
-use one_providers::{
-    crypto::CryptoProvider,
-    key_algorithm::{model::GeneratedKey, provider::KeyAlgorithmProvider},
-};
+use one_crypto::CryptoProvider;
+
+use one_providers::key_algorithm::{model::GeneratedKey, provider::KeyAlgorithmProvider};
 use zeroize::Zeroizing;
 
 use super::error::SignatureServiceError;

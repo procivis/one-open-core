@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::crypto::error::CryptoProviderError;
+use crate::error::CryptoProviderError;
 
 #[derive(Debug, PartialEq, Eq, Error)]
 pub enum SignerError {

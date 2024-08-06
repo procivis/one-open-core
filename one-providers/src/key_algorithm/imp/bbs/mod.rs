@@ -1,9 +1,10 @@
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use pairing_crypto::bbs::ciphersuites::bls12_381::KeyPair;
 
+use one_crypto::imp::utilities::get_rng;
+
 use crate::{
     common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
-    crypto::imp::utilities::get_rng,
     key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
 

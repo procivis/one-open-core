@@ -4,6 +4,7 @@ use std::{
 };
 
 use ct_codecs::{Base64UrlSafeNoPadding, Encoder};
+use one_crypto::imp::{signer::bbs::BbsInput, utilities};
 
 use super::{
     mapper,
@@ -17,7 +18,6 @@ use crate::{
         imp::json_ld,
         model::{AuthenticationFn, CredentialData, CredentialStatus},
     },
-    crypto::imp::{signer::bbs::BbsInput, utilities},
 };
 
 #[allow(clippy::too_many_arguments)]

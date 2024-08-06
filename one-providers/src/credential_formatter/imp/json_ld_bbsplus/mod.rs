@@ -20,10 +20,11 @@ use crate::{
         },
         CredentialFormatter,
     },
-    crypto::CryptoProvider,
     did::provider::DidMethodProvider,
     key_algorithm::provider::KeyAlgorithmProvider,
 };
+
+use one_crypto::CryptoProvider;
 
 mod base_proof;
 mod derived_proof;

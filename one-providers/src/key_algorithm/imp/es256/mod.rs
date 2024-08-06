@@ -11,9 +11,10 @@ use zeroize::Zeroizing;
 
 use crate::{
     common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
-    crypto::imp::signer::es256::ES256Signer,
     key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
+
+use one_crypto::imp::signer::es256::ES256Signer;
 
 pub struct Es256;
 

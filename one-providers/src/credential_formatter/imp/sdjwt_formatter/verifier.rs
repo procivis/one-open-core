@@ -1,5 +1,6 @@
+use one_crypto::Hasher;
+
 use crate::credential_formatter::error::FormatterError;
-use crate::crypto::Hasher;
 
 use super::disclosures::{gather_hashes_from_disclosures, gather_hashes_from_hashed_claims};
 use super::model::Disclosure;

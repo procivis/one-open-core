@@ -6,10 +6,11 @@ use uuid::Uuid;
 use super::InternalKeyProvider;
 use crate::{
     common_models::key::OpenKey,
-    crypto::MockSigner,
     key_algorithm::{model::GeneratedKey, provider::MockKeyAlgorithmProvider, MockKeyAlgorithm},
     key_storage::{imp::internal::Params, KeyStorage},
 };
+
+use one_crypto::MockSigner;
 
 #[tokio::test]
 async fn test_internal_generate() {

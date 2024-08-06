@@ -2,8 +2,10 @@
 
 use std::sync::Arc;
 
+use one_crypto::Signer;
+
 use super::{error::KeyAlgorithmProviderError, model::ParsedPublicKeyJwk, KeyAlgorithm};
-use crate::{common_models::OpenPublicKeyJwk, crypto::Signer};
+use crate::common_models::OpenPublicKeyJwk;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 pub trait KeyAlgorithmProvider: Send + Sync {

@@ -3,6 +3,8 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
+use one_crypto::imp::utilities;
+
 use anyhow::Context;
 use async_trait::async_trait;
 use mappers::{
@@ -51,7 +53,6 @@ use crate::common_models::organisation::OpenOrganisation;
 use crate::common_models::proof::{OpenProof, OpenUpdateProofRequest};
 use crate::credential_formatter::model::{DetailCredential, FormatPresentationCtx};
 use crate::credential_formatter::provider::CredentialFormatterProvider;
-use crate::crypto::imp::utilities;
 use crate::exchange_protocol::openid4vc::model::OpenID4VCICredentialOfferClaimValue;
 use crate::key_algorithm::provider::KeyAlgorithmProvider;
 use crate::key_storage::provider::KeyProvider;

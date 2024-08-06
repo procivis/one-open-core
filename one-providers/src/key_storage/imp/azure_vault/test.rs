@@ -9,12 +9,10 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
+use one_crypto::{imp::CryptoProviderImpl, CryptoProvider, Hasher, MockHasher};
+
 use super::{dto::AzureHsmGetTokenResponse, AzureVaultKeyProvider, Params};
-use crate::{
-    common_models::key::OpenKey,
-    crypto::{imp::CryptoProviderImpl, CryptoProvider, Hasher, MockHasher},
-    key_storage::KeyStorage,
-};
+use crate::{common_models::key::OpenKey, key_storage::KeyStorage};
 
 fn get_params(mock_base_url: String) -> Params {
     Params {

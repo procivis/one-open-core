@@ -7,7 +7,7 @@ use p256::{
 };
 use rand::thread_rng;
 
-use crate::crypto::{Signer, SignerError};
+use crate::{Signer, SignerError};
 
 pub struct ES256Signer {}
 

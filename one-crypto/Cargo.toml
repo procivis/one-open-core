@@ -1,5 +1,5 @@
 [package]
-name    = "one-providers"
+name    = "one-crypto"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -52,15 +52,13 @@ bit-vec          = { version = "0.8" }
 flate2           = { version = "1.0" }
 serde_urlencoded = { version = "0.7" }
 serde_qs         = { version = "0.13" }
-one-crypto       = { version = "0.1.0", path = "../one-crypto" }
 
 time.workspace = true
 
 [dev-dependencies]
-mockall    = { version = "0.13" }
-wiremock   = { version = "0.6" }
-maplit     = { version = "1.0" }
-one-crypto = { version = "0.1.0", path = "../one-crypto", features = ["mock"] }
+mockall  = { version = "0.13" }
+wiremock = { version = "0.6" }
+maplit   = { version = "1.0" }
 
 [features]
 mock = ["mockall"]

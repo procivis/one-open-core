@@ -6,6 +6,8 @@ use std::sync::Arc;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
+use one_crypto::imp::utilities;
+
 use super::error::{OpenID4VCError, OpenID4VCIError};
 use super::model::{
     AuthorizationEncryptedResponseAlgorithm,
@@ -35,7 +37,6 @@ use crate::common_models::proof::{OpenProof, OpenProofStateEnum};
 use crate::credential_formatter::error::FormatterError;
 use crate::credential_formatter::model::{DetailCredential, ExtractPresentationCtx};
 use crate::credential_formatter::provider::CredentialFormatterProvider;
-use crate::crypto::imp::utilities;
 use crate::did::provider::DidMethodProvider;
 use crate::exchange_protocol::openid4vc::mapper::{
     extract_presentation_ctx_from_interaction_content, extracted_credential_to_model,

@@ -11,8 +11,10 @@ use strum::Display;
 use time::{Duration, OffsetDateTime};
 use url::Url;
 
+use one_crypto::SignerError;
+
 use super::error::FormatterError;
-use crate::{common_models::did::DidValue, crypto::SignerError};
+use crate::common_models::did::DidValue;
 
 pub type AuthenticationFn = Box<dyn SignatureProvider>;
 pub type VerificationFn = Box<dyn TokenVerifier>;

@@ -122,6 +122,12 @@
 use std::error::Error;
 use std::{collections::HashMap, default::Default, sync::Arc};
 
+use one_crypto::imp::{
+    hasher::sha256::SHA256,
+    signer::{bbs::BBSSigner, crydi3::CRYDI3Signer, eddsa::EDDSASigner, es256::ES256Signer},
+    CryptoProviderImpl,
+};
+
 use config::OneCoreConfig;
 use model::{CredentialFormat, DidMethodType, KeyAlgorithmType, StorageType};
 use one_providers::{
@@ -132,11 +138,6 @@ use one_providers::{
         jwt_formatter::{JWTFormatter, Params as JWTParams},
         provider::CredentialFormatterProviderImpl,
         sdjwt_formatter::{Params as SDJWTParams, SDJWTFormatter},
-    },
-    crypto::imp::{
-        hasher::sha256::SHA256,
-        signer::{bbs::BBSSigner, crydi3::CRYDI3Signer, eddsa::EDDSASigner, es256::ES256Signer},
-        CryptoProviderImpl,
     },
     did::{
         imp::{

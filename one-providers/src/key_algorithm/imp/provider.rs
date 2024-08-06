@@ -2,12 +2,13 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     common_models::OpenPublicKeyJwk,
-    crypto::{CryptoProvider, Signer},
     key_algorithm::{
         error::KeyAlgorithmProviderError, model::ParsedPublicKeyJwk,
         provider::KeyAlgorithmProvider, KeyAlgorithm,
     },
 };
+
+use one_crypto::{CryptoProvider, Signer};
 
 pub struct KeyAlgorithmProviderImpl {
     algorithms: HashMap<String, Arc<dyn KeyAlgorithm>>,

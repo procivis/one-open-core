@@ -17,8 +17,9 @@ use crate::{
         error::FormatterError,
         model::{AuthenticationFn, TokenVerifier},
     },
-    crypto::SignerError,
 };
+
+use one_crypto::SignerError;
 
 #[cfg(test)]
 mod test;

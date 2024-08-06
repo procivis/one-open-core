@@ -5,23 +5,21 @@ license = "Apache-2.0"
 
 [workspace]
 resolver = "2"
-default-members = [
-    "one-providers",
-    "one-open-core",
-]
+default-members = ["one-providers", "one-open-core", "one-crypto"]
 members = [
     "examples/did_resolution_example",
     "examples/signature_example",
     "one-providers",
+    "one-crypto",
     "one-open-core",
 ]
 
 [workspace.dependencies]
-thiserror          = { version = "1.0" }
-time               = { version = "0.3", features = ["formatting", "macros", "parsing"] }
-serde              = { version = "1.0" }
-serde_json         = { version = "1.0" }
-zeroize            = { version = "1.8" }
+thiserror  = { version = "1.0" }
+time       = { version = "0.3", features = ["formatting", "macros", "parsing"] }
+serde      = { version = "1.0" }
+serde_json = { version = "1.0" }
+zeroize    = { version = "1.8" }
 
 [patch.crates-io]
 json-ld = { git = "https://github.com/strozynskiw/json-ld-rustls", rev = "cfab4c341b4c2514aa3c5799a0494c5b399692a6" }

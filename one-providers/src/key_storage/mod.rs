@@ -6,10 +6,9 @@
 use async_trait;
 use zeroize::Zeroizing;
 
-use crate::{
-    common_models::key::{KeyId, OpenKey},
-    crypto::SignerError,
-};
+use one_crypto::SignerError;
+
+use crate::common_models::key::{KeyId, OpenKey};
 
 pub mod error;
 pub mod imp;

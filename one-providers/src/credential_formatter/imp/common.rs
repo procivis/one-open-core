@@ -106,7 +106,7 @@ pub struct MockAuth<F: Fn(&[u8]) -> Vec<u8> + Send + Sync>(pub F);
 #[cfg(any(test, feature = "mock"))]
 pub use crate::credential_formatter::model::SignatureProvider;
 #[cfg(any(test, feature = "mock"))]
-pub use crate::crypto::SignerError;
+pub use one_crypto::SignerError;
 
 #[cfg(any(test, feature = "mock"))]
 #[async_trait::async_trait]

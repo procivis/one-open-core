@@ -25,8 +25,9 @@ use crate::{
         },
         model::CredentialPresentation,
     },
-    crypto::imp::signer::bbs::{BBSSigner, BbsDeriveInput},
 };
+
+use one_crypto::imp::signer::bbs::{BBSSigner, BbsDeriveInput};
 
 impl JsonLdBbsplus {
     pub(super) async fn derive_proof(

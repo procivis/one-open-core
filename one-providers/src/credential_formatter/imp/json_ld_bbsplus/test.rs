@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use one_crypto::MockCryptoProvider;
 use time::{Duration, OffsetDateTime};
 
 use super::{
@@ -16,7 +17,6 @@ use crate::{
             remove_undisclosed_keys::remove_undisclosed_keys, JsonLdBbsplus, Params,
         },
     },
-    crypto::MockCryptoProvider,
     did::provider::MockDidMethodProvider,
     key_algorithm::provider::MockKeyAlgorithmProvider,
 };

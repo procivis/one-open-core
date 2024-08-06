@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use one_crypto::imp::hasher::sha256::SHA256;
+use one_crypto::{MockCryptoProvider, MockHasher};
+
 use crate::common_models::did::DidValue;
 #[cfg(test)]
 use crate::credential_formatter::imp::common::MockAuth;
@@ -15,8 +18,6 @@ use crate::credential_formatter::model::{
     ExtractPresentationCtx, MockTokenVerifier, PublishedClaim, PublishedClaimValue,
 };
 use crate::credential_formatter::CredentialFormatter;
-use crate::crypto::imp::hasher::sha256::SHA256;
-use crate::crypto::{MockCryptoProvider, MockHasher};
 
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
 use mockall::predicate::eq;

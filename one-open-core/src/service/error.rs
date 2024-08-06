@@ -1,9 +1,8 @@
 //! Enumerates errors for services.
 
+use one_crypto::{CryptoProviderError, SignerError};
 use one_providers::{
-    credential_formatter::error::FormatterError,
-    crypto::{CryptoProviderError, SignerError},
-    key_storage::error::KeyStorageProviderError,
+    credential_formatter::error::FormatterError, key_storage::error::KeyStorageProviderError,
 };
 use thiserror::Error;
 

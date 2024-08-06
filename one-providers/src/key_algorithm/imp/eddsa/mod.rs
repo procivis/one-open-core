@@ -3,9 +3,10 @@ use ed25519_compact::{KeyPair, PublicKey};
 use serde::Deserialize;
 use zeroize::Zeroizing;
 
+use one_crypto::SignerError;
+
 use crate::{
     common_models::{OpenPublicKeyJwk, OpenPublicKeyJwkEllipticData},
-    crypto::SignerError,
     key_algorithm::{error::KeyAlgorithmError, model::GeneratedKey, KeyAlgorithm},
 };
 

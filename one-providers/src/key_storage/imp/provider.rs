@@ -1,9 +1,10 @@
 use std::{collections::HashMap, sync::Arc};
 
+use one_crypto::SignerError;
+
 use crate::{
     common_models::key::OpenKey,
     credential_formatter::model::SignatureProvider,
-    crypto::SignerError,
     key_storage::{provider::KeyProvider, KeyStorage},
 };
 
