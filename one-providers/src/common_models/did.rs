@@ -8,6 +8,8 @@ use crate::common_models::{
     macros::{impl_display, impl_from, impl_into},
 };
 
+use super::organisation::OpenOrganisation;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct DidId(Uuid);
 impl_display!(DidId);
@@ -41,6 +43,7 @@ pub struct OpenDid {
 
     // Relations:
     pub keys: Option<Vec<RelatedKey>>,
+    pub organisation: Option<OpenOrganisation>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

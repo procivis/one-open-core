@@ -57,11 +57,17 @@ where
     async fn handle_invitation(
         &self,
         url: Url,
+        organisation: OpenOrganisation,
         storage_access: &StorageAccess,
         handle_invitation_operations: &HandleInvitationOperationsAccess,
     ) -> Result<InvitationResponseDTO, ExchangeProtocolError> {
         self.inner
-            .handle_invitation(url, storage_access, handle_invitation_operations)
+            .handle_invitation(
+                url,
+                organisation,
+                storage_access,
+                handle_invitation_operations,
+            )
             .await
     }
 
@@ -127,19 +133,11 @@ where
         storage_access: &StorageAccess,
         format_map: HashMap<String, String>,
         types: HashMap<String, DatatypeType>,
-        organisation: OpenOrganisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError> {
         let interaction_data =
             serde_json::from_value(interaction_data).map_err(ExchangeProtocolError::JsonError)?;
         self.inner
-            .get_presentation_definition(
-                proof,
-                interaction_data,
-                storage_access,
-                format_map,
-                types,
-                organisation,
-            )
+            .get_presentation_definition(proof, interaction_data, storage_access, format_map, types)
             .await
     }
 

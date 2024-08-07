@@ -14,13 +14,11 @@ use crate::common_models::credential_schema::{OpenCredentialSchema, OpenCredenti
 use crate::common_models::did::OpenDid;
 use crate::common_models::interaction::{InteractionId, OpenInteraction};
 use crate::common_models::key::{KeyId, OpenKey};
-use crate::common_models::organisation::OrganisationId;
 use crate::common_models::proof::{self, OpenProof, OpenProofStateEnum, ProofId};
 use crate::common_models::NESTED_CLAIM_MARKER;
 use crate::credential_formatter::model::FormatPresentationCtx;
 use crate::exchange_protocol::openid4vc::mapper::{
-    create_open_id_for_vp_presentation_definition, map_credential_schema_to_detailed,
-    map_from_oidc_format_to_core_real,
+    create_open_id_for_vp_presentation_definition, map_from_oidc_format_to_core_real,
 };
 use crate::exchange_protocol::openid4vc::model::{
     CredentialClaimSchemaDTO, CredentialDetailResponseDTO, CredentialGroup, CredentialGroupItem,
@@ -406,7 +404,6 @@ pub(super) fn presentation_definition_from_interaction_data(
     credentials: Vec<OpenCredential>,
     credential_groups: Vec<CredentialGroup>,
     types: &HashMap<String, DatatypeType>,
-    organisation_id: OrganisationId,
 ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError> {
     Ok(PresentationDefinitionResponseDTO {
         request_groups: vec![PresentationDefinitionRequestGroupResponseDTO {
@@ -447,7 +444,7 @@ pub(super) fn presentation_definition_from_interaction_data(
                 })
                 .collect::<Result<_, _>>()?,
         }],
-        credentials: credential_model_to_credential_dto(credentials, types, organisation_id)?,
+        credentials: credential_model_to_credential_dto(credentials, types)?,
     })
 }
 
@@ -487,18 +484,16 @@ pub fn create_presentation_definition_field(
 pub fn credential_model_to_credential_dto(
     credentials: Vec<OpenCredential>,
     types: &HashMap<String, DatatypeType>,
-    organisation_id: OrganisationId,
 ) -> Result<Vec<CredentialDetailResponseDTO>, ExchangeProtocolError> {
     credentials
         .into_iter()
-        .map(|credential| credential_detail_response_from_model(credential, types, organisation_id))
+        .map(|credential| credential_detail_response_from_model(credential, types))
         .collect()
 }
 
 pub fn credential_detail_response_from_model(
     value: OpenCredential,
     types: &HashMap<String, DatatypeType>,
-    organisation_id: OrganisationId,
 ) -> Result<CredentialDetailResponseDTO, ExchangeProtocolError> {
     let schema = value.schema.ok_or(ExchangeProtocolError::Failed(
         "credential_schema is None".to_string(),
@@ -524,7 +519,7 @@ pub fn credential_detail_response_from_model(
         state: latest_state.state,
         last_modified: value.last_modified,
         claims: from_vec_claim(claims, &schema, types)?,
-        schema: map_credential_schema_to_detailed(schema, organisation_id),
+        schema: schema.try_into()?,
         issuer_did: value.issuer_did.map(Into::into),
         redirect_uri: value.redirect_uri,
         role: value.role,

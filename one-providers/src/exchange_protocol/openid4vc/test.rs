@@ -9,6 +9,7 @@ use uuid::Uuid;
 use crate::common_models::claim_schema::OpenClaimSchema;
 use crate::common_models::credential_schema::{OpenCredentialSchema, OpenLayoutType};
 use crate::common_models::did::DidValue;
+use crate::common_models::organisation::OpenOrganisation;
 use crate::common_models::proof::{OpenProof, OpenProofState, OpenProofStateEnum};
 use crate::common_models::proof_schema::{
     OpenProofInputClaimSchema, OpenProofInputSchema, OpenProofSchema,
@@ -27,6 +28,15 @@ use crate::exchange_protocol::openid4vc::validator::validate_claims;
 
 pub fn get_dummy_date() -> OffsetDateTime {
     datetime!(2005-04-02 21:37 +1)
+}
+
+fn generic_organisation() -> OpenOrganisation {
+    let now = OffsetDateTime::now_utc();
+    OpenOrganisation {
+        id: Uuid::new_v4().into(),
+        created_date: now,
+        last_modified: now,
+    }
 }
 
 #[test]
@@ -96,6 +106,7 @@ fn generic_proof_input_schema() -> OpenProofInputSchema {
             schema_id: "".to_string(),
             schema_type: "".to_string(),
             claim_schemas: None,
+            organisation: Some(generic_organisation()),
         }),
     }
 }
@@ -278,8 +289,10 @@ fn test_oidc_verifier_presentation_definition_success() {
                     layout_properties: None,
                     schema_type: "".to_string(),
                     schema_id: "CredentialSchemaId".to_owned(),
+                    organisation: Some(generic_organisation()),
                 }),
             }]),
+            organisation: Some(generic_organisation()),
         }),
         claims: None,
         verifier_did: None,

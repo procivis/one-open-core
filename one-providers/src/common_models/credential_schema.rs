@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-use super::claim_schema::OpenClaimSchema;
+use super::{claim_schema::OpenClaimSchema, organisation::OpenOrganisation};
 use crate::common_models::macros::{impl_display, impl_from, impl_into};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -32,6 +32,7 @@ pub struct OpenCredentialSchema {
 
     // Relations
     pub claim_schemas: Option<Vec<OpenCredentialSchemaClaim>>,
+    pub organisation: Option<OpenOrganisation>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

@@ -151,6 +151,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
     async fn handle_invitation(
         &self,
         url: Url,
+        organisation: OpenOrganisation,
         storage_access: &StorageAccess,
         handle_invitation_operations: &HandleInvitationOperationsAccess,
     ) -> Result<InvitationResponseDTO, ExchangeProtocolError> {
@@ -164,6 +165,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             InvitationType::CredentialIssuance => {
                 handle_credential_invitation(
                     url,
+                    organisation,
                     &self.client,
                     storage_access,
                     handle_invitation_operations,
@@ -523,6 +525,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
                         did_method: did_method.to_string(),
                         keys: None,
                         deactivated: false,
+                        organisation: schema.organisation.clone(),
                     }),
                 )
             }
@@ -694,7 +697,6 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
         storage_access: &StorageAccess,
         format_map: HashMap<String, String>,
         types: HashMap<String, DatatypeType>,
-        organisation: OpenOrganisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError> {
         let presentation_definition =
             deserialize_interaction_data::<OpenID4VPInteractionData>(proof.interaction.as_ref())?
@@ -780,7 +782,6 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             credentials,
             credential_groups,
             &types,
-            organisation.id,
         )
     }
 
@@ -795,6 +796,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
 async fn handle_credential_invitation(
     invitation_url: Url,
+    organisation: OpenOrganisation,
     client: &reqwest::Client,
     storage_access: &StorageAccess,
     handle_invitation_operations: &HandleInvitationOperationsAccess,
@@ -865,7 +867,7 @@ async fn handle_credential_invitation(
 
     let credential_id: CredentialId = Uuid::new_v4().into();
     let (claims, credential_schema) = match storage_access
-        .get_schema(&schema_data.schema_id)
+        .get_schema(&schema_data.schema_id, organisation.id)
         .await
         .map_err(ExchangeProtocolError::StorageAccessError)?
     {
@@ -891,6 +893,7 @@ async fn handle_credential_invitation(
                     credential,
                     &issuer_metadata,
                     &credential_schema_name,
+                    organisation,
                 )
                 .await?;
             (response.claims, response.schema)

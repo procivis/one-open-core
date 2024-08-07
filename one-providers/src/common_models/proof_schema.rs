@@ -1,7 +1,10 @@
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-use super::{claim_schema::OpenClaimSchema, credential_schema::OpenCredentialSchema};
+use super::{
+    claim_schema::OpenClaimSchema, credential_schema::OpenCredentialSchema,
+    organisation::OpenOrganisation,
+};
 use crate::common_models::macros::{impl_display, impl_from, impl_into};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
@@ -21,6 +24,7 @@ pub struct OpenProofSchema {
 
     // Relations
     pub input_schemas: Option<Vec<OpenProofInputSchema>>,
+    pub organisation: Option<OpenOrganisation>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Default)]

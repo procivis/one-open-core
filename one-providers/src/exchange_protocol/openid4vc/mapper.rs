@@ -20,7 +20,6 @@ use crate::common_models::credential_schema::{
 };
 use crate::common_models::did::{DidValue, OpenDid};
 use crate::common_models::interaction::InteractionId;
-use crate::common_models::organisation::OrganisationId;
 use crate::common_models::proof::OpenProof;
 use crate::common_models::proof_schema::OpenProofInputClaimSchema;
 use crate::common_models::NESTED_CLAIM_MARKER;
@@ -504,24 +503,32 @@ impl From<OpenLayoutProperties> for CredentialSchemaLayoutPropertiesRequestDTO {
     }
 }
 
-pub fn map_credential_schema_to_detailed(
-    value: OpenCredentialSchema,
-    organisation_id: OrganisationId,
-) -> DetailCredentialSchemaResponseDTO {
-    DetailCredentialSchemaResponseDTO {
-        id: value.id,
-        created_date: value.created_date,
-        deleted_at: value.deleted_at,
-        last_modified: value.last_modified,
-        name: value.name,
-        format: value.format,
-        revocation_method: value.revocation_method,
-        wallet_storage_type: value.wallet_storage_type,
-        organisation_id,
-        schema_type: value.schema_type,
-        schema_id: value.schema_id,
-        layout_type: value.layout_type.into(),
-        layout_properties: value.layout_properties.map(Into::into),
+impl TryFrom<OpenCredentialSchema> for DetailCredentialSchemaResponseDTO {
+    type Error = ExchangeProtocolError;
+
+    fn try_from(value: OpenCredentialSchema) -> Result<Self, Self::Error> {
+        let organisation_id = match value.organisation {
+            None => Err(ExchangeProtocolError::Failed(
+                "Organisation has not been fetched".to_string(),
+            )),
+            Some(value) => Ok(value.id),
+        }?;
+
+        Ok(Self {
+            id: value.id,
+            created_date: value.created_date,
+            deleted_at: value.deleted_at,
+            last_modified: value.last_modified,
+            name: value.name,
+            format: value.format,
+            revocation_method: value.revocation_method,
+            wallet_storage_type: value.wallet_storage_type,
+            organisation_id,
+            schema_type: value.schema_type,
+            schema_id: value.schema_id,
+            layout_type: value.layout_type.into(),
+            layout_properties: value.layout_properties.map(Into::into),
+        })
     }
 }
 

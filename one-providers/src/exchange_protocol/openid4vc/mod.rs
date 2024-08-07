@@ -31,7 +31,7 @@ use crate::common_models::did::{DidId, DidValue, OpenDid};
 use crate::common_models::interaction::{InteractionId, OpenInteraction};
 use crate::common_models::key::KeyId;
 use crate::common_models::key::OpenKey;
-use crate::common_models::organisation::OpenOrganisation;
+use crate::common_models::organisation::{OpenOrganisation, OrganisationId};
 use crate::common_models::proof::OpenProof;
 use crate::credential_formatter::model::DetailCredential;
 
@@ -95,7 +95,11 @@ pub trait StorageProxy: Send + Sync {
         interaction: OpenInteraction,
     ) -> anyhow::Result<InteractionId>;
     /// Get a credential schema from a chosen storage layer.
-    async fn get_schema(&self, schema_id: &str) -> anyhow::Result<Option<OpenCredentialSchema>>;
+    async fn get_schema(
+        &self,
+        schema_id: &str,
+        organisation_id: OrganisationId,
+    ) -> anyhow::Result<Option<OpenCredentialSchema>>;
     /// Get credentials from a specified schema ID, from a chosen storage layer.
     async fn get_credentials_by_credential_schema_id(
         &self,
@@ -125,6 +129,7 @@ pub struct BuildCredentialSchemaResponse {
 
 /// Interface to be implemented in order to use an exchange protocol.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[allow(clippy::too_many_arguments)]
 #[async_trait::async_trait]
 pub trait HandleInvitationOperations: Send + Sync {
     /// Utilizes custom logic to find out credential schema
@@ -153,6 +158,7 @@ pub trait HandleInvitationOperations: Send + Sync {
         credential: &OpenID4VCICredentialOfferCredentialDTO,
         issuer_metadata: &OpenID4VCIIssuerMetadataResponseDTO,
         credential_schema_name: &str,
+        organisation: OpenOrganisation,
     ) -> Result<BuildCredentialSchemaResponse, ExchangeProtocolError>;
 }
 pub type HandleInvitationOperationsAccess = dyn HandleInvitationOperations;
@@ -174,6 +180,7 @@ pub trait ExchangeProtocolImpl: Send + Sync {
     async fn handle_invitation(
         &self,
         url: Url,
+        organisation: OpenOrganisation,
         storage_access: &StorageAccess,
         handle_invitation_operations: &HandleInvitationOperationsAccess,
     ) -> Result<InvitationResponseDTO, ExchangeProtocolError>;
@@ -224,7 +231,6 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         storage_access: &StorageAccess,
         format_map: HashMap<String, String>,
         types: HashMap<String, DatatypeType>,
-        organisation: OpenOrganisation,
     ) -> Result<PresentationDefinitionResponseDTO, ExchangeProtocolError>;
 
     // Issuer methods:
