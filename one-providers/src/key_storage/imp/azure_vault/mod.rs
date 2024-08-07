@@ -57,7 +57,7 @@ pub struct AzureVaultKeyProvider {
 impl KeyStorage for AzureVaultKeyProvider {
     async fn generate(
         &self,
-        key_id: &KeyId,
+        key_id: Option<KeyId>,
         key_type: &str,
     ) -> Result<StorageGeneratedKey, KeyStorageError> {
         if key_type != "ES256" {
@@ -65,6 +65,8 @@ impl KeyStorage for AzureVaultKeyProvider {
                 key_type: key_type.to_owned(),
             });
         }
+
+        let key_id = key_id.ok_or(KeyStorageError::Failed("Missing key id".to_string()))?;
 
         let access_token = self.get_access_token().await?;
 

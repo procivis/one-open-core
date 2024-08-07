@@ -118,11 +118,11 @@ async fn test_azure_vault_generate() {
 
     let vault = AzureVaultKeyProvider::new(get_params(mock_server.uri()), get_crypto(vec![]));
     vault
-        .generate(&Uuid::new_v4().into(), "ES256")
+        .generate(Some(Uuid::new_v4().into()), "ES256")
         .await
         .unwrap();
     vault
-        .generate(&Uuid::new_v4().into(), "ES256")
+        .generate(Some(Uuid::new_v4().into()), "ES256")
         .await
         .unwrap();
 }
@@ -136,11 +136,11 @@ async fn test_azure_vault_generate_expired_key_causes_second_token_request() {
 
     let vault = AzureVaultKeyProvider::new(get_params(mock_server.uri()), get_crypto(vec![]));
     vault
-        .generate(&Uuid::new_v4().into(), "ES256")
+        .generate(Some(Uuid::new_v4().into()), "ES256")
         .await
         .unwrap();
     vault
-        .generate(&Uuid::new_v4().into(), "ES256")
+        .generate(Some(Uuid::new_v4().into()), "ES256")
         .await
         .unwrap();
 }

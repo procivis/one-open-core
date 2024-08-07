@@ -60,7 +60,7 @@ impl KeyStorage for InternalKeyProvider {
 
     async fn generate(
         &self,
-        _key_id: &KeyId,
+        _key_id: Option<KeyId>,
         key_type: &str,
     ) -> Result<StorageGeneratedKey, KeyStorageError> {
         let key_pair = self

@@ -22,7 +22,7 @@ pub trait KeyStorage: Send + Sync {
     /// Generates a key pair and returns the key reference. Does not expose the private key.
     async fn generate(
         &self,
-        key_id: &KeyId,
+        key_id: Option<KeyId>,
         key_type: &str,
     ) -> Result<model::StorageGeneratedKey, error::KeyStorageError>;
 

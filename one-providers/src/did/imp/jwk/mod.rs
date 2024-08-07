@@ -4,6 +4,8 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
+mod jwk_helpers;
+
 use crate::{
     common_models::{
         did::{DidId, DidValue},
@@ -11,7 +13,7 @@ use crate::{
     },
     did::{
         error::DidMethodError,
-        imp::jwk_helpers::{encode_to_did, extract_jwk, generate_document},
+        imp::jwk::jwk_helpers::{encode_to_did, extract_jwk, generate_document},
         keys::Keys,
         model::{AmountOfKeys, DidCapabilities, DidDocument, Operation},
         DidMethod,
@@ -36,15 +38,18 @@ impl JWKDidMethod {
 impl DidMethod for JWKDidMethod {
     async fn create(
         &self,
-        _id: &DidId,
+        _id: Option<DidId>,
         _params: &Option<serde_json::Value>,
-        keys: &[OpenKey],
+        keys: Option<Vec<OpenKey>>,
     ) -> Result<DidValue, DidMethodError> {
-        let key = match keys {
+        let keys = keys.ok_or(DidMethodError::ResolutionError("Missing keys".to_string()))?;
+
+        let key = match keys.as_slice() {
             [key] => key,
             [] => return Err(DidMethodError::CouldNotCreate("Missing key".to_string())),
             _ => return Err(DidMethodError::CouldNotCreate("Too many keys".to_string())),
         };
+
         let key_algorithm = self
             .key_algorithm_provider
             .get_key_algorithm(&key.key_type)

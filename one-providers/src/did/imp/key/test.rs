@@ -301,7 +301,7 @@ async fn test_create_did_success() {
 
     let did_method = setup_key_did_method(key_algorithm, "EDDSA");
     let result = did_method
-        .create(&DidId::from(Uuid::new_v4()), &None, &vec![key])
+        .create(Some(DidId::from(Uuid::new_v4())), &None, Some(vec![key]))
         .await;
     result.unwrap();
 }

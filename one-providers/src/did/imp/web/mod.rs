@@ -63,9 +63,9 @@ impl WebDidMethod {
 impl DidMethod for WebDidMethod {
     async fn create(
         &self,
-        id: &DidId,
+        id: Option<DidId>,
         _params: &Option<serde_json::Value>,
-        _key: &[OpenKey],
+        _key: Option<Vec<OpenKey>>,
     ) -> Result<DidValue, DidMethodError> {
         let did_base_string =
             self.did_base_string
@@ -73,6 +73,10 @@ impl DidMethod for WebDidMethod {
                 .ok_or(DidMethodError::CouldNotCreate(
                     "Missing base_url".to_string(),
                 ))?;
+
+        let id = id.ok_or(DidMethodError::ResolutionError(
+            "Missing did id".to_string(),
+        ))?;
 
         let did_value = format!("{did_base_string}:{id}");
         Ok(DidValue::from(did_value))

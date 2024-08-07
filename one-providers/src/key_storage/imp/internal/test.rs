@@ -36,7 +36,7 @@ async fn test_internal_generate() {
         Params { encryption: None },
     );
 
-    let result = provider.generate(&Uuid::new_v4().into(), "").await.unwrap();
+    let result = provider.generate(None, "").await.unwrap();
     assert_eq!(3, result.key_reference.len());
 }
 
@@ -66,7 +66,7 @@ async fn test_internal_generate_with_encryption() {
         },
     );
 
-    let result = provider.generate(&Uuid::new_v4().into(), "").await.unwrap();
+    let result = provider.generate(None, "").await.unwrap();
     assert_eq!(result.key_reference.len(), 39);
 }
 
@@ -108,7 +108,7 @@ async fn test_internal_sign_with_encryption() {
         },
     );
 
-    let generated_key = provider.generate(&Uuid::new_v4().into(), "").await.unwrap();
+    let generated_key = provider.generate(None, "").await.unwrap();
 
     let key = OpenKey {
         id: Uuid::new_v4().into(),

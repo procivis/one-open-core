@@ -38,15 +38,18 @@ impl KeyDidMethod {
 impl DidMethod for KeyDidMethod {
     async fn create(
         &self,
-        _id: &DidId,
+        _id: Option<DidId>,
         _params: &Option<serde_json::Value>,
-        keys: &[OpenKey],
+        keys: Option<Vec<OpenKey>>,
     ) -> Result<DidValue, DidMethodError> {
-        let key = match keys {
+        let keys = keys.ok_or(DidMethodError::ResolutionError("Missing keys".to_string()))?;
+
+        let key = match keys.as_slice() {
             [key] => key,
             [] => return Err(DidMethodError::CouldNotCreate("Missing key".to_string())),
-            _ => return Err(DidMethodError::CouldNotCreate("Too much keys".to_string())),
+            _ => return Err(DidMethodError::CouldNotCreate("Too many keys".to_string())),
         };
+
         let key_algorithm = self
             .key_algorithm_provider
             .get_key_algorithm(&key.key_type)

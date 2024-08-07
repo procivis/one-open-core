@@ -192,9 +192,9 @@ async fn test_create_did_jwk_success() {
 
     let result = provider
         .create(
-            &Uuid::new_v4().into(),
+            Some(Uuid::new_v4().into()),
             &None,
-            &vec![OpenKey {
+            Some(vec![OpenKey {
                 id: Uuid::new_v4().into(),
                 created_date: OffsetDateTime::now_utc(),
                 last_modified: OffsetDateTime::now_utc(),
@@ -204,7 +204,7 @@ async fn test_create_did_jwk_success() {
                 storage_type: "test".to_owned(),
                 key_type: "key_type".to_owned(),
                 organisation: None,
-            }],
+            }]),
         )
         .await
         .unwrap();

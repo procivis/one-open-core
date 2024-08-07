@@ -34,9 +34,9 @@ pub trait DidMethod: Send + Sync {
     /// Creates a DID.
     async fn create(
         &self,
-        id: &DidId,
+        id: Option<DidId>,
         params: &Option<serde_json::Value>,
-        keys: &[OpenKey],
+        keys: Option<Vec<OpenKey>>,
     ) -> Result<DidValue, DidMethodError>;
 
     /// Resolve a DID to its DID document.

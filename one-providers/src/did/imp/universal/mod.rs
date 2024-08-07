@@ -46,9 +46,9 @@ impl UniversalDidMethod {
 impl DidMethod for UniversalDidMethod {
     async fn create(
         &self,
-        _id: &DidId,
+        _id: Option<DidId>,
         _params: &Option<serde_json::Value>,
-        _keys: &[OpenKey],
+        _keys: Option<Vec<OpenKey>>,
     ) -> Result<DidValue, DidMethodError> {
         Err(DidMethodError::NotSupported)
     }
