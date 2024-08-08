@@ -60,7 +60,8 @@ pub(super) fn nest_claims_to_json(
     let mut data = serde_json::Value::Object(Default::default());
 
     for claim in claims {
-        let pointer = jsonptr::Pointer::try_from(format!("/{}", claim.key))?;
+        let path = format!("/{}", claim.key);
+        let pointer = jsonptr::Pointer::parse(&path)?;
         let value: serde_json::Value = claim.value.to_owned().try_into()?;
         pointer.assign(&mut data, value)?;
     }

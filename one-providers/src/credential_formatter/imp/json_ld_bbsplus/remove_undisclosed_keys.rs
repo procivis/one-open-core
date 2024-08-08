@@ -14,7 +14,7 @@ pub(super) fn remove_undisclosed_keys(
         for key in disclosed_keys {
             let full_path = format!("/{key}");
             if let Some(value) = value.pointer(&full_path) {
-                let pointer = jsonptr::Pointer::try_from(full_path)?;
+                let pointer = jsonptr::Pointer::parse(&full_path)?;
                 pointer.assign(&mut object, value.to_owned())?;
             }
         }

@@ -41,7 +41,7 @@ sophia_c14n      = { version = "0.8" }
 urlencoding      = { version = "2.1" }
 itertools        = { version = "0.13" }
 json-ld          = { version = "0.15" }
-jsonptr          = { version = "0.4" }
+jsonptr          = { version = "0.5" }
 bit-vec          = { version = "0.8" }
 flate2           = { version = "1.0" }
 serde_urlencoded = { version = "0.7" }

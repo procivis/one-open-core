@@ -1,11 +1,10 @@
 //! Enumerates errors for credential formatter provider.
 
-use jsonptr::MalformedPointerError;
 use thiserror::Error;
 
 use one_crypto::CryptoProviderError;
 
-#[derive(Debug, PartialEq, Eq, Error)]
+#[derive(Debug, PartialEq, Error)]
 pub enum FormatterError {
     #[error("Failed: `{0}`")]
     Failed(String),
@@ -39,10 +38,10 @@ pub enum FormatterError {
     MissingBaseUrl { formatter: &'static str },
     #[error("JSON mapping error: `{0}`")]
     JsonMapping(String),
-    #[error("Jsonptr library malformed pointer error: `{0}`")]
-    JsonPtrMalformed(#[from] MalformedPointerError),
-    #[error("Jsonptr library error: `{0}`")]
-    JsonPtrError(#[from] jsonptr::Error),
+    #[error("Jsonptr assign error: `{0}`")]
+    JsonPtrAssignError(#[from] jsonptr::assign::AssignError),
+    #[error("Jsonptr parse error: `{0}`")]
+    JsonPtrParseError(#[from] jsonptr::ParseError),
     #[error("Float value is NaN")]
     FloatValueIsNaN,
 }
