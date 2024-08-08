@@ -209,7 +209,9 @@ pub async fn oidc_verifier_direct_post(
     fn_map_oidc_to_core: FnMapOidcVpFormatToCore,
     fn_map_oidc_to_core_real: FnMapOidcFormatToCoreReal,
 ) -> Result<(AcceptProofResult, OpenID4VPDirectPostResponseDTO), OpenID4VCError> {
-    throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Pending)?;
+    throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Pending).or(
+        throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Requested),
+    )?;
 
     let proved_claims = process_proof_submission(
         request,
