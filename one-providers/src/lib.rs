@@ -11,8 +11,8 @@
 //! similar pattern, each containing some subset of:
 //!
 //! - `imp`: Implements the functionality. Within this directory, each
-//! technology (e.g. each credential format, each key algorithm, each
-//! DID method) is implemented within its own directory.
+//!   technology (e.g. each credential format, each key algorithm, each
+//!   DID method) is implemented within its own directory.
 //! - `error`: Enumerates errors of the provider.
 //! - `mod`: Provides the traits used in the implementation.
 //! - `model`: `struct`s and `enum`s of the provider.

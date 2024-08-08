@@ -27,7 +27,7 @@
 //!
 //! - **Core**: A few developer APIs for orchestrating the providers.
 //! - **Providers**: Implementations of the complete range of functionality. Most projects will
-//! use the providers, even if they take advantage of the services of the Core.
+//!   use the providers, even if they take advantage of the services of the Core.
 //!
 //! ### Core
 //!
@@ -64,7 +64,7 @@
 //! - `examples/signature_example`: Issuing, presenting as a holder, and verifying a credential via the credentials service
 //! - `examples/signature_example`: Signing and verifying via the signature service
 //! - `examples/did_resolution_example`: Resolving DIDs via the DID service or using the
-//! implementations directly
+//!   implementations directly
 //!
 //! ### Providers
 //!
@@ -76,7 +76,7 @@
 //! - Key algorithm provider: implements cryptographic key pair generation and key representations
 //! - Key storage provider: implements storage of cryptographic keys and the creation of digital signatures
 //! - Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
-//! checking the revocation/suspension status for holders and verifiers
+//!   checking the revocation/suspension status for holders and verifiers
 //!
 //! This is where all the functions to issue, hold and verify come from. These providers
 //! are described further in the relevant [doc][prov]. The library can be extended
