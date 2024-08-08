@@ -21,7 +21,7 @@ pub enum BitstringError {
     IndexOutOfBounds { index: usize },
 }
 
-pub fn generate_bitstring(input: Vec<bool>) -> Result<String, BitstringError> {
+pub(super) fn generate_bitstring(input: Vec<bool>) -> Result<String, BitstringError> {
     let size = calculate_bitstring_size(input.len());
     let mut bits = BitVec::from_elem(size, false);
     input.into_iter().enumerate().for_each(|(index, state)| {
@@ -36,7 +36,7 @@ pub fn generate_bitstring(input: Vec<bool>) -> Result<String, BitstringError> {
     Base64UrlSafeNoPadding::encode_to_string(compressed).map_err(BitstringError::Base64Encoding)
 }
 
-pub fn extract_bitstring_index(input: String, index: usize) -> Result<bool, BitstringError> {
+pub(super) fn extract_bitstring_index(input: String, index: usize) -> Result<bool, BitstringError> {
     let compressed = Base64UrlSafeNoPadding::decode_to_vec(input, None)
         .map_err(BitstringError::Base64Decoding)?;
 

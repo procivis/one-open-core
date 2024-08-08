@@ -25,15 +25,13 @@ use crate::{
         },
         RevocationMethod,
     },
-    util::{
-        bitstring::{extract_bitstring_index, generate_bitstring},
-        key_verification::KeyVerification,
-    },
+    util::key_verification::KeyVerification,
 };
 
 mod jwt_formatter;
 pub mod model;
 pub mod resolver;
+pub mod util;
 
 const CREDENTIAL_STATUS_TYPE: &str = "BitstringStatusListEntry";
 
@@ -184,7 +182,7 @@ impl RevocationMethod for BitstringStatusList {
         )
         .await?;
 
-        if extract_bitstring_index(encoded_list, list_index)? {
+        if util::extract_bitstring_index(encoded_list, list_index)? {
             Ok(match credential_status.status_purpose.as_ref() {
                 Some(purpose) => match purpose.as_str() {
                     "revocation" => CredentialRevocationState::Revoked,
@@ -398,7 +396,7 @@ pub async fn generate_bitstring_from_credentials(
         })
         .collect::<Result<Vec<_>, RevocationError>>()?;
 
-    generate_bitstring(states).map_err(RevocationError::from)
+    util::generate_bitstring(states).map_err(RevocationError::from)
 }
 
 pub fn get_revocation_list_url(

@@ -12,7 +12,7 @@ use crate::{
     did::error::DidMethodProviderError,
     key_storage::error::KeyStorageProviderError,
     remote_entity_storage::RemoteEntityStorageError,
-    util::bitstring::BitstringError,
+    revocation::imp::bitstring_status_list::util::BitstringError,
 };
 
 #[derive(Debug, Error)]
