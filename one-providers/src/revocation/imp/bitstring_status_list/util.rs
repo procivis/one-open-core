@@ -21,22 +21,7 @@ pub enum BitstringError {
     IndexOutOfBounds { index: usize },
 }
 
-pub(super) fn generate_bitstring(input: Vec<bool>) -> Result<String, BitstringError> {
-    let size = calculate_bitstring_size(input.len());
-    let mut bits = BitVec::from_elem(size, false);
-    input.into_iter().enumerate().for_each(|(index, state)| {
-        if state {
-            bits.set(index, true)
-        }
-    });
-
-    let bytes = bits.to_bytes();
-    let compressed = gzip_compress(bytes).map_err(BitstringError::Compression)?;
-
-    Base64UrlSafeNoPadding::encode_to_string(compressed).map_err(BitstringError::Base64Encoding)
-}
-
-pub(super) fn extract_bitstring_index(input: String, index: usize) -> Result<bool, BitstringError> {
+pub fn extract_bitstring_index(input: String, index: usize) -> Result<bool, BitstringError> {
     let compressed = Base64UrlSafeNoPadding::decode_to_vec(input, None)
         .map_err(BitstringError::Base64Decoding)?;
 
@@ -50,6 +35,21 @@ pub(super) fn extract_bitstring_index(input: String, index: usize) -> Result<boo
 
     let bits = BitVec::from_bytes(&bytes);
     Ok(bits[index])
+}
+
+pub(super) fn generate_bitstring(input: Vec<bool>) -> Result<String, BitstringError> {
+    let size = calculate_bitstring_size(input.len());
+    let mut bits = BitVec::from_elem(size, false);
+    input.into_iter().enumerate().for_each(|(index, state)| {
+        if state {
+            bits.set(index, true)
+        }
+    });
+
+    let bytes = bits.to_bytes();
+    let compressed = gzip_compress(bytes).map_err(BitstringError::Compression)?;
+
+    Base64UrlSafeNoPadding::encode_to_string(compressed).map_err(BitstringError::Base64Encoding)
 }
 
 fn gzip_compress(input: Vec<u8>) -> Result<Vec<u8>, std::io::Error> {

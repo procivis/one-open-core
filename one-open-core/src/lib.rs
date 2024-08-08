@@ -336,7 +336,7 @@ impl OneOpenCore {
                         None,
                         did_method_provider.clone(),
                         key_algorithm_provider.clone(),
-                        json_ld_caching_loader.clone(),
+                        json_ld_caching_loader,
                     )) as _,
                 ),
             ]),
@@ -348,10 +348,10 @@ impl OneOpenCore {
         let did_service = DidService::new(did_method_provider.clone(), Some(universal_resolver));
 
         let credential_service = CredentialService::new(
-            key_storage_provider.clone(),
-            credential_formatter_provider.clone(),
-            key_algorithm_provider.clone(),
-            did_method_provider.clone(),
+            key_storage_provider,
+            credential_formatter_provider,
+            key_algorithm_provider,
+            did_method_provider,
         );
 
         Ok(Self {
