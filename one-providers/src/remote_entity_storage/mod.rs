@@ -1,3 +1,17 @@
+//! Storage provider for caching.
+//!
+//! In-memory storage is supported natively; this can be extended with another storage
+//! provider.
+//!
+//! # Caching
+//!
+//! Some entities are cached. This is helpful for mobile devices with intermittent
+//! internet connectivity, as well as for system optimization with entities not
+//! expected to change (i.e. JSON-LD contexts). See the [caching][cac]
+//! docs for more information on cached entities.
+//!
+//! [cac]: https://docs.procivis.ch/api/caching
+
 use std::cmp::Ordering;
 
 use thiserror::Error;

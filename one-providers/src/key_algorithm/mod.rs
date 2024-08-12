@@ -1,10 +1,10 @@
 //! Tools for key algorithm representations and finding signer IDs.
 //!
-//! This module provides utilities for finding signer IDs and getting public and private
-//! keys in different representations.
+//! This module provides utilities for generating cryptographic key pairs,
+//! finding signer IDs and getting public and private keys in different representations.
 //!
-//! Key pairs can also be generated with this module, though generating key pairs with
-//! the [key storage][ks] module is generally preferred for private key protection.
+//! The [key storage][ks] module acts as a wrapper for this module, enabling key
+//! generation and usage safely via key reference.
 //!
 //! [ks]: ../../one_providers/key_storage/index.html
 

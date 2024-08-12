@@ -1,3 +1,5 @@
+//! Implementations of key algorithms.
+
 pub mod provider;
 
 pub mod bbs;

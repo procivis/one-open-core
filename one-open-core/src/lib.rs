@@ -9,30 +9,54 @@
 //! The library provides all SSI functionality needed to issue, hold and
 //! verify credentials, including credential formats, exchange protocols, digital
 //! signature schemes and associated key handling, DID management and revocation
-//! methods.
+//! methods. Additionally, implementations of technologies can be used individually
+//! for modular functionality.
 //!
-//! ## Key features:
+//! ## Features
 //!
-//! - Generate cryptographic key pairs using [ECDSA][ecd], [EdDSA][edd], [BBS+][bbs], and [Dilithium 3][dil] (FIPS 204, post-quantum) algorithms
-//! - Create and resolve decentralized identifiers ([DIDs][di]) using [did:web][dw], [did:key][dk], and [did:jwk][djw]
-//! - Store keys and safely interact via [Azure Key Vault][akv] or encrypted internal database
-//! - Create and issue credentials in [JSON-LD][jld] and [JWT][jw] formats using [OpenID4VCI][vci]
-//! - Revoke applicable credentials using [Status list][sl] or [Linked Validity Verifiable Credentials][lvvc] (LVVC)
-//! - Hold credentials and create signed presentations to share with verifiers; selectively disclose attributes (with JSON-LD BBS+)
-//! - Verify presentations of credentials using [OpenID4VP][vp] remotely
+//! See the README for a complete list of supported technologies and standards.
 //!
-//! ## Usage
+//! ## Repository structure
 //!
-//! The library consists of two crates:
+//! The library consists of three crates:
 //!
-//! - **Core**: A few developer APIs for orchestrating the providers.
-//! - **Providers**: Implementations of the complete range of functionality. Most projects will
-//!   use the providers, even if they take advantage of the services of the Core.
+//! * **Providers**
+//!   * Credential formatter provider
+//!   * Key algorithm provider
+//!   * Key storage provider
+//!  * Revocation provider
+//!   * DID method provider
+//!   * Exchange protocol provider
+//! * **Crypto**: This provider is delimited in its own directory to enable future certification
+//!   of the cryptographic components of this library, e.g. in the [NIST Cryptographic Module Validation Program (CMVP)][cmvp].
+//!   * Crypto provider
+//! * **Core**
+//!   * Services
+//!
+//! The **Providers** (including Crypto provider) are modular implementations of the complete
+//! range of functionality. Developers can use providers — or implementations of individual
+//! technologies from within a provider — for modular functionality.
+//!
+//! The **Core** is a service layer that offers developer APIs for orchestrating the whole
+//! suite of providers for simplified workflows in issuing, holding, or verifying. Services
+//! return provider implementations.
+//!
+//! ## Getting started
+//!
+//! ### Providers
+//!
+//! See **/examples** in the [repository][repo]for a few iterations of using the provider
+//! implementations:
+//!
+//! - `examples/signature_example`: Issuing, presenting as a holder, and verifying a credential via the credentials service
+//! - `examples/signature_example`: Signing and verifying via the signature service
+//! - `examples/did_resolution_example`: Resolving DIDs via the DID service or using the
+//!   implementations directly
 //!
 //! ### Core
 //!
 //! The **Core** provides developer APIs for simple and easy-to-use functionalities
-//! of the library and its supported technologies, without extension. As an orchestration
+//! of the library and its supported technologies. As an orchestration
 //! layer, it provides the simplest access to related functions with
 //! the least amount of effort. Use the provided [services][serv] to get started.
 //! Additional services will be added.
@@ -41,7 +65,7 @@
 //! - [Signature service][ss] for signing and verifying credentals
 //! - [DID resolver service][dresolv] for resolving DIDs
 //!
-//! To get started, initialize the core:
+//! To get started with the provided services, initialize the core:
 //!
 //! ```ignore rust
 //! /// `None` initializes the Core with the default configuration
@@ -56,32 +80,6 @@
 //!     .expect("Key pair creation failed");
 //! ```
 //!
-//! #### Examples
-//!
-//! Some examples of using the **Core** are provided in the **/examples** directory of
-//! the [repository][repo]. More examples will be added in the future. Examples include:
-//!
-//! - `examples/signature_example`: Issuing, presenting as a holder, and verifying a credential via the credentials service
-//! - `examples/signature_example`: Signing and verifying via the signature service
-//! - `examples/did_resolution_example`: Resolving DIDs via the DID service or using the
-//!   implementations directly
-//!
-//! ### Providers
-//!
-//! The **Providers** contain the actual implementations of technologies. This includes all
-//! elements of issuing, holding and verifying credentials.
-//!
-//! - Credential format provider: implements credential formats, including seralizing and parsing of credentials
-//! - DID method provider: implements DID operations such as creating, resolving, and (where applicable) updating
-//! - Key algorithm provider: implements cryptographic key pair generation and key representations
-//! - Key storage provider: implements storage of cryptographic keys and the creation of digital signatures
-//! - Revocation provider: implements revocation methods, including revoking and suspending credentials for the issuer and
-//!   checking the revocation/suspension status for holders and verifiers
-//!
-//! This is where all the functions to issue, hold and verify come from. These providers
-//! are described further in the relevant [doc][prov]. The library can be extended
-//! by adding new implementations in the relevant provider.
-//!
 //! ## Documentation
 //!
 //! This site provides descriptions of crates, modules, and traits for the providers.
@@ -94,28 +92,15 @@
 //! - APIs and SDK documentation
 //! - Conceptual topics
 //!
-//! [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
-//! [bbs]: https://w3c.github.io/vc-di-bbs/
+//! [cmvp]: https://csrc.nist.gov/Projects/Cryptographic-Module-Validation-Program
+//! [cryp]: ../one_crypto/index.html
 //! [cs]: ..//one_open_core/service/credential_service/struct.CredentialService.html
-//! [di]: https://w3c-ccg.github.io/did-primer/
-//! [dil]: https://csrc.nist.gov/pubs/fips/204/ipd
-//! [djw]: https://github.com/quartzjer/did-jwk/blob/main/spec.md
-//! [dk]: https://w3c-ccg.github.io/did-method-key/
 //! [docs]: https://docs.procivis.ch/
 //! [dresolv]: ..//one_open_core/service/did_service/struct.DidService.html
-//! [dw]: https://w3c-ccg.github.io/did-method-web/
-//! [ecd]: https://www.rfc-editor.org/rfc/rfc7518#section-3.4
-//! [edd]: https://www.w3.org/TR/vc-di-eddsa/
-//! [jld]: https://www.w3.org/TR/json-ld11/
-//! [jw]: https://www.w3.org/TR/2023/WD-vc-jwt-20230427/
-//! [lvvc]: https://eprint.iacr.org/2022/1658.pdf
-//! [prov]: ../one_providers/index.html
 //! [repo]: https://github.com/procivis/one-open-core
 //! [serv]: ..//one_open_core/service/index.html
 //! [sl]: https://w3c.github.io/vc-bitstring-status-list/
 //! [ss]: ..//one_open_core/service/signature_service/struct.SignatureService.html
-//! [vci]: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-12.html
-//! [vp]: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html
 
 #![doc(html_favicon_url = "https://docs.procivis.ch/img/favicon.svg")]
 

@@ -1,4 +1,7 @@
-//! Models shared across for providers.
+//! Models shared across providers. See the [API resources][api] for more on
+//! entities found here.
+//!
+//! [api]: https://docs.procivis.ch/guides/api/overview
 
 pub mod claim;
 pub mod claim_schema;

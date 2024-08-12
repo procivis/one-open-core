@@ -1,6 +1,10 @@
-//! Hashing and signing utilities.
+//! Signing and verifying of raw bytes.
 //!
-//! This module provides utilities for hashing and direct signatures and verifications.
+//! This module provides utilities for hashing and direct signatures and verifications
+//! of raw bytes. It has been separated into its own directory to enable future
+//! certification, e.g. in the [NIST Cryptographic Module Validation Program (CMVP)][cmvp].
+//!
+//! [cmvp]: https://csrc.nist.gov/Projects/Cryptographic-Module-Validation-Program
 
 use std::sync::Arc;
 

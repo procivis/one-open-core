@@ -1,7 +1,10 @@
 //! Tools for safe generation and usage of keys.
 //!
-//! This module provides a middle layer for interacting with private keys via key
-//! references. Generate key pairs and sign via key reference.
+//! This module wraps the key algorithm provider, providing a middle
+//! layer for interacting with private keys via key references. Generate
+//! key pairs and sign via key reference.
+//!
+//! [ks]: ../../one_providers/key_algorithm/index.html
 
 use async_trait;
 use zeroize::Zeroizing;
