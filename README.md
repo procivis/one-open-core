@@ -126,7 +126,7 @@ Exchange credentials and presentations:
 
 * Issue credentials using [OpenID4VCI (draft 12)][vci]
 * Receive credentials and make verifiable presentations using OpenID4VC
-* Verify credentials using [OpenID4VCP (draft 20)][vp]
+* Verify credentials using [OpenID4VP (draft 20)][vp]
 
 ### Additional features
 
