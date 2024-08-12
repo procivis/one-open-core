@@ -24,7 +24,7 @@ use utils::{
 };
 use uuid::Uuid;
 
-use super::imp::mappers::{detect_correct_format, get_credential_offer_url};
+use super::imp::mappers::get_credential_offer_url;
 use super::mapper::create_open_id_for_vp_presentation_definition;
 use super::model::{
     CredentialGroup, CredentialGroupItem, DatatypeType, HolderInteractionData,
@@ -38,7 +38,9 @@ use super::model::{
     UpdateResponse,
 };
 use super::proof_formatter::OpenID4VCIProofJWTFormatter;
-use super::service::{create_credential_offer, credentials_format};
+use super::service::{
+    create_credential_offer, credentials_format, FnMapExternalFormatToExternalDetailed,
+};
 use super::{
     ExchangeProtocolError, ExchangeProtocolImpl, FormatMapper, HandleInvitationOperationsAccess,
     StorageAccess, TypeToDescriptorMapper,
@@ -392,6 +394,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
         jwk_key_id: Option<String>,
         credential_format: &str,
         storage_access: &StorageAccess,
+        map_external_format_to_external_detailed: FnMapExternalFormatToExternalDetailed,
     ) -> Result<UpdateResponse<SubmitIssuerResponse>, ExchangeProtocolError> {
         let schema = credential
             .schema
@@ -455,8 +458,9 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             .map_err(ExchangeProtocolError::Transport)?;
 
         // To be removed or replaced by a closure call
-        let real_format = detect_correct_format(schema, &response_value.credential)
-            .map_err(|e| ExchangeProtocolError::Failed(e.to_string()))?;
+        let real_format =
+            map_external_format_to_external_detailed(&schema.format, &response_value.credential)
+                .map_err(|e| ExchangeProtocolError::Failed(e.to_string()))?;
 
         // revocation method must be updated based on the issued credential (unknown in credential offer)
         let response_credential = self

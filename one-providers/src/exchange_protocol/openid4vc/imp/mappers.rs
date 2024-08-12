@@ -17,9 +17,7 @@ use crate::common_models::key::{KeyId, OpenKey};
 use crate::common_models::proof::{self, OpenProof, OpenProofStateEnum, ProofId};
 use crate::common_models::NESTED_CLAIM_MARKER;
 use crate::credential_formatter::model::FormatPresentationCtx;
-use crate::exchange_protocol::openid4vc::mapper::{
-    create_open_id_for_vp_presentation_definition, map_from_oidc_format_to_core_real,
-};
+use crate::exchange_protocol::openid4vc::mapper::create_open_id_for_vp_presentation_definition;
 use crate::exchange_protocol::openid4vc::model::{
     CredentialClaimSchemaDTO, CredentialDetailResponseDTO, CredentialGroup, CredentialGroupItem,
     DatatypeType, DetailCredentialClaimResponseDTO, DetailCredentialClaimValueResponseDTO,
@@ -165,18 +163,6 @@ pub fn create_credential(
     }
 }
 
-pub fn map_from_oidc_format_to_core(format: &str) -> Result<String, ExchangeProtocolError> {
-    match format {
-        "jwt_vc_json" => Ok("JWT".to_string()),
-        "vc+sd-jwt" => Ok("SDJWT".to_string()),
-        "ldp_vc" => Ok("JSON_LD".to_string()),
-        "mso_mdoc" => Ok("MDOC".to_string()),
-        _ => Err(ExchangeProtocolError::Failed(
-            "UnsupportedCredentialFormat".into(),
-        )),
-    }
-}
-
 pub fn create_claims_from_credential_definition(
     credential_id: CredentialId,
     claim_keys: &HashMap<String, OpenID4VCICredentialValueDetails>,
@@ -249,21 +235,6 @@ pub fn get_parent_claim_paths(path: &str) -> Vec<&str> {
         })
         .map(|index| &path[0..index])
         .collect()
-}
-
-pub(crate) fn detect_correct_format(
-    credential_schema: &OpenCredentialSchema,
-    credential_content: &str,
-) -> Result<String, ExchangeProtocolError> {
-    let format = if credential_schema.format.eq("JSON_LD") {
-        // Replace that one with some kind of mapper
-        map_from_oidc_format_to_core_real("ldp_vc", credential_content).map_err(|_| {
-            ExchangeProtocolError::Failed("Credential format not resolved".to_owned())
-        })?
-    } else {
-        credential_schema.format.to_owned()
-    };
-    Ok(format)
 }
 
 pub(crate) fn get_credential_offer_url(

@@ -8,6 +8,7 @@ resolver = "2"
 default-members = ["one-providers", "one-open-core", "one-crypto"]
 members = [
     "examples/did_resolution_example",
+    "examples/credential_example",
     "examples/signature_example",
     "one-providers",
     "one-crypto",

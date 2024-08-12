@@ -1,4 +1,4 @@
-use super::model::{VCContent, VC};
+use super::model::{VCContent, VC, VP};
 use crate::{
     common_models::did::DidValue,
     credential_formatter::{
@@ -6,7 +6,7 @@ use crate::{
         imp::{common::nest_claims, jwt::Jwt},
         model::{
             Context, CredentialData, CredentialSchema, CredentialSchemaData, CredentialSubject,
-            DetailCredential,
+            DetailCredential, Presentation,
         },
     },
 };
@@ -66,6 +66,19 @@ impl From<Jwt<VC>> for DetailCredential {
             claims: jwt.payload.custom.vc.credential_subject,
             status: jwt.payload.custom.vc.credential_status,
             credential_schema: jwt.payload.custom.vc.credential_schema,
+        }
+    }
+}
+
+impl From<Jwt<VP>> for Presentation {
+    fn from(jwt: Jwt<VP>) -> Self {
+        Presentation {
+            id: jwt.payload.jwt_id,
+            issued_at: jwt.payload.issued_at,
+            expires_at: jwt.payload.expires_at,
+            issuer_did: jwt.payload.issuer.map(DidValue::from),
+            nonce: jwt.payload.nonce,
+            credentials: jwt.payload.custom.vp.verifiable_credential,
         }
     }
 }

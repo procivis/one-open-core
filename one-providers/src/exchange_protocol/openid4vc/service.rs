@@ -206,8 +206,7 @@ pub async fn oidc_verifier_direct_post(
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
     key_algorithm_provider: &Arc<dyn KeyAlgorithmProvider>,
     revocation_method_provider: &Arc<dyn RevocationMethodProvider>,
-    fn_map_oidc_to_core: FnMapOidcVpFormatToCore,
-    fn_map_oidc_to_core_real: FnMapOidcFormatToCoreReal,
+    map_oidc_to_external: FnMapOidcFormatToExternalDetailed,
 ) -> Result<(AcceptProofResult, OpenID4VPDirectPostResponseDTO), OpenID4VCError> {
     throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Pending).or(
         throw_if_latest_proof_state_not_eq(&proof, OpenProofStateEnum::Requested),
@@ -221,17 +220,19 @@ pub async fn oidc_verifier_direct_post(
         formatter_provider,
         key_algorithm_provider,
         revocation_method_provider,
-        fn_map_oidc_to_core,
-        fn_map_oidc_to_core_real,
+        map_oidc_to_external,
     )
     .await?;
-    let redirect_uri = proof.redirect_uri.to_owned();
+    let redirect_uri: Option<String> = proof.redirect_uri.to_owned();
     let result = accept_proof(proof, proved_claims).await?;
     Ok((result, OpenID4VPDirectPostResponseDTO { redirect_uri }))
 }
 
-pub type FnMapOidcVpFormatToCore = fn(&str) -> Result<String, OpenID4VCError>;
-pub type FnMapOidcFormatToCoreReal = fn(&str, &str) -> Result<String, OpenID4VCError>;
+// This one is used
+pub type FnMapOidcFormatToExternal = fn(&str) -> Result<String, OpenID4VCError>;
+pub type FnMapOidcFormatToExternalDetailed =
+    fn(&str, Option<&str>) -> Result<String, OpenID4VCError>;
+pub type FnMapExternalFormatToExternalDetailed = fn(&str, &str) -> Result<String, OpenID4VCError>;
 
 #[allow(clippy::too_many_arguments)]
 async fn process_proof_submission(
@@ -242,8 +243,7 @@ async fn process_proof_submission(
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
     key_algorithm_provider: &Arc<dyn KeyAlgorithmProvider>,
     revocation_method_provider: &Arc<dyn RevocationMethodProvider>,
-    fn_map_oidc_vp_format_to_core: FnMapOidcVpFormatToCore,
-    fn_map_oidc_format_to_core_real: FnMapOidcFormatToCoreReal,
+    map_oidc_format_to_external: FnMapOidcFormatToExternalDetailed,
 ) -> Result<Vec<ValidatedProofClaimDTO>, OpenID4VCError> {
     let interaction_data = parse_interaction_content(interaction_data)?;
 
@@ -281,8 +281,7 @@ async fn process_proof_submission(
         &presentation_strings,
         presentation_submission,
         formatter_provider,
-        fn_map_oidc_vp_format_to_core,
-        fn_map_oidc_format_to_core_real,
+        map_oidc_format_to_external,
     )
     .await?;
 
@@ -337,7 +336,7 @@ async fn process_proof_submission(
                 key_algorithm_provider.clone(),
             ),
             context,
-            fn_map_oidc_vp_format_to_core,
+            map_oidc_format_to_external,
         )
         .await?;
 
@@ -383,7 +382,7 @@ async fn process_proof_submission(
                 key_algorithm_provider.clone(),
             ),
             revocation_method_provider,
-            fn_map_oidc_format_to_core_real,
+            map_oidc_format_to_external,
         )
         .await?;
 
@@ -404,8 +403,7 @@ async fn extract_lvvcs(
     presentation_strings: &[String],
     presentation_submission: &PresentationSubmissionMappingDTO,
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
-    fn_map_oidc_vp_format_to_core: FnMapOidcVpFormatToCore,
-    fn_map_oidc_format_to_core_real: FnMapOidcFormatToCoreReal,
+    map_oidc_format_to_external: FnMapOidcFormatToExternalDetailed,
 ) -> Result<Vec<DetailCredential>, OpenID4VCError> {
     let mut result = vec![];
 
@@ -420,7 +418,7 @@ async fn extract_lvvcs(
             presentation_string,
             &presentation_submitted.format,
             formatter_provider,
-            fn_map_oidc_vp_format_to_core,
+            map_oidc_format_to_external,
         )
         .await?;
 
@@ -436,7 +434,7 @@ async fn extract_lvvcs(
             .ok_or(OpenID4VCIError::InvalidRequest)?;
 
         let oidc_format = &path_nested.format;
-        let format = fn_map_oidc_format_to_core_real(oidc_format, credential)?;
+        let format = map_oidc_format_to_external(oidc_format, Some(credential))?;
         let formatter = formatter_provider
             .get_formatter(&format)
             .ok_or(OpenID4VCIError::VCFormatsNotSupported)?;

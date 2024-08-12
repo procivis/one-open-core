@@ -146,14 +146,7 @@ impl CredentialFormatter for JWTFormatter {
         // Build fails if verification fails
         let jwt: Jwt<VP> = Jwt::build_from_token(token, Some(verification)).await?;
 
-        Ok(Presentation {
-            id: jwt.payload.jwt_id,
-            issued_at: jwt.payload.issued_at,
-            expires_at: jwt.payload.expires_at,
-            issuer_did: jwt.payload.issuer.map(DidValue::from),
-            nonce: jwt.payload.nonce,
-            credentials: jwt.payload.custom.vp.verifiable_credential,
-        })
+        Ok(jwt.into())
     }
 
     fn get_leeway(&self) -> u64 {
@@ -218,14 +211,7 @@ impl CredentialFormatter for JWTFormatter {
     ) -> Result<Presentation, FormatterError> {
         let jwt: Jwt<VP> = Jwt::build_from_token(token, None).await?;
 
-        Ok(Presentation {
-            id: jwt.payload.jwt_id,
-            issued_at: jwt.payload.issued_at,
-            expires_at: jwt.payload.expires_at,
-            issuer_did: jwt.payload.issuer.map(DidValue::from),
-            nonce: jwt.payload.nonce,
-            credentials: jwt.payload.custom.vp.verifiable_credential,
-        })
+        Ok(jwt.into())
     }
 }
 

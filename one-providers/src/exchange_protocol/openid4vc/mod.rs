@@ -167,6 +167,7 @@ pub type HandleInvitationOperationsAccess = dyn HandleInvitationOperations;
 /// holders, and verifiers.
 #[cfg_attr(any(test, feature = "mock"), mockall::automock(type VCInteractionContext = (); type VPInteractionContext = ();))]
 #[async_trait::async_trait]
+#[allow(clippy::too_many_arguments)]
 pub trait ExchangeProtocolImpl: Send + Sync {
     type VCInteractionContext;
     type VPInteractionContext;
@@ -212,6 +213,8 @@ pub trait ExchangeProtocolImpl: Send + Sync {
         jwk_key_id: Option<String>,
         format: &str,
         storage_access: &StorageAccess,
+        // This helps map to correct formatter key if crypto suite hast o be scanned.
+        map_external_format_to_external: service::FnMapExternalFormatToExternalDetailed,
     ) -> Result<UpdateResponse<SubmitIssuerResponse>, ExchangeProtocolError>;
 
     /// Rejects an offered credential.

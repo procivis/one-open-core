@@ -23,7 +23,6 @@ use crate::common_models::interaction::InteractionId;
 use crate::common_models::proof::OpenProof;
 use crate::common_models::proof_schema::OpenProofInputClaimSchema;
 use crate::common_models::NESTED_CLAIM_MARKER;
-use crate::credential_formatter::imp::json_ld::get_crypto_suite;
 use crate::credential_formatter::model::ExtractPresentationCtx;
 use crate::exchange_protocol::openid4vc::error::OpenID4VCError;
 use crate::exchange_protocol::openid4vc::model::{
@@ -92,38 +91,6 @@ pub fn extract_presentation_ctx_from_interaction_content(
         format_nonce: None,
         issuance_date: None,
         expiration_date: None,
-    }
-}
-
-pub fn map_from_oidc_format_to_core_real(
-    format: &str,
-    token: &str,
-) -> Result<String, OpenID4VCError> {
-    match format {
-        "jwt_vc_json" => Ok("JWT".to_string()),
-        "vc+sd-jwt" => Ok("SDJWT".to_string()),
-        "ldp_vc" => match get_crypto_suite(token) {
-            Some(suite) => match suite.as_str() {
-                "bbs-2023" => Ok("JSON_LD_BBSPLUS".to_string()),
-                _ => Ok("JSON_LD_CLASSIC".to_string()),
-            },
-            None => Err(OpenID4VCError::OpenID4VCI(
-                OpenID4VCIError::UnsupportedCredentialFormat,
-            )),
-        },
-        _ => Err(OpenID4VCError::OpenID4VCI(
-            OpenID4VCIError::UnsupportedCredentialFormat,
-        )),
-    }
-}
-
-pub fn map_from_oidc_vp_format_to_core(format: &str) -> Result<String, OpenID4VCError> {
-    match format {
-        "jwt_vp_json" => Ok("JWT".to_string()),
-        "ldp_vp" => Ok("JSON_LD_CLASSIC".to_string()),
-        _ => Err(OpenID4VCError::OpenID4VCI(
-            OpenID4VCIError::UnsupportedCredentialFormat,
-        )),
     }
 }
 

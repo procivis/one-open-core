@@ -57,11 +57,11 @@ impl CredentialService {
         format: CredentialFormat,
         algorithm: KeyAlgorithmType,
         holder_did: DidValue,
-        key: OpenKey,
+        issuer_key: OpenKey,
     ) -> Result<String, CredentialServiceError> {
         let auth_fn = self
             .key_storage_provider
-            .get_signature_provider(&key.to_owned(), None)?;
+            .get_signature_provider(&issuer_key, None)?;
 
         let token = self
             .credential_formatter_provider

@@ -1,6 +1,6 @@
 use one_open_core::model::{CredentialFormat, KeyAlgorithmType, StorageType};
 use one_open_core::service::error::CredentialServiceError;
-use one_providers::common_models::key::Key;
+use one_providers::common_models::key::OpenKey;
 use time::{Duration, OffsetDateTime};
 
 use one_open_core::OneOpenCore;
@@ -24,7 +24,7 @@ async fn main() -> Result<(), CredentialServiceError> {
         .get_key_pair(&KeyAlgorithmType::Es256)
         .expect("Key pair creation failed");
 
-    let key = Key {
+    let issuer_key = OpenKey {
         id: Uuid::new_v4().into(),
         created_date: OffsetDateTime::now_utc(),
         last_modified: OffsetDateTime::now_utc(),
@@ -38,8 +38,12 @@ async fn main() -> Result<(), CredentialServiceError> {
     };
 
     // We will use the same did value for both issuer and holder
-    let did = did_method
-        .create(&Uuid::new_v4().into(), &None, &[key.clone()])
+    let issuer_did = did_method
+        .create(
+            Some(Uuid::new_v4().into()),
+            &None,
+            Some(vec![issuer_key.clone()]),
+        )
         .await
         .expect("Did creation failed");
 
@@ -75,7 +79,7 @@ async fn main() -> Result<(), CredentialServiceError> {
                 array_item: false,
             },
         ],
-        issuer_did: did.clone(),
+        issuer_did: issuer_did.clone(),
         status: vec![],
         schema: CredentialSchemaData {
             id: None,
@@ -85,13 +89,16 @@ async fn main() -> Result<(), CredentialServiceError> {
         },
     };
 
+    // We use the same did as issuer and holder in this example
+    let holder_did = issuer_did;
+
     let token = credential_service
         .format_credential(
             credential_data,
             CredentialFormat::SdJwt,
             KeyAlgorithmType::Es256,
-            did,
-            key,
+            holder_did,
+            issuer_key,
         )
         .await
         .expect("Credential formatting failed");

@@ -18,6 +18,7 @@ use crate::exchange_protocol::openid4vc::model::{
     DatatypeType, InvitationResponseDTO, OpenID4VPFormat, PresentationDefinitionResponseDTO,
     PresentedCredential, ShareResponse, SubmitIssuerResponse, UpdateResponse,
 };
+use crate::exchange_protocol::openid4vc::service::FnMapExternalFormatToExternalDetailed;
 #[cfg(any(test, feature = "mock"))]
 use crate::exchange_protocol::openid4vc::MockExchangeProtocolImpl;
 use crate::exchange_protocol::openid4vc::{
@@ -106,6 +107,7 @@ where
         jwk_key_id: Option<String>,
         format: &str,
         storage_access: &StorageAccess,
+        map_external_format_to_external: FnMapExternalFormatToExternalDetailed,
     ) -> Result<UpdateResponse<SubmitIssuerResponse>, ExchangeProtocolError> {
         self.inner
             .accept_credential(
@@ -115,6 +117,7 @@ where
                 jwk_key_id,
                 format,
                 storage_access,
+                map_external_format_to_external,
             )
             .await
     }

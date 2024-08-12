@@ -21,9 +21,7 @@ use crate::exchange_protocol::openid4vc::model::{
     NestedPresentationSubmissionDescriptorDTO, OpenID4VCIInteractionDataDTO,
     OpenID4VCITokenRequestDTO, ValidatedProofClaimDTO,
 };
-use crate::exchange_protocol::openid4vc::service::{
-    FnMapOidcFormatToCoreReal, FnMapOidcVpFormatToCore,
-};
+use crate::exchange_protocol::openid4vc::service::FnMapOidcFormatToExternalDetailed;
 use crate::revocation::model::{
     CredentialDataByRole, CredentialRevocationState, VerifierCredentialData,
 };
@@ -54,9 +52,9 @@ pub(super) async fn peek_presentation(
     presentation_string: &str,
     oidc_format: &str,
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
-    fn_map_from_oidc_format_to_core: FnMapOidcVpFormatToCore,
+    map_from_oidc_format_to_external: FnMapOidcFormatToExternalDetailed,
 ) -> Result<Presentation, OpenID4VCError> {
-    let format = fn_map_from_oidc_format_to_core(oidc_format)?;
+    let format = map_from_oidc_format_to_external(oidc_format, None)?;
     let formatter = formatter_provider
         .get_formatter(&format)
         .ok_or(OpenID4VCIError::VCFormatsNotSupported)?;
@@ -82,9 +80,9 @@ pub(super) async fn validate_presentation(
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
     key_verification: Box<dyn TokenVerifier>,
     context: ExtractPresentationCtx,
-    fn_map_from_oidc_format_to_core: FnMapOidcVpFormatToCore,
+    map_from_oidc_format_to_external: FnMapOidcFormatToExternalDetailed,
 ) -> Result<Presentation, OpenID4VCError> {
-    let format = fn_map_from_oidc_format_to_core(oidc_format)?;
+    let format = map_from_oidc_format_to_external(oidc_format, None)?;
     let formatter = formatter_provider
         .get_formatter(&format)
         .ok_or(OpenID4VCIError::VCFormatsNotSupported)?;
@@ -125,7 +123,7 @@ pub(super) async fn validate_credential(
     formatter_provider: &Arc<dyn CredentialFormatterProvider>,
     key_verification: Box<KeyVerification>,
     revocation_method_provider: &Arc<dyn RevocationMethodProvider>,
-    fn_map_oidc_to_core_real: FnMapOidcFormatToCoreReal,
+    map_from_oidc_format_to_external: FnMapOidcFormatToExternalDetailed,
 ) -> Result<DetailCredential, OpenID4VCError> {
     let holder_did = presentation
         .issuer_did
@@ -141,7 +139,7 @@ pub(super) async fn validate_credential(
         .ok_or(OpenID4VCIError::InvalidRequest)?;
 
     let oidc_format = &path_nested.format;
-    let format = fn_map_oidc_to_core_real(oidc_format, credential)?;
+    let format = map_from_oidc_format_to_external(oidc_format, Some(credential))?;
     let formatter = formatter_provider
         .get_formatter(&format)
         .ok_or(OpenID4VCIError::VCFormatsNotSupported)?;
