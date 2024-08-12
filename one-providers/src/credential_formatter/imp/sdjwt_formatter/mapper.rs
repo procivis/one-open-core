@@ -1,12 +1,16 @@
 use crate::{
-    common_models::NESTED_CLAIM_MARKER,
+    common_models::{did::DidValue, NESTED_CLAIM_MARKER},
     credential_formatter::{
         error::FormatterError,
-        model::{Context, CredentialData, PublishedClaim},
+        imp::jwt::Jwt,
+        model::{Context, CredentialData, Presentation, PublishedClaim},
     },
 };
 
-use super::model::{SDCredentialSubject, Sdvc, VCContent};
+use super::{
+    model::{SDCredentialSubject, Sdvc, VCContent},
+    Sdvp,
+};
 
 pub(super) fn vc_from_credential(
     credential: CredentialData,
@@ -144,5 +148,18 @@ pub(super) fn remove_first_nesting_layer(name: &str) -> String {
     match name.find(NESTED_CLAIM_MARKER) {
         Some(marker_pos) => name[marker_pos + 1..].to_string(),
         None => name.to_string(),
+    }
+}
+
+impl From<Jwt<Sdvp>> for Presentation {
+    fn from(jwt: Jwt<Sdvp>) -> Self {
+        Presentation {
+            id: jwt.payload.jwt_id,
+            issued_at: jwt.payload.issued_at,
+            expires_at: jwt.payload.expires_at,
+            issuer_did: jwt.payload.issuer.map(DidValue::from),
+            nonce: jwt.payload.nonce,
+            credentials: jwt.payload.custom.vp.verifiable_credential,
+        }
     }
 }
