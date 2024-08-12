@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use crate::{
     common_models::{
-        credential::{OpenCredential, OpenCredentialStateEnum},
+        credential::{OpenCredential, OpenCredentialRole},
         did::{DidValue, KeyRole},
     },
     credential_formatter::{
@@ -34,6 +34,9 @@ use crate::{
 
 pub mod dto;
 pub mod mapper;
+
+#[cfg(test)]
+mod test;
 
 use self::{
     dto::LvvcStatus,
@@ -127,7 +130,7 @@ impl LvvcProvider {
         })
     }
 
-    async fn check_revocation_status_as_holder(
+    async fn check_revocation_status_as_holder_or_issuer(
         &self,
         credential: &OpenCredential,
         credential_status: &CredentialStatus,
@@ -167,32 +170,6 @@ impl LvvcProvider {
             LvvcStatus::Revoked => CredentialRevocationState::Revoked,
             LvvcStatus::Suspended { suspend_end_date } => {
                 CredentialRevocationState::Suspended { suspend_end_date }
-            }
-        })
-    }
-
-    async fn check_revocation_status_as_issuer(
-        &self,
-        credential: &OpenCredential,
-    ) -> Result<CredentialRevocationState, RevocationError> {
-        let states = credential
-            .state
-            .as_ref()
-            .ok_or(RevocationError::MappingError("state is None".to_string()))?;
-        let latest_state = states.first().ok_or(RevocationError::MappingError(
-            "state is missing".to_string(),
-        ))?;
-
-        Ok(match latest_state.state {
-            OpenCredentialStateEnum::Accepted => CredentialRevocationState::Valid,
-            OpenCredentialStateEnum::Revoked => CredentialRevocationState::Revoked,
-            OpenCredentialStateEnum::Suspended => CredentialRevocationState::Suspended {
-                suspend_end_date: latest_state.suspend_end_date,
-            },
-            _ => {
-                return Err(RevocationError::InvalidCredentialState(
-                    latest_state.state.to_owned(),
-                ));
             }
         })
     }
@@ -337,12 +314,9 @@ impl RevocationMethod for LvvcProvider {
         )?;
 
         match additional_credential_data {
-            CredentialDataByRole::Holder(credential) => {
-                self.check_revocation_status_as_holder(&credential, credential_status)
+            CredentialDataByRole::Holder(credential) | CredentialDataByRole::Issuer(credential) => {
+                self.check_revocation_status_as_holder_or_issuer(&credential, credential_status)
                     .await
-            }
-            CredentialDataByRole::Issuer(credential) => {
-                self.check_revocation_status_as_issuer(&credential).await
             }
             CredentialDataByRole::Verifier(data) => {
                 self.check_revocation_status_as_verifier(issuer_did, *data)
@@ -466,13 +440,28 @@ pub async fn prepare_bearer_token(
     credential: &OpenCredential,
     key_provider: Arc<dyn KeyProvider>,
 ) -> Result<String, RevocationError> {
-    let holder_did = credential
-        .holder_did
-        .as_ref()
-        .ok_or(RevocationError::MappingError(
-            "holder_did is None".to_string(),
-        ))?;
-    let keys = holder_did
+    let did = match credential.role {
+        OpenCredentialRole::Holder => {
+            credential
+                .holder_did
+                .as_ref()
+                .ok_or(RevocationError::MappingError(
+                    "holder_did is None".to_string(),
+                ))
+        }
+        OpenCredentialRole::Issuer => {
+            credential
+                .issuer_did
+                .as_ref()
+                .ok_or(RevocationError::MappingError(
+                    "issuer_did is None".to_string(),
+                ))
+        }
+        OpenCredentialRole::Verifier => Err(RevocationError::MappingError(
+            "cannot prepare bearer_token for verifier".to_string(),
+        )),
+    }?;
+    let keys = did
         .keys
         .as_ref()
         .ok_or(RevocationError::MappingError("keys is None".to_string()))?;
@@ -480,7 +469,7 @@ pub async fn prepare_bearer_token(
         .iter()
         .find(|key| key.role == KeyRole::Authentication)
         .ok_or(RevocationError::MappingError(
-            "No authentication keys found for holder DID".to_string(),
+            "No authentication keys found for DID".to_string(),
         ))?;
 
     let payload = JWTPayload {
