@@ -216,18 +216,15 @@ pub async fn get_relevant_credentials_to_credential_schemas(
                 .ok_or(ExchangeProtocolError::Failed(
                     "Incorrect group id to credential schema id mapping".to_owned(),
                 ))?;
-
         let relevant_credentials_inner = storage_access
             .get_credentials_by_credential_schema_id(credential_schema_id)
             .await
             .map_err(|e| ExchangeProtocolError::Failed(e.to_string()))?;
-
         for credential in &relevant_credentials_inner {
             let schema = credential
                 .schema
                 .as_ref()
                 .ok_or(ExchangeProtocolError::Failed("schema missing".to_string()))?;
-
             if !allowed_schema_formats
                 .iter()
                 // In case of JSON_LD we could have different crypto suits as separate formats.
@@ -244,7 +241,6 @@ pub async fn get_relevant_credentials_to_credential_schemas(
                 .ok_or(ExchangeProtocolError::Failed("state missing".to_string()))?
                 .first()
                 .ok_or(ExchangeProtocolError::Failed("state missing".to_string()))?;
-
             // only consider credentials that have finished the issuance flow
             if ![
                 OpenCredentialStateEnum::Accepted,
@@ -256,33 +252,33 @@ pub async fn get_relevant_credentials_to_credential_schemas(
                 continue;
             }
 
-            let claim_schemas = credential
-                .claims
-                .as_ref()
-                .ok_or(ExchangeProtocolError::Failed("claims missing".to_string()))?
-                .iter()
-                .map(|claim| {
-                    claim
-                        .schema
-                        .as_ref()
-                        .ok_or(ExchangeProtocolError::Failed("schema missing".to_string()))
-                })
-                .collect::<Result<Vec<_>, _>>()?;
+            let claim_schemas = if let Some(claim_schemas) = schema.claim_schemas.clone() {
+                claim_schemas
+            } else {
+                return Err(ExchangeProtocolError::Failed(
+                    "claim schema missing".to_string(),
+                ));
+            };
+
             if group.claims.iter().all(|requested_claim| {
                 claim_schemas
                     .iter()
-                    .any(|claim_schema| claim_schema.key.starts_with(&requested_claim.key))
+                    .any(|claim_schema| claim_schema.schema.key.starts_with(&requested_claim.key))
+                    || !requested_claim.required
             }) {
                 if group.claims.iter().all(|requested_claim| {
                     claim_schemas.iter().any(|claim_schema| {
-                        claim_schema.key.starts_with(&requested_claim.key)
+                        claim_schema.schema.key.starts_with(&requested_claim.key)
                             && claim_schemas
                                 .iter()
                                 .filter(|other_schema| {
-                                    other_schema.key.starts_with(&claim_schema.key)
-                                        && other_schema.key != claim_schema.key
+                                    other_schema
+                                        .schema
+                                        .key
+                                        .starts_with(&claim_schema.schema.key)
+                                        && other_schema.schema.key != claim_schema.schema.key
                                 })
-                                .any(|other_schema| other_schema.array)
+                                .any(|other_schema| other_schema.schema.array)
                     })
                 }) {
                     return Err(ExchangeProtocolError::Failed(
