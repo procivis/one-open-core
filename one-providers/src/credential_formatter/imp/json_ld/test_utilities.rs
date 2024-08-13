@@ -1,13 +1,12 @@
 use std::{collections::HashMap, sync::Arc};
 
-use super::context::caching_loader::{JsonLdCachingLoader, JsonLdResolver};
+use super::context::caching_loader::JsonLdCachingLoader;
 use crate::remote_entity_storage::in_memory::InMemoryStorage;
 use crate::remote_entity_storage::{RemoteEntity, RemoteEntityType};
 use time::{Duration, OffsetDateTime};
 
 pub fn prepare_caching_loader() -> JsonLdCachingLoader {
     JsonLdCachingLoader::new(
-        Arc::new(JsonLdResolver::default()),
         RemoteEntityType::JsonLdContext,
         Arc::new(InMemoryStorage::new(HashMap::from([
             (

@@ -18,7 +18,7 @@ mod test;
 
 #[derive(Default)]
 pub struct JsonLdResolver {
-    client: reqwest::Client,
+    pub client: reqwest::Client,
 }
 
 pub type JsonLdCachingLoader = CachingLoader<JsonLdResolverError>;
@@ -116,7 +116,24 @@ pub enum JsonLdResolverError {
 
 type ArcIri = sophia_api::prelude::Iri<Arc<str>>;
 
-impl Loader<ArcIri, Location<ArcIri>> for JsonLdCachingLoader {
+#[derive(Clone)]
+pub struct ContextCache {
+    loader: JsonLdCachingLoader,
+    resolver: Arc<JsonLdResolver>,
+}
+
+impl ContextCache {
+    pub fn new(loader: JsonLdCachingLoader) -> Self {
+        Self {
+            loader,
+            resolver: Arc::new(JsonLdResolver {
+                client: reqwest::Client::new(),
+            }),
+        }
+    }
+}
+
+impl Loader<ArcIri, Location<ArcIri>> for ContextCache {
     type Output = json_syntax::Value<Location<ArcIri>>;
     type Error = JsonLdResolverError;
 
@@ -136,7 +153,7 @@ impl Loader<ArcIri, Location<ArcIri>> for JsonLdCachingLoader {
         ArcIri: 'a,
     {
         async move {
-            let context = self.resolve(url.as_str()).await?;
+            let context = self.loader.get(url.as_str(), self.resolver.clone()).await?;
             let context_str = String::from_utf8(context)?;
 
             let doc = json_syntax::Value::parse_str(&context_str, |span| {

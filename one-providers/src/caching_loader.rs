@@ -38,7 +38,6 @@ pub enum ResolveResult {
 
 #[derive(Clone)]
 pub struct CachingLoader<E> {
-    pub resolver: Arc<dyn Resolver<Error = E>>,
     pub remote_entity_type: RemoteEntityType,
     pub storage: Arc<dyn RemoteEntityStorage>,
 
@@ -47,11 +46,11 @@ pub struct CachingLoader<E> {
     pub refresh_after: time::Duration,
 
     clean_old_mutex: Arc<Mutex<()>>,
+    _marker: std::marker::PhantomData<E>,
 }
 
 impl<E: From<CachingLoaderError> + From<RemoteEntityStorageError>> CachingLoader<E> {
     pub fn new(
-        resolver: Arc<dyn Resolver<Error = E>>,
         remote_entity_type: RemoteEntityType,
         storage: Arc<dyn RemoteEntityStorage>,
         cache_size: usize,
@@ -59,20 +58,24 @@ impl<E: From<CachingLoaderError> + From<RemoteEntityStorageError>> CachingLoader
         refresh_after: time::Duration,
     ) -> Self {
         Self {
-            resolver,
             remote_entity_type,
             storage,
             cache_size,
             cache_refresh_timeout,
             refresh_after,
             clean_old_mutex: Arc::new(Mutex::new(())),
+            _marker: std::marker::PhantomData,
         }
     }
 
-    pub async fn resolve(&self, url: &str) -> Result<Vec<u8>, E> {
+    pub async fn get(
+        &self,
+        url: &str,
+        resolver: Arc<dyn Resolver<Error = E>>,
+    ) -> Result<Vec<u8>, E> {
         let context = match self.storage.get_by_key(url).await? {
             None => {
-                let document = self.resolver.do_resolve(url, None).await?;
+                let document = resolver.do_resolve(url, None).await?;
                 if let ResolveResult::NewValue(value) = document {
                     self.storage
                         .insert(RemoteEntity {
@@ -97,10 +100,7 @@ impl<E: From<CachingLoaderError> + From<RemoteEntityStorageError>> CachingLoader
                 );
 
                 if requires_update != ContextRequiresUpdate::IsRecent {
-                    let result = self
-                        .resolver
-                        .do_resolve(url, Some(&context.last_modified))
-                        .await;
+                    let result = resolver.do_resolve(url, Some(&context.last_modified)).await;
 
                     match result {
                         Ok(value) => match value {

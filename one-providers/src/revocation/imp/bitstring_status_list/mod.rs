@@ -2,6 +2,8 @@
 
 use std::{collections::HashMap, sync::Arc};
 
+use resolver::StatusListResolver;
+
 use crate::{
     common_models::{
         credential::{CredentialId, OpenCredential, OpenCredentialStateEnum},
@@ -41,6 +43,26 @@ pub struct BitstringStatusList {
     pub did_method_provider: Arc<dyn DidMethodProvider>,
     pub key_provider: Arc<dyn KeyProvider>,
     pub caching_loader: StatusListCachingLoader,
+    resolver: Arc<StatusListResolver>,
+}
+
+impl BitstringStatusList {
+    pub fn new(
+        core_base_url: Option<String>,
+        key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
+        did_method_provider: Arc<dyn DidMethodProvider>,
+        key_provider: Arc<dyn KeyProvider>,
+        caching_loader: StatusListCachingLoader,
+    ) -> Self {
+        Self {
+            core_base_url,
+            key_algorithm_provider,
+            did_method_provider,
+            key_provider,
+            caching_loader,
+            resolver: Arc::new(StatusListResolver::default()),
+        }
+    }
 }
 
 #[async_trait::async_trait]
@@ -167,7 +189,11 @@ impl RevocationMethod for BitstringStatusList {
             .parse()
             .map_err(|_| RevocationError::ValidationError("Invalid list index".to_string()))?;
 
-        let response = String::from_utf8(self.caching_loader.resolve(list_url).await?)?;
+        let response = String::from_utf8(
+            self.caching_loader
+                .get(list_url, self.resolver.clone())
+                .await?,
+        )?;
 
         let key_verification = Box::new(KeyVerification {
             key_algorithm_provider: self.key_algorithm_provider.clone(),

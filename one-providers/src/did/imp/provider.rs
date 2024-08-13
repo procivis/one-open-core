@@ -11,9 +11,12 @@ use crate::{
     },
 };
 
+use super::resolver::DidResolver;
+
 pub struct DidMethodProviderImpl {
     caching_loader: DidCachingLoader,
     did_methods: HashMap<String, Arc<dyn DidMethod>>,
+    resolver: Arc<DidResolver>,
 }
 
 impl DidMethodProviderImpl {
@@ -21,9 +24,14 @@ impl DidMethodProviderImpl {
         caching_loader: DidCachingLoader,
         did_methods: HashMap<String, Arc<dyn DidMethod>>,
     ) -> Self {
+        let resolver = DidResolver {
+            did_methods: did_methods.clone(),
+        };
+
         Self {
             caching_loader,
             did_methods,
+            resolver: Arc::new(resolver),
         }
     }
 }
@@ -35,7 +43,10 @@ impl DidMethodProvider for DidMethodProviderImpl {
     }
 
     async fn resolve(&self, did: &DidValue) -> Result<DidDocument, DidMethodProviderError> {
-        let result = self.caching_loader.resolve(did.as_str()).await?;
+        let result = self
+            .caching_loader
+            .get(did.as_str(), self.resolver.clone())
+            .await?;
         let dto: DidDocumentDTO = serde_json::from_slice(&result)?;
         Ok(dto.into())
     }

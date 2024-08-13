@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use context::caching_loader::ContextCache;
 use convert_case::{Case, Casing};
 use serde::Serialize;
 use sophia_api::{quad::Spog, source::QuadSource, term::SimpleTerm};
@@ -17,7 +18,6 @@ use crate::{
     common_models::did::DidValue,
     credential_formatter::{
         error::FormatterError,
-        imp::json_ld::context::caching_loader::JsonLdCachingLoader,
         model::{Context, CredentialData, PublishedClaim},
     },
 };
@@ -150,7 +150,7 @@ pub fn prepare_credential_subject(
 
 pub async fn canonize_any<T>(
     json_ld: &T,
-    caching_loader: JsonLdCachingLoader,
+    caching_loader: ContextCache,
 ) -> Result<String, FormatterError>
 where
     T: Serialize,

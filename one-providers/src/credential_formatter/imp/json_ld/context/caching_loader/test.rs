@@ -24,7 +24,6 @@ fn create_loader(
     refresh_after: Duration,
 ) -> JsonLdCachingLoader {
     JsonLdCachingLoader::new(
-        Arc::new(JsonLdResolver::default()),
         RemoteEntityType::JsonLdContext,
         Arc::new(storage),
         cache_size,
@@ -63,9 +62,11 @@ async fn test_load_context_success_cache_hit() {
         Duration::seconds(300),
     );
 
+    let resolver = Arc::new(JsonLdResolver::default());
+
     assert_eq!(
         response_content,
-        String::from_utf8(loader.resolve(url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -152,9 +153,11 @@ async fn test_load_context_success_cache_miss_external_fetch_occured() {
         Duration::seconds(300),
     );
 
+    let resolver = Arc::new(JsonLdResolver::default());
+
     assert_eq!(
         response_content,
-        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(&url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -181,9 +184,11 @@ async fn test_load_context_success_cache_miss_overfilled_delete_oldest_entry_cal
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
+    let resolver = Arc::new(JsonLdResolver::default());
+
     assert_eq!(
         response_content,
-        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(&url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -224,9 +229,11 @@ async fn test_load_context_success_cache_hit_but_too_old_200() {
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
+    let resolver = Arc::new(JsonLdResolver::default());
+
     assert_eq!(
         response_content,
-        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(&url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -264,10 +271,11 @@ async fn test_load_context_success_cache_hit_but_too_old_304_with_last_modified_
         .return_once(|_| Ok(()));
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
+    let resolver = Arc::new(JsonLdResolver::default());
 
     assert_eq!(
         response_content,
-        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(&url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -309,10 +317,11 @@ async fn test_load_context_success_cache_hit_but_too_old_304_without_last_modifi
         .return_once(|_| Ok(()));
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
+    let resolver = Arc::new(JsonLdResolver::default());
 
     assert_eq!(
         response_content,
-        String::from_utf8(loader.resolve(&url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(&url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -348,10 +357,11 @@ async fn test_load_context_success_cache_hit_older_than_refreshafter_younger_tha
 
     let refresh_timeout = OffsetDateTime::now_utc() - get_dummy_date() + Duration::seconds(99999);
     let loader = create_loader(storage, 1, refresh_timeout, Duration::seconds(300));
+    let resolver = Arc::new(JsonLdResolver::default());
 
     assert_eq!(
         old_response_content,
-        String::from_utf8(loader.resolve(url).await.unwrap()).unwrap()
+        String::from_utf8(loader.get(url, resolver).await.unwrap()).unwrap()
     );
 }
 
@@ -378,6 +388,7 @@ async fn test_load_context_failed_cache_hit_older_than_refreshafter_and_failed_t
         Duration::seconds(301),
         Duration::seconds(300),
     );
+    let resolver = Arc::new(JsonLdResolver::default());
 
-    assert!(loader.resolve(url).await.is_err());
+    assert!(loader.get(url, resolver).await.is_err());
 }

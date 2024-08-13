@@ -7,7 +7,9 @@ use serde::Deserialize;
 use serde_with::{serde_as, DurationSeconds};
 use time::Duration;
 
-use super::json_ld::{jsonld_forbidden_claim_names, model::LdCredential};
+use super::json_ld::{
+    context::caching_loader::ContextCache, jsonld_forbidden_claim_names, model::LdCredential,
+};
 use crate::{
     common_models::did::DidValue,
     credential_formatter::{
@@ -42,7 +44,7 @@ pub struct JsonLdBbsplus {
     pub crypto: Arc<dyn CryptoProvider>,
     pub did_method_provider: Arc<dyn DidMethodProvider>,
     pub key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
-    pub caching_loader: JsonLdCachingLoader,
+    pub caching_loader: ContextCache,
     params: Params,
 }
 
@@ -203,7 +205,7 @@ impl JsonLdBbsplus {
             base_url,
             did_method_provider,
             key_algorithm_provider,
-            caching_loader,
+            caching_loader: ContextCache::new(caching_loader),
         }
     }
 }

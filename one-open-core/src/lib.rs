@@ -118,7 +118,7 @@ use model::{CredentialFormat, DidMethodType, KeyAlgorithmType, StorageType};
 use one_providers::{
     caching_loader::CachingLoader,
     credential_formatter::imp::{
-        json_ld::context::caching_loader::{JsonLdCachingLoader, JsonLdResolver},
+        json_ld::context::caching_loader::JsonLdCachingLoader,
         json_ld_bbsplus::{JsonLdBbsplus, Params as JsonLdParams},
         jwt_formatter::{JWTFormatter, Params as JWTParams},
         provider::CredentialFormatterProviderImpl,
@@ -129,7 +129,6 @@ use one_providers::{
             jwk::JWKDidMethod,
             key::KeyDidMethod,
             provider::DidMethodProviderImpl,
-            resolver::DidResolver,
             universal::{Params as UniversalDidMethodParams, UniversalDidMethod},
             web::{Params as WebDidMethodParams, WebDidMethod},
         },
@@ -269,11 +268,8 @@ impl OneOpenCore {
                 )?) as _,
             ),
         ]);
-        let did_resolver = DidResolver {
-            did_methods: did_methods.clone(),
-        };
+
         let did_caching_loader = CachingLoader::new(
-            Arc::new(did_resolver),
             RemoteEntityType::DidDocument,
             Arc::new(InMemoryStorage::new(HashMap::new())),
             config.caching_config.did.cache_size,
@@ -285,7 +281,6 @@ impl OneOpenCore {
 
         // initialize credential formatter provider
         let json_ld_caching_loader = JsonLdCachingLoader::new(
-            Arc::new(JsonLdResolver::default()),
             RemoteEntityType::JsonLdContext,
             Arc::new(InMemoryStorage::new(HashMap::new())),
             config.caching_config.json_ld_context.cache_size,
