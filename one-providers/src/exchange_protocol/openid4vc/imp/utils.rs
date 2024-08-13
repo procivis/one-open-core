@@ -261,22 +261,24 @@ pub async fn get_relevant_credentials_to_credential_schemas(
             };
 
             if group.claims.iter().all(|requested_claim| {
-                claim_schemas
-                    .iter()
-                    .any(|claim_schema| claim_schema.schema.key.starts_with(&requested_claim.key))
-                    || !requested_claim.required
+                !requested_claim.required
+                    || claim_schemas.iter().any(|claim_schema| {
+                        claim_schema.schema.key.starts_with(&requested_claim.key)
+                    })
             }) {
+                // For each requested claim
                 if group.claims.iter().all(|requested_claim| {
                     claim_schemas.iter().any(|claim_schema| {
-                        claim_schema.schema.key.starts_with(&requested_claim.key)
+                        // Find the claim schema
+                        claim_schema.schema.key == requested_claim.key
+                            // And make sure a parent element is not an array
                             && claim_schemas
                                 .iter()
                                 .filter(|other_schema| {
-                                    other_schema
+                                    claim_schema
                                         .schema
                                         .key
-                                        .starts_with(&claim_schema.schema.key)
-                                        && other_schema.schema.key != claim_schema.schema.key
+                                        .starts_with(&format!("{}/", &other_schema.schema.key))
                                 })
                                 .any(|other_schema| other_schema.schema.array)
                     })
