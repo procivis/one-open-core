@@ -871,7 +871,11 @@ async fn handle_credential_invitation(
 
     let credential_id: CredentialId = Uuid::new_v4().into();
     let (claims, credential_schema) = match storage_access
-        .get_schema(&schema_data.schema_id, organisation.id)
+        .get_schema(
+            &schema_data.schema_id,
+            &schema_data.schema_type,
+            organisation.id,
+        )
         .await
         .map_err(ExchangeProtocolError::StorageAccessError)?
     {

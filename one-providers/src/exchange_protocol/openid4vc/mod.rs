@@ -98,6 +98,7 @@ pub trait StorageProxy: Send + Sync {
     async fn get_schema(
         &self,
         schema_id: &str,
+        schema_type: &str,
         organisation_id: OrganisationId,
     ) -> anyhow::Result<Option<OpenCredentialSchema>>;
     /// Get credentials from a specified schema ID, from a chosen storage layer.
