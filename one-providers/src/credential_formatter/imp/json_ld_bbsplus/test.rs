@@ -247,7 +247,7 @@ fn generate_ld_credential(subject_claims: serde_json::Value) -> LdCredential {
         id: Some("".to_string()),
         r#type: vec![],
         issuer: "did:key:1234".to_string().into(),
-        issuance_date: Some(OffsetDateTime::now_utc()),
+        valid_from: Some(OffsetDateTime::now_utc()),
         credential_subject: LdCredentialSubject {
             id: Some("did:key:1234".to_string().into()),
             subject: HashMap::from([("credentialSubject".to_string(), subject_claims)]),
@@ -255,6 +255,7 @@ fn generate_ld_credential(subject_claims: serde_json::Value) -> LdCredential {
         credential_status: vec![],
         proof: None,
         credential_schema: None,
+        valid_until: None,
     }
 }
 

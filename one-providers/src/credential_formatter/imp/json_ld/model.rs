@@ -20,9 +20,13 @@ pub struct LdCredential {
     pub id: Option<String>,
     pub r#type: Vec<String>,
     pub issuer: DidValue,
+    #[serde(alias = "issuance_date")]
     #[serde(with = "time::serde::rfc3339::option")]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub issuance_date: Option<OffsetDateTime>,
+    pub valid_from: Option<OffsetDateTime>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_until: Option<OffsetDateTime>,
     pub credential_subject: LdCredentialSubject,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[serde_as(as = "OneOrMany<_>")]

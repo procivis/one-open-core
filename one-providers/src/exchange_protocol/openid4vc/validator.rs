@@ -155,8 +155,8 @@ pub(super) async fn validate_credential(
             }
         })?;
 
-    validate_issuance_time(&credential.issued_at, formatter.get_leeway())?;
-    validate_expiration_time(&credential.expires_at, formatter.get_leeway())?;
+    validate_issuance_time(&credential.valid_from, formatter.get_leeway())?;
+    validate_expiration_time(&credential.valid_until, formatter.get_leeway())?;
 
     let issuer_did = credential
         .issuer_did
