@@ -65,8 +65,7 @@ pub fn prepare_credential(
         id: Some(credential.id),
         r#type: ld_type,
         issuer: credential.issuer_did,
-        valid_from: Some(OffsetDateTime::now_utc()),
-        valid_until: None,
+        issuance_date: Some(OffsetDateTime::now_utc()),
         credential_subject,
         credential_status: credential.status,
         proof: None,
@@ -105,7 +104,7 @@ pub async fn prepare_proof_config(
 
 pub fn prepare_context(additional_context: Vec<String>) -> Vec<String> {
     let mut context = vec![
-        Context::CredentialsV2.to_string(),
+        Context::CredentialsV1.to_string(),
         Context::DataIntegrityV2.to_string(),
     ];
 

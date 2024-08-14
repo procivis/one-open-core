@@ -24,8 +24,8 @@ impl TryFrom<LdCredential> for DetailCredential {
     fn try_from(value: LdCredential) -> Result<Self, Self::Error> {
         Ok(Self {
             id: value.id,
-            valid_from: value.valid_from,
-            valid_until: None,
+            issued_at: value.issuance_date,
+            expires_at: None,
             update_at: None,
             invalid_before: None,
             issuer_did: Some(value.issuer),

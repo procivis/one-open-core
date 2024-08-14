@@ -214,7 +214,7 @@ impl LvvcProvider {
             ));
         }
 
-        let lvvc_issued_at = lvvc.valid_from.ok_or(RevocationError::ValidationError(
+        let lvvc_issued_at = lvvc.issued_at.ok_or(RevocationError::ValidationError(
             "LVVC issued_at missing".to_string(),
         ))?;
 

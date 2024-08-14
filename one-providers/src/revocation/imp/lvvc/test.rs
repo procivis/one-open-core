@@ -78,8 +78,8 @@ fn generic_did_credential(role: OpenCredentialRole) -> (OpenDid, OpenCredential)
 fn extracted_credential(status: &str) -> DetailCredential {
     DetailCredential {
         id: None,
-        valid_from: None,
-        valid_until: None,
+        issued_at: None,
+        expires_at: None,
         update_at: None,
         invalid_before: None,
         issuer_did: None,
