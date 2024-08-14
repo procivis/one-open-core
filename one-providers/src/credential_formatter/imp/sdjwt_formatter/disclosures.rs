@@ -383,16 +383,15 @@ pub(super) fn get_subdisclosures(
     ))?;
 
     for hash in subdisclosures {
-        let disclosure = disclosures
-            .iter()
-            .find(|disclosure| {
-                if let Ok(disclosure_hash) = disclosure.hash(hasher) {
-                    disclosure_hash == *hash
-                } else {
-                    false
-                }
-            })
-            .ok_or(FormatterError::MissingClaim)?;
+        let Some(disclosure) = disclosures.iter().find(|disclosure| {
+            if let Ok(disclosure_hash) = disclosure.hash(hasher) {
+                disclosure_hash == *hash
+            } else {
+                false
+            }
+        }) else {
+            continue;
+        };
 
         if disclosure.has_subdisclosures() {
             let subdisclosures = disclosure.get_subdisclosure_hashes()?;

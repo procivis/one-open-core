@@ -109,8 +109,8 @@ async fn main() -> Result<(), CredentialServiceError> {
         // We only disclose those two claims
         disclosed_keys: vec![
             "root/array".into(),
-            "root/nested".into(),
-            // "root_item".into(),
+            // "root/nested".into(),
+            "root_item".into(),
         ],
     };
 
@@ -126,14 +126,17 @@ async fn main() -> Result<(), CredentialServiceError> {
         .expect("Credential extraction failed");
     println!("Parsed presentation content: {:#?}\n", details);
 
-    assert!(!details.claims.values.contains_key("root_item"));
-    let root = details.claims.values.get("root").expect("root is missing");
+    let values = details.claims.values;
+
+    assert_eq!(
+        values.get("root_item").unwrap().as_str().unwrap(),
+        "root_item"
+    );
+    let root = values.get("root").expect("root is missing");
     assert!(root["array"].is_array());
-    assert!(root["nested"].is_string());
-    assert_eq!(root["nested"].as_str().unwrap(), "nested_item");
+    assert!(root["nested"].is_null());
 
     println!("Array items: {:?}", root["array"].as_array().unwrap());
-    println!("Nested item: {:?}", root["nested"].as_str().unwrap());
 
     Ok(())
 }

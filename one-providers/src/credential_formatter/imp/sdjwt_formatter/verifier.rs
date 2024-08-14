@@ -18,9 +18,5 @@ pub(super) fn verify_claims(
     hashes_used_by_disclosures.sort_unstable();
     hashes_found_in_hashed_claims.sort_unstable();
 
-    if hashes_found_in_hashed_claims != hashes_used_by_disclosures {
-        return Err(FormatterError::MissingClaim);
-    }
-
     Ok(())
 }

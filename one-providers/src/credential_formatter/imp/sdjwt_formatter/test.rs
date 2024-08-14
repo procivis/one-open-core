@@ -479,6 +479,101 @@ async fn test_extract_credentials_with_array() {
 }
 
 #[tokio::test]
+async fn test_extract_credentials_with_array_stripped() {
+    let jwt_token = "eyJhbGciOiJhbGdvcml0aG0iLCJraWQiOiIja2V5MCIsInR5cCI6IlNESldUIn0.\
+        ew0KICAiaWF0IjogMTcxODM1OTA2MywNCiAgImV4cCI6IDE3ODE0MzEwNjMsDQogICJuYmYiOiAxNzE4Mz\
+        U5MDE4LA0KICAiaXNzIjogIklzc3VlciBESUQiLA0KICAic3ViIjogImhvbGRlcl9kaWQiLA0KICAianRp\
+        IjogImh0dHA6Ly9iYXNlX3VybC9zc2kvY3JlZGVudGlhbC92MS85YTQxNGE2MC05ZTZiLTQ3NTctODAxMS\
+        05YWE4NzBlZjQ3ODgiLA0KICAidmMiOiB7DQogICAgIkBjb250ZXh0IjogWw0KICAgICAgImh0dHBzOi8v\
+        d3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwNCiAgICAgICJDb250ZXh0MSINCiAgICBdLA0KIC\
+        AgICJpZCI6ICJodHRwOi8vYmFzZV91cmwvc3NpL2NyZWRlbnRpYWwvdjEvOWE0MTRhNjAtOWU2Yi00NzU3\
+        LTgwMTEtOWFhODcwZWY0Nzg4IiwNCiAgICAidHlwZSI6IFsNCiAgICAgICJWZXJpZmlhYmxlQ3JlZGVudG\
+        lhbCIsDQogICAgICAiVHlwZTEiDQogICAgXSwNCiAgICAiY3JlZGVudGlhbFN1YmplY3QiOiB7DQogICAg\
+        ICAiX3NkIjogWw0KICAgICAgICAicERPZTlDQ2hNLVlSZ0hCSUx5VDFrUFRCbUNxYnJBZWt0MnhPSkxiOE\
+        hFcyIsDQogICAgICAgICJHQmNtOFFaTzJQcjRuX2ptSmxQNEJ5MWl3Y29VMGVRRFZoaW4yQWlkTXE0Ig0K\
+        ICAgICAgXQ0KICAgIH0sDQogICAgImNyZWRlbnRpYWxTdGF0dXMiOiB7DQogICAgICAiaWQiOiAiU1RBVF\
+        VTX0lEIiwNCiAgICAgICJ0eXBlIjogIlRZUEUiLA0KICAgICAgInN0YXR1c1B1cnBvc2UiOiAiUFVSUE9T\
+        RSINCiAgICB9LA0KICAgICJjcmVkZW50aWFsU2NoZW1hIjogew0KICAgICAgImlkIjogIkNyZWRlbnRpYW\
+        xTY2hlbWFJZCIsDQogICAgICAidHlwZSI6ICJQcm9jaXZpc09uZVNjaGVtYTIwMjQiDQogICAgfQ0KICB9\
+        LA0KICAiX3NkX2FsZyI6ICJzaGEtMjU2Ig0KfQ";
+    let token = format!(
+        "{jwt_token}.QUJD~WyJNVEl6WVdKaiIsImFycmF5IixbImFycmF5X2l0ZW0iXV0~WyJNVEl6WVdKaiIsInJvb3QiLHsiX3NkIjpbIldRbmQycW\
+            xNa3U3RzVJdE01M1FSdmRVZjRHYWNYR3pMV3ZUTl93RGhhcmMiLCJyNjllcWUwN1M5ckUyN0luZy1s\
+            OTk3b2ZnODVSU19uUnVWWHVjVlE5RWh3Il19XQ~WyJNVEl6WVdKaiIsInJvb3RfaXRlbSIsInJvb3R\
+            faXRlbSJd"
+    );
+
+    let claim1 = "[\"MTIzYWJj\",\"array\",[\"array_item\"]]";
+    let claim2 = "[\"MTIzYWJj\",\"nested\",\"nested_item\"]";
+    let claim3 = "[\"MTIzYWJj\",\"root\",{\"_sd\":[\"WQnd2qlMku7G5ItM53QRvdUf4GacXGzLWvTN_wDharc\",\"r69eqe07S9rE27Ing-l997ofg85RS_nRuVXucVQ9Ehw\"]}]";
+    let claim4 = "[\"MTIzYWJj\",\"root_item\",\"root_item\"]";
+
+    let mut hasher = MockHasher::default();
+    hasher
+        .expect_hash_base64()
+        .with(eq(claim1.as_bytes()))
+        .returning(|_| Ok("WQnd2qlMku7G5ItM53QRvdUf4GacXGzLWvTN_wDharc".to_string()));
+    hasher
+        .expect_hash_base64()
+        .never()
+        .with(eq(claim2.as_bytes()))
+        .returning(|_| Ok("r69eqe07S9rE27Ing-l997ofg85RS_nRuVXucVQ9Ehw".to_string()));
+    hasher
+        .expect_hash_base64()
+        .with(eq(claim3.as_bytes()))
+        .returning(|_| Ok("pDOe9CChM-YRgHBILyT1kPTBmCqbrAekt2xOJLb8HEs".to_string()));
+    hasher
+        .expect_hash_base64()
+        .with(eq(claim4.as_bytes()))
+        .returning(|_| Ok("GBcm8QZO2Pr4n_jmJlP4By1iwcoU0eQDVhin2AidMq4".to_string()));
+    let hasher = Arc::new(hasher);
+
+    let mut crypto = MockCryptoProvider::default();
+
+    crypto
+        .expect_get_hasher()
+        .once()
+        .with(eq("sha-256"))
+        .returning(move |_| Ok(hasher.clone()));
+
+    let leeway = 45u64;
+
+    let sd_formatter = SDJWTFormatter {
+        crypto: Arc::new(crypto),
+        params: Params { leeway },
+    };
+
+    let mut verify_mock = MockTokenVerifier::new();
+
+    verify_mock
+        .expect_verify()
+        .withf(
+            move |issuer_did_value, _key_id, algorithm, token, signature| {
+                assert_eq!("Issuer DID", issuer_did_value.as_ref().unwrap().as_str());
+                assert_eq!("algorithm", algorithm);
+                assert_eq!(jwt_token.as_bytes(), token);
+                assert_eq!(vec![65u8, 66, 67], signature);
+                true
+            },
+        )
+        .return_once(|_, _, _, _, _| Ok(()));
+
+    let credentials = sd_formatter
+        .extract_credentials(&token, Box::new(verify_mock))
+        .await
+        .unwrap();
+
+    let root_item = credentials.claims.values.get("root_item").unwrap();
+    assert_eq!(root_item.as_str(), Some("root_item"));
+
+    let root = credentials.claims.values.get("root").unwrap();
+    assert!(root.get("nested").is_none());
+
+    let array = root.get("array").unwrap().as_array().unwrap();
+    assert_eq!(array[0].as_str(), Some("array_item"));
+}
+
+#[tokio::test]
 async fn test_extract_presentation() {
     let jwt_token = "eyJhbGciOiJhbGdvcml0aG0iLCJ0eXAiOiJTREpXVCJ9.eyJpYXQiOjE2OT\
     kzNTE4NDEsImV4cCI6MTY5OTM1MjE0MSwibmJmIjoxNjk5MzUxNzk2LCJpc3MiOiJob2xkZXJfZGlkIiwic3ViIjoia\
@@ -859,8 +954,9 @@ fn test_verify_claims_nested_success() {
     verify_claims(&hashed_claims, &disclosures, &hasher).unwrap();
 
     let hashed_claims_containing_unknown_hash = vec![
+        "DECOYHASH2".to_string(),
         "bvvBS7QQFb8-9K8PVvZ4W3iJNfafA51YUF6wNOW807I".to_string(),
-        "somerandomhash".to_string(),
+        "DECOYHASH1".to_string(),
     ];
     verify_claims(
         &hashed_claims_containing_unknown_hash,
@@ -870,7 +966,7 @@ fn test_verify_claims_nested_success() {
     .unwrap();
 
     let missing_disclosure = disclosures[1..3].to_vec();
-    verify_claims(&hashed_claims, &missing_disclosure, &hasher).unwrap_err();
+    assert!(verify_claims(&hashed_claims, &missing_disclosure, &hasher).is_ok());
 }
 
 #[test]
