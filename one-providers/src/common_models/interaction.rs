@@ -15,7 +15,6 @@ impl_into!(InteractionId; Uuid);
 pub struct OpenInteraction {
     pub id: InteractionId,
     pub created_date: OffsetDateTime,
-    pub last_modified: OffsetDateTime,
     pub host: Option<Url>,
     pub data: Option<Vec<u8>>,
 }

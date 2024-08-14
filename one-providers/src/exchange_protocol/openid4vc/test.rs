@@ -31,11 +31,8 @@ pub fn get_dummy_date() -> OffsetDateTime {
 }
 
 fn generic_organisation() -> OpenOrganisation {
-    let now = OffsetDateTime::now_utc();
     OpenOrganisation {
         id: Uuid::new_v4().into(),
-        created_date: now,
-        last_modified: now,
     }
 }
 

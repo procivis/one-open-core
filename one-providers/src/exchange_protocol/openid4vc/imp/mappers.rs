@@ -124,7 +124,6 @@ pub fn interaction_from_handle_invitation(
     OpenInteraction {
         id: Uuid::new_v4().into(),
         created_date: now,
-        last_modified: now,
         host: Some(host),
         data,
     }

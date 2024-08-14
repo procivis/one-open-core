@@ -77,8 +77,6 @@ fn generic_organisation() -> OpenOrganisation {
     let now = OffsetDateTime::now_utc();
     OpenOrganisation {
         id: Uuid::new_v4().into(),
-        created_date: now,
-        last_modified: now,
     }
 }
 
@@ -258,7 +256,6 @@ fn generic_credential() -> OpenCredential {
                 .unwrap()
                 .into(),
             created_date: now,
-            last_modified: now,
             host: Some("http://host.co".parse().unwrap()),
             data: Some(vec![1, 2, 3]),
         }),
