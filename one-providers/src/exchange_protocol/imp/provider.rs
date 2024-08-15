@@ -144,6 +144,13 @@ where
             .await
     }
 
+    async fn validate_proof_for_submission(
+        &self,
+        proof: &OpenProof,
+    ) -> Result<(), ExchangeProtocolError> {
+        self.inner.validate_proof_for_submission(proof).await
+    }
+
     async fn share_credential(
         &self,
         credential: &OpenCredential,

@@ -28,7 +28,7 @@ use crate::revocation::model::{
 use crate::revocation::provider::RevocationMethodProvider;
 use crate::util::key_verification::KeyVerification;
 
-pub(crate) fn throw_if_latest_proof_state_not_eq(
+pub fn throw_if_latest_proof_state_not_eq(
     proof: &OpenProof,
     state: OpenProofStateEnum,
 ) -> Result<(), OpenID4VCError> {
