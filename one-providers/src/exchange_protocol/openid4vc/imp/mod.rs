@@ -60,7 +60,7 @@ use crate::key_algorithm::provider::KeyAlgorithmProvider;
 use crate::key_storage::provider::KeyProvider;
 use crate::revocation::provider::RevocationMethodProvider;
 
-mod mappers;
+pub mod mappers;
 mod mdoc;
 mod utils;
 

@@ -49,38 +49,97 @@ pub fn map_offered_claims_to_credential_schema(
 
     let now = OffsetDateTime::now_utc();
     let mut claims = vec![];
+
+    let claim_schemas = adapt_required_state_based_on_claim_presence(claim_schemas, claim_keys)?;
+
     for claim_schema in claim_schemas
         .iter()
         .filter(|claim| claim.schema.data_type != "OBJECT")
     {
-        let credential_value_details = &claim_keys.get(&claim_schema.schema.key);
-        match credential_value_details {
-            Some(value_details) => {
-                let claim = OpenClaim {
-                    id: Uuid::new_v4().into(),
-                    credential_id,
-                    created_date: now,
-                    last_modified: now,
-                    value: value_details.value.to_owned(),
-                    path: claim_schema.schema.key.to_owned(),
-                    schema: Some(claim_schema.schema.to_owned()),
-                };
+        let credential_value_details = &claim_keys
+            .iter()
+            .filter(|claim_key| schema_from_claim_name(claim_key.0) == claim_schema.schema.key)
+            .collect::<Vec<(_, _)>>();
 
-                claims.push(claim);
-            }
-            None if claim_schema.required => {
-                return Err(ExchangeProtocolError::Failed(format!(
-                    "Validation Error. Claim key {} missing",
-                    &claim_schema.schema.key
-                )))
-            }
-            _ => {
-                // skip non-required claims that aren't matching
-            }
+        if credential_value_details.is_empty() && claim_schema.required {
+            return Err(ExchangeProtocolError::Failed(format!(
+                "Validation Error. Claim key {} missing",
+                &claim_schema.schema.key
+            )));
+        }
+
+        for (key, value_details) in credential_value_details {
+            let claim = OpenClaim {
+                id: Uuid::new_v4().into(),
+                credential_id,
+                created_date: now,
+                last_modified: now,
+                value: value_details.value.to_owned(),
+                path: key.to_string(),
+                schema: Some(claim_schema.schema.to_owned()),
+            };
+
+            claims.push(claim);
         }
     }
 
     Ok(claims)
+}
+
+fn adapt_required_state_based_on_claim_presence(
+    claim_schemas: &[OpenCredentialSchemaClaim],
+    claims: &HashMap<String, OpenID4VCICredentialValueDetails>,
+) -> Result<Vec<OpenCredentialSchemaClaim>, ExchangeProtocolError> {
+    let claims_with_names = claims
+        .iter()
+        .map(|(key, claim)| {
+            let matching_claim_schema = claim_schemas
+                .iter()
+                .find(|claim_schema| {
+                    let expected_schema = schema_from_claim_name(key);
+                    claim_schema.schema.key == expected_schema
+                })
+                .ok_or(ExchangeProtocolError::Failed(
+                    "Credential schema missing claims".to_string(),
+                ))?;
+            Ok((claim, matching_claim_schema.schema.key.to_owned()))
+        })
+        .collect::<Result<Vec<(&OpenID4VCICredentialValueDetails, String)>, ExchangeProtocolError>>(
+        )
+        .map_err(|e| ExchangeProtocolError::Failed(e.to_string()))?;
+
+    let mut result = claim_schemas.to_vec();
+    claim_schemas.iter().try_for_each(|claim_schema| {
+        let prefix = format!("{}/", claim_schema.schema.key);
+
+        let is_parent_schema_of_provided_claim = claims_with_names
+            .iter()
+            .any(|(_, claim_name)| claim_name.starts_with(&prefix));
+
+        let is_object = !claim_schema.schema.array && claim_schema.schema.data_type == "OBJECT";
+
+        let should_make_all_child_claims_non_required =
+            !is_parent_schema_of_provided_claim && is_object && !claim_schema.required;
+
+        if should_make_all_child_claims_non_required {
+            result.iter_mut().for_each(|result_schema| {
+                if result_schema.schema.key.starts_with(&prefix) {
+                    result_schema.required = false;
+                }
+            });
+        }
+
+        Ok::<(), ExchangeProtocolError>(())
+    })?;
+
+    Ok(result)
+}
+
+fn schema_from_claim_name(key: &str) -> String {
+    key.split('/')
+        .filter(|segment| !segment.chars().all(|c| c.is_ascii_digit()))
+        .collect::<Vec<&str>>()
+        .join("/")
 }
 
 #[allow(clippy::too_many_arguments)]
