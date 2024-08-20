@@ -45,8 +45,8 @@ pub trait SignatureProvider: Send + Sync {
 #[derive(Debug, Clone)]
 pub struct DetailCredential {
     pub id: Option<String>,
-    pub issued_at: Option<OffsetDateTime>,
-    pub expires_at: Option<OffsetDateTime>,
+    pub valid_from: Option<OffsetDateTime>,
+    pub valid_until: Option<OffsetDateTime>,
     pub update_at: Option<OffsetDateTime>,
     pub invalid_before: Option<OffsetDateTime>,
     pub issuer_did: Option<DidValue>,
@@ -238,6 +238,10 @@ pub enum Context {
     #[serde(rename = "https://www.w3.org/2018/credentials/v1")]
     #[strum(to_string = "https://www.w3.org/2018/credentials/v1")]
     CredentialsV1,
+
+    #[serde(rename = "https://www.w3.org/ns/credentials/v2")]
+    #[strum(to_string = "https://www.w3.org/ns/credentials/v2")]
+    CredentialsV2,
 
     #[serde(rename = "https://w3c.github.io/vc-bitstring-status-list/contexts/v1.jsonld")]
     #[strum(to_string = "https://w3c.github.io/vc-bitstring-status-list/contexts/v1.jsonld")]

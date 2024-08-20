@@ -9,6 +9,8 @@ use crate::{
     credential_formatter::model::{CredentialSchema, CredentialStatus},
 };
 
+pub type VerifiableCredential = Vec<serde_json::Map<String, serde_json::Value>>;
+
 // The main credential
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -20,9 +22,16 @@ pub struct LdCredential {
     pub id: Option<String>,
     pub r#type: Vec<String>,
     pub issuer: DidValue,
+    // we keep this field for backwards compatibility with VCDM v1.1
     #[serde(with = "time::serde::rfc3339::option")]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub issuance_date: Option<OffsetDateTime>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_from: Option<OffsetDateTime>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_until: Option<OffsetDateTime>,
     pub credential_subject: LdCredentialSubject,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[serde_as(as = "OneOrMany<_>")]
@@ -76,7 +85,7 @@ pub struct LdPresentation {
     pub r#type: String,
     #[serde(with = "time::serde::rfc3339")]
     pub issuance_date: OffsetDateTime,
-    pub verifiable_credential: String, // Could be a value, or vector. Decoded later.
+    pub verifiable_credential: VerifiableCredential,
     pub holder: DidValue,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nonce: Option<String>,

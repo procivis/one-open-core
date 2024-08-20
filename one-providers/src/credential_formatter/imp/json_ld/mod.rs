@@ -65,11 +65,14 @@ pub fn prepare_credential(
         id: Some(credential.id),
         r#type: ld_type,
         issuer: credential.issuer_did,
-        issuance_date: Some(OffsetDateTime::now_utc()),
+        valid_from: Some(OffsetDateTime::now_utc()),
+        valid_until: None,
         credential_subject,
         credential_status: credential.status,
         proof: None,
         credential_schema: credential.schema.into(),
+        // we use `valid_from` for newly issued credentials
+        issuance_date: None,
     })
 }
 
@@ -83,8 +86,8 @@ pub fn get_crypto_suite(json_ld_str: &str) -> Option<String> {
 pub async fn prepare_proof_config(
     proof_purpose: &str,
     cryptosuite: &str,
-    context: Vec<String>,
     key_id: String,
+    context: Vec<String>,
 ) -> Result<LdProof, FormatterError> {
     let r#type = "DataIntegrityProof".to_owned();
 
@@ -103,10 +106,7 @@ pub async fn prepare_proof_config(
 }
 
 pub fn prepare_context(additional_context: Vec<String>) -> Vec<String> {
-    let mut context = vec![
-        Context::CredentialsV1.to_string(),
-        Context::DataIntegrityV2.to_string(),
-    ];
+    let mut context = vec![Context::CredentialsV2.to_string()];
 
     context.extend(additional_context);
     context
@@ -185,23 +185,23 @@ pub async fn canonize_dataset(dataset: LdDataset) -> Result<String, FormatterErr
 
 pub fn jsonld_forbidden_claim_names() -> Vec<String> {
     vec![
-        "id".to_string(),
-        "type".to_string(),
-        "cred".to_string(),
-        "sec".to_string(),
-        "xsd".to_string(),
+        "confidenceMethod".to_string(),
         "credentialSchema".to_string(),
         "credentialStatus".to_string(),
         "credentialSubject".to_string(),
+        "description".to_string(),
         "evidence".to_string(),
-        "expirationDate".to_string(),
         "holder".to_string(),
-        "issued".to_string(),
+        "id".to_string(),
         "issuer".to_string(),
-        "issuanceDate".to_string(),
+        "mediaType".to_string(),
+        "name".to_string(),
         "proof".to_string(),
         "refreshService".to_string(),
+        "relatedResource".to_string(),
+        "renderMethod".to_string(),
         "termsOfUse".to_string(),
+        "type".to_string(),
         "validFrom".to_string(),
         "validUntil".to_string(),
     ]

@@ -67,16 +67,16 @@ impl JsonLdBbsplus {
             "Missing jwk key id".to_string(),
         ))?;
 
-        let mut proof_config = json_ld::prepare_proof_config(
+        let mut proof = json_ld::prepare_proof_config(
             "assertionMethod",
             "bbs-2023",
-            ld_credential.context.clone(),
             key_id,
+            ld_credential.context.clone(),
         )
         .await?;
 
         let canonical_proof_config =
-            json_ld::canonize_any(&proof_config, self.caching_loader.to_owned()).await?;
+            json_ld::canonize_any(&proof, self.caching_loader.to_owned()).await?;
 
         let hash_data = self.prepare_proof_hashes(&canonical_proof_config, &grouped)?;
 
@@ -92,8 +92,9 @@ impl JsonLdBbsplus {
             )
             .await?;
 
-        proof_config.proof_value = Some(proof_value);
-        ld_credential.proof = Some(proof_config);
+        proof.proof_value = Some(proof_value);
+        proof.context = None;
+        ld_credential.proof = Some(proof);
 
         let resp = serde_json::to_string(&ld_credential)
             .map_err(|e| FormatterError::CouldNotFormat(e.to_string()))?;
