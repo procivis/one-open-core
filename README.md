@@ -15,9 +15,9 @@ Homeland Security.
   * [Install](#install)
 * [Usage](#usage)
   * [Repository structure](#repository-structure)
+  * [Providers](#providers-and-crypto)
   * [Core](#core)
     * [Examples](#examples)
-  * [Providers](#providers-and-crypto)
 * [Documentation](#documentation)
 * [License](#license)
 
@@ -55,27 +55,33 @@ how these functions are divided and the different ways in which this library can
 
 ### Credential formatter provider
 
-Decodes and maps structures, formatting and parsing verifiable credentials for
-issuing, presenting, and verifying:
+Format and parse digital credentials according to [W3C Verifiable Credentials Data Model v2.0][vcdm],
+for issuing, presenting, and verifying.
 
-* [W3C Verifiable Credentials Data Model v1.1][vcdm]
-  * encoded as [JSON-LD][jld] in Compacted Document Form, secured using [Data Integrity Proofs][vcdi] embedded proofs
-  * encoded as [JWT][jw], secured using [JWS][jws] enveloping proofs
-  * encoded as [SD-JWT][sdjwt], secured using [JWS][jws] enveloping proofs
+Create and extract proofs using:
 
-When provided with the necessary ingredients (e.g. public keys, authentication
-function for signing, cryptographic operations for calculating hash comparisons,
-etc.), this module can sign and verify proofs using:
+| Securing mechanism                           | Proof type                                                                     | Representation                            |
+| -------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------- |
+| [W3C Data Integrity Proofs][vcdi] (embedded) | [W3C Data Integrity ECDSA Cryptosuites v1.0][ecd] / [ecdsa-rdfc-2019][ecd2019] | [JSON-LD][jld] in Compacted Document Form |
+| [W3C Data Integrity Proofs][vcdi] (embedded) | [W3C Data Integrity EdDSA Cryptosuites v1.0][edd] / [eddsa-rdfc-2022][edd2022] | [JSON-LD][jld] in Compacted Document Form |
+| [W3C Data Integrity Proofs][vcdi] (embedded) | [W3C Data Integrity BBS Cryptosuites v1.0][bbs] / [bbs-2023][bbs2023]          | [JSON-LD][jld] in Compacted Document Form |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / EdDSA [Ed25519][ed255]                                                  | [SD-JWT][sdjwt]                           |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / ECDSA [ES256][es2]                                                      | [SD-JWT][sdjwt]                           |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / CRYSTALS-DILITHIUM 3 [CRYDI3][crydi3]*                                  | [SD-JWT][sdjwt]                           |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / EdDSA [Ed25519][ed255]                                                  | [JWT][jw]                                 |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / ECDSA [ES256][es2]                                                      | [JWT][jw]                                 |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / CRYSTALS-DILITHIUM 3 [CRYDI3][crydi3]*                                  | [JWT][jw]                                 |
 
-|                                                        | JSON-LD                              | JWT                     | SD-JWT                  |
-| ------------------------------------------------------ |------------------------------------- | ----------------------- | ----------------------- |
-| EdDSA                                                  | [eddsa-rdfc-2022][edd]               | [Ed25519][ed255]        | [Ed25519][ed255]        |
-| ECDSA                                                  | [ecdsa-rdfc-2019][ecd]               | [ES256][es2]            | [ES256][es2]            |
-| BBS+, for non-correlatable signatures                  | [bbs-2023][bbs] and [BLS12-381][bls] |                         |                         |
-| Dilithium Crystals, for post-quantum resistance        |                                      | [ML-DSA FIPS-204][dil]  | [ML-DSA FIPS-204][dil]  |
+\* CRYSTALS-DILITHIUM is a post-quantum resistant signature scheme, selected by NIST for [Post-Quantum Cryptography Standardization][pqc].
+Support for the recently published [FIPS-204][fips] is planned for the near future.
 
-These ingredients can be delivered by the other providers, or they can be provided
-independently.
+When provided with the necessary ingredients (e.g. public keys, authentication function
+for signing, cryptographic operations for calculating hash comparisons, etc.), this
+module can sign and verify proofs. These ingredients can be delivered by the other
+providers, or they can be provided independently.
+
+Additionally, the provider can be used for other data models. For the technologies supported
+by the complete **Procivis One** solution, see our [docs][supptech].
 
 ### Crypto provider
 
@@ -146,24 +152,30 @@ Exchange credentials and presentations:
   this section as results come in
 
 [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
-[bbs]: https://www.w3.org/TR/vc-di-bbs/#bbs-2023
+[bbs]: https://www.w3.org/TR/vc-di-bbs/
+[bbs2023]: https://www.w3.org/TR/vc-di-bbs/#bbs-2023
 [bls]: https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-05.html
 [cmvp]: https://csrc.nist.gov/Projects/Cryptographic-Module-Validation-Program
+[crydi3]: https://datatracker.ietf.org/doc/html/draft-ietf-cose-dilithium-01
 [did]: https://www.w3.org/TR/did-core/
-[dil]: https://csrc.nist.gov/pubs/fips/204/ipd
 [djw]: https://github.com/quartzjer/did-jwk/blob/main/spec.md
 [dk]: https://w3c-ccg.github.io/did-method-key/
 [dw]: https://w3c-ccg.github.io/did-method-web/
-[ecd]: https://www.w3.org/TR/vc-di-ecdsa/#ecdsa-rdfc-2019
-[edd]: https://www.w3.org/TR/vc-di-eddsa/#eddsa-rdfc-2022
+[ecd]: https://www.w3.org/TR/vc-di-ecdsa/
+[ecd2019]: https://www.w3.org/TR/vc-di-ecdsa/#ecdsa-rdfc-2019
+[edd]: https://www.w3.org/TR/vc-di-eddsa/
+[edd2022]: https://www.w3.org/TR/vc-di-eddsa/#eddsa-rdfc-2022
 [ed255]: https://datatracker.ietf.org/doc/html/rfc8037
 [es2]: https://datatracker.ietf.org/doc/html/rfc7518
+[fips]: https://csrc.nist.gov/pubs/fips/204/final
 [jld]: https://www.w3.org/TR/json-ld11/
-[jw]: https://www.w3.org/TR/2023/WD-vc-jwt-20230427/
-[jws]: https://datatracker.ietf.org/doc/html/rfc7515
+[jose]: https://w3c.github.io/vc-jose-cose/
+[jw]: https://datatracker.ietf.org/doc/html/rfc7519
 [lvvc]: https://eprint.iacr.org/2022/1658.pdf
+[pqc]: https://csrc.nist.gov/pqc-standardization
 [sdjwt]: https://www.ietf.org/archive/id/draft-terbu-oauth-sd-jwt-vc-00.html
 [sl]: https://www.w3.org/TR/vc-bitstring-status-list/
+[supptech]: https://docs.procivis.ch/product/supported_tech
 [univ]: https://dev.uniresolver.io
 [vcdi]: https://www.w3.org/TR/vc-data-integrity/
 [vcdm]: https://www.w3.org/TR/vc-data-model-2.0/
