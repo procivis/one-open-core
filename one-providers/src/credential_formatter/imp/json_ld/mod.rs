@@ -184,25 +184,28 @@ pub async fn canonize_dataset(dataset: LdDataset) -> Result<String, FormatterErr
 }
 
 pub fn jsonld_forbidden_claim_names() -> Vec<String> {
-    vec![
-        "confidenceMethod".to_string(),
-        "credentialSchema".to_string(),
-        "credentialStatus".to_string(),
-        "credentialSubject".to_string(),
-        "description".to_string(),
-        "evidence".to_string(),
-        "holder".to_string(),
-        "id".to_string(),
-        "issuer".to_string(),
-        "mediaType".to_string(),
-        "name".to_string(),
-        "proof".to_string(),
-        "refreshService".to_string(),
-        "relatedResource".to_string(),
-        "renderMethod".to_string(),
-        "termsOfUse".to_string(),
-        "type".to_string(),
-        "validFrom".to_string(),
-        "validUntil".to_string(),
+    [
+        "confidenceMethod",
+        "credentialSchema",
+        "credentialStatus",
+        "credentialSubject",
+        "description",
+        "digestMultibase",
+        "digestSRI",
+        "evidence",
+        "id",
+        "issuer",
+        "mediaType",
+        "name",
+        "proof",
+        "refreshService",
+        "relatedResource",
+        "renderMethod",
+        "termsOfUse",
+        "type",
+        "validFrom",
+        "validUntil",
     ]
+    .map(str::to_string)
+    .to_vec()
 }
