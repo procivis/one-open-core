@@ -27,14 +27,16 @@ impl BitstringStatusListJwtFormatter {
         let subject = format!("{}#list", revocation_list_url);
         let vc = VC {
             vc: VCContent {
-                context: vec![Context::CredentialsV1, Context::BitstringStatusList],
-                id: revocation_list_url.to_owned(),
+                context: vec![Context::CredentialsV2],
+                id: None,
                 r#type: vec![
                     ContentType::VerifiableCredential,
                     ContentType::BitstringStatusListCredential,
                 ],
                 issuer: issuer_did.did.to_owned(),
-                issued: OffsetDateTime::now_utc(),
+                valid_from: Some(OffsetDateTime::now_utc()),
+                issued: None,
+                valid_until: None,
                 credential_subject: CredentialSubject {
                     id: subject.to_owned(),
                     r#type: SubjectType::BitstringStatusList,
@@ -103,13 +105,30 @@ where
     formatted.serialize(s)
 }
 
-pub(super) fn from_timestamp<'de, D>(deserializer: D) -> Result<OffsetDateTime, D::Error>
+pub(super) fn into_timestamp_opt<S>(dt: &Option<OffsetDateTime>, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match dt {
+        Some(dt) => into_timestamp(dt, s),
+        None => s.serialize_none(),
+    }
+}
+
+pub(super) fn from_timestamp_opt<'de, D>(
+    deserializer: D,
+) -> Result<Option<OffsetDateTime>, D::Error>
 where
     D: Deserializer<'de>,
 {
     use serde::de::Error;
 
-    String::deserialize(deserializer).and_then(|string| {
-        OffsetDateTime::parse(&string, &Rfc3339).map_err(|err| Error::custom(err.to_string()))
+    Option::<String>::deserialize(deserializer).and_then(|string| {
+        string
+            .map(|string| {
+                OffsetDateTime::parse(&string, &Rfc3339)
+                    .map_err(|err| Error::custom(err.to_string()))
+            })
+            .transpose()
     })
 }

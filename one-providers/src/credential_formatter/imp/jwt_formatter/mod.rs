@@ -69,7 +69,7 @@ impl CredentialFormatter for JWTFormatter {
             invalid_before: issued_at.checked_sub(Duration::seconds(self.get_leeway() as i64)),
             issuer: Some(issuer),
             subject: Some(holder_did.to_string()),
-            jwt_id: Some(credential_id),
+            jwt_id: credential_id,
             custom: vc,
             nonce: None,
         };

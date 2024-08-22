@@ -269,7 +269,7 @@ impl BitstringStatusList {
     ) -> Result<CredentialStatus, RevocationError> {
         let revocation_list_url = get_revocation_list_url(revocation_list_id, &self.core_base_url)?;
         Ok(CredentialStatus {
-            id: Some(format!("{}#{}", revocation_list_url, index_on_status_list)),
+            id: Some(uuid::Uuid::new_v4().urn().to_string()),
             r#type: CREDENTIAL_STATUS_TYPE.to_string(),
             status_purpose: Some(purpose.to_string()),
             additional_fields: HashMap::from([

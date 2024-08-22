@@ -1139,7 +1139,7 @@ fn test_sort_claims_by_indices() {
 }
 
 fn get_credential_data(status: Vec<CredentialStatus>, core_base_url: &str) -> CredentialData {
-    let id = Uuid::new_v4().to_string();
+    let id = Some(Uuid::new_v4().to_string());
     let issuance_date = OffsetDateTime::now_utc();
     let valid_for = time::Duration::days(365 * 2);
     let schema = CredentialSchemaData {
@@ -1177,7 +1177,7 @@ fn get_credential_data_with_array(
     status: Vec<CredentialStatus>,
     core_base_url: &str,
 ) -> CredentialData {
-    let id = Uuid::new_v4().to_string();
+    let id = Some(Uuid::new_v4().to_string());
     let issuance_date = OffsetDateTime::now_utc();
     let valid_for = time::Duration::days(365 * 2);
     let schema = CredentialSchemaData {

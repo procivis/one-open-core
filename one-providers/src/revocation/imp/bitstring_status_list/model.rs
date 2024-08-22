@@ -6,7 +6,7 @@ use crate::{
     common_models::did::DidValue,
     credential_formatter::model::Context,
     revocation::{
-        imp::bitstring_status_list::jwt_formatter::{from_timestamp, into_timestamp},
+        imp::bitstring_status_list::jwt_formatter::{from_timestamp_opt, into_timestamp_opt},
         model::RevocationListId,
     },
 };
@@ -22,11 +22,28 @@ pub enum ContentType {
 pub struct VCContent {
     #[serde(rename = "@context")]
     pub context: Vec<Context>,
-    pub id: String,
+    pub id: Option<String>,
     pub r#type: Vec<ContentType>,
     pub issuer: DidValue,
-    #[serde(serialize_with = "into_timestamp", deserialize_with = "from_timestamp")]
-    pub issued: OffsetDateTime,
+    // we keep this field for backwards compatibility with VCDM v1.1
+    #[serde(
+        serialize_with = "into_timestamp_opt",
+        deserialize_with = "from_timestamp_opt"
+    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub issued: Option<OffsetDateTime>,
+    #[serde(
+        serialize_with = "into_timestamp_opt",
+        deserialize_with = "from_timestamp_opt"
+    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_from: Option<OffsetDateTime>,
+    #[serde(
+        serialize_with = "into_timestamp_opt",
+        deserialize_with = "from_timestamp_opt"
+    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_until: Option<OffsetDateTime>,
     pub credential_subject: CredentialSubject,
 }
 

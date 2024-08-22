@@ -84,7 +84,7 @@ impl CredentialFormatter for SDJWTFormatter {
             invalid_before: issued_at.checked_sub(Duration::seconds(self.get_leeway() as i64)),
             subject: Some(holder_did.to_string()),
             issuer: Some(issuer),
-            jwt_id: Some(id),
+            jwt_id: id,
             custom: vc,
             nonce: None,
         };

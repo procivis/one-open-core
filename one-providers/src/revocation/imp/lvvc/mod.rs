@@ -395,11 +395,11 @@ pub async fn create_lvvc_with_status(
     let auth_fn = key_provider.get_signature_provider(&key.to_owned(), Some(issuer_jwk_key_id))?;
 
     let lvvc_credential_id = Uuid::new_v4();
-    let mut claims = vec![create_id_claim(base_url, credential.id)];
+    let mut claims = vec![create_id_claim(credential.id)];
     claims.extend(create_status_claims(&status)?);
 
     let credential_data = CredentialData {
-        id: format!("{base_url}/ssi/lvvc/v1/{lvvc_credential_id}"),
+        id: Some(format!("{base_url}/ssi/lvvc/v1/{lvvc_credential_id}")),
         issuance_date: OffsetDateTime::now_utc(),
         valid_for: credential_expiry,
         claims,

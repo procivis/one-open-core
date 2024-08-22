@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
+use uuid::fmt::Urn;
 
 use crate::{
     common_models::credential::CredentialId,
@@ -50,10 +51,10 @@ pub fn status_from_lvvc_claims(
     })
 }
 
-pub(super) fn create_id_claim(base_url: &str, credential_id: CredentialId) -> PublishedClaim {
+pub(super) fn create_id_claim(credential_id: CredentialId) -> PublishedClaim {
     PublishedClaim {
         key: "id".into(),
-        value: PublishedClaimValue::String(format!("{base_url}/ssi/credential/v1/{credential_id}")),
+        value: PublishedClaimValue::String(Urn::from_uuid(credential_id.into()).to_string()),
         datatype: None,
         array_item: false,
     }

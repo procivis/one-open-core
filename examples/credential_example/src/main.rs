@@ -50,7 +50,7 @@ async fn main() -> Result<(), CredentialServiceError> {
     let credential_service = core.credential_service;
 
     let credential_data = CredentialData {
-        id: "https://test-credential".to_string(),
+        id: Some("https://test-credential".to_string()),
         issuance_date: OffsetDateTime::now_utc(),
         valid_for: Duration::days(365),
         claims: vec![

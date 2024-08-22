@@ -36,7 +36,7 @@ pub(super) fn vc_from_credential(
         vc: VCContent {
             context,
             r#type: types,
-            id: Some(credential.id),
+            id: credential.id,
             credential_subject: SDCredentialSubject {
                 claims: hashed_claims,
             },

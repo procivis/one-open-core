@@ -62,7 +62,7 @@ pub fn prepare_credential(
 
     Ok(LdCredential {
         context,
-        id: Some(credential.id),
+        id: credential.id,
         r#type: ld_type,
         issuer: credential.issuer_did,
         valid_from: Some(OffsetDateTime::now_utc()),

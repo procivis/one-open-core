@@ -43,7 +43,7 @@ pub(super) fn format_vc(
         vc: VCContent {
             context,
             r#type: types,
-            id: Some(credential.id),
+            id: credential.id,
             credential_subject: CredentialSubject {
                 values: nest_claims(credential.claims)?,
             },

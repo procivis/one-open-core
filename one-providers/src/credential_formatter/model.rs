@@ -138,7 +138,7 @@ impl PartialEq<str> for PublishedClaimValue {
 
 #[derive(Debug)]
 pub struct CredentialData {
-    pub id: String,
+    pub id: Option<String>,
     pub issuance_date: OffsetDateTime,
     pub valid_for: Duration,
     pub claims: Vec<PublishedClaim>,
