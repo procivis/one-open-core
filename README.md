@@ -58,19 +58,12 @@ how these functions are divided and the different ways in which this library can
 Format and parse digital credentials according to [W3C Verifiable Credentials Data Model v2.0][vcdm],
 for issuing, presenting, and verifying.
 
-Create and extract proofs using:
+The following proofs are supported:
 
-| Securing mechanism                           | Proof type                                                                     | Representation                            |
-| -------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------- |
-| [W3C Data Integrity Proofs][vcdi] (embedded) | [W3C Data Integrity ECDSA Cryptosuites v1.0][ecd] / [ecdsa-rdfc-2019][ecd2019] | [JSON-LD][jld] in Compacted Document Form |
-| [W3C Data Integrity Proofs][vcdi] (embedded) | [W3C Data Integrity EdDSA Cryptosuites v1.0][edd] / [eddsa-rdfc-2022][edd2022] | [JSON-LD][jld] in Compacted Document Form |
-| [W3C Data Integrity Proofs][vcdi] (embedded) | [W3C Data Integrity BBS Cryptosuites v1.0][bbs] / [bbs-2023][bbs2023]          | [JSON-LD][jld] in Compacted Document Form |
-| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / EdDSA [Ed25519][ed255]                                                  | [SD-JWT][sdjwt]                           |
-| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / ECDSA [ES256][es2]                                                      | [SD-JWT][sdjwt]                           |
-| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / CRYSTALS-DILITHIUM 3 [CRYDI3][crydi3]*                                  | [SD-JWT][sdjwt]                           |
-| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / EdDSA [Ed25519][ed255]                                                  | [JWT][jw]                                 |
-| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / ECDSA [ES256][es2]                                                      | [JWT][jw]                                 |
-| [W3C VC-JOSE-COSE][jose] (enveloping)        | JOSE / CRYSTALS-DILITHIUM 3 [CRYDI3][crydi3]*                                  | [JWT][jw]                                 |
+| Securing mechanism                           | Supported representations                           | Supported proof/signature types                                                          |
+| -------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
+| [W3C Data Integrity Proofs][vcdi] (embedded) | [JSON-LD][jld] in Compacted Document Form | <ul><li>[W3C Data Integrity ECDSA Cryptosuites v1.0][ecd] / [ecdsa-rdfc-2019][ecd2019]</li><li>[W3C Data Integrity EdDSA Cryptosuites v1.0][edd] / [eddsa-rdfc-2022][edd2022]</li><li>[W3C Data Integrity BBS Cryptosuites v1.0][bbs] / [bbs-2023][bbs2023]</li></ul> |
+| [W3C VC-JOSE-COSE][jose] (enveloping)        | <ul><li>[SD-JWT][sdjwt]</li><li>[JWT][jw]</li></ul> | <ul><li>JOSE / ECDSA [ES256][es2]</li><li>JOSE / EdDSA [Ed25519][ed255]</li><li>JOSE / CRYSTALS-DILITHIUM 3 [CRYDI3][crydi3]* |
 
 \* CRYSTALS-DILITHIUM is a post-quantum resistant signature scheme, selected by NIST for [Post-Quantum Cryptography Standardization][pqc].
 Support for the recently published [FIPS-204][fips] is planned for the near future.
@@ -154,7 +147,6 @@ Exchange credentials and presentations:
 [akv]: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
 [bbs]: https://www.w3.org/TR/vc-di-bbs/
 [bbs2023]: https://www.w3.org/TR/vc-di-bbs/#bbs-2023
-[bls]: https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-05.html
 [cmvp]: https://csrc.nist.gov/Projects/Cryptographic-Module-Validation-Program
 [crydi3]: https://datatracker.ietf.org/doc/html/draft-ietf-cose-dilithium-01
 [did]: https://www.w3.org/TR/did-core/
