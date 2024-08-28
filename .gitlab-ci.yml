@@ -2,7 +2,9 @@ image: registry.gitlab.procivis.ch/procivis/one/one-operations/core-base:1.80.0-
 
 include:
   - project: 'procivis/one/one-operations'
-    file: 'gitlab/aks-deploy.gitlab-ci.yml'
+    file:
+      - 'gitlab/aks-deploy.gitlab-ci.yml'
+      - 'gitlab/docker.gitlab-ci.yml'
 
 variables:
   DEPENDENCY_TRACK_PROJECT_NAME: "One-Open-Core"
@@ -141,23 +143,12 @@ build:docs:
 
 publish:docs:
   stage: package
-  image: docker:latest
   dependencies: [ build:docs ]
-  services:
-    - docker:dind
-  script:
-    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN
-    - docker build -t $IMAGE_TAG -f docs/docker/Dockerfile .
-    - >
-      if [ "$CI_COMMIT_REF_NAME" == "main" ] ; then
-        docker image tag $IMAGE_TAG $IMAGE_NAME:latest
-        docker push $IMAGE_NAME:latest
-      fi
-    - docker push $IMAGE_TAG
-    - docker logout $CI_REGISTRY
+  variables:
+    DOCKERFILE_PATH: docs/docker/Dockerfile
   extends:
+    - .docker_publish
     - .only_main_or_tag
-
 
 deploy:docs:
   stage: deploy
