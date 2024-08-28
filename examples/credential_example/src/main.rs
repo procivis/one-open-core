@@ -1,6 +1,7 @@
 use one_open_core::model::{CredentialFormat, KeyAlgorithmType, StorageType};
 use one_open_core::service::error::CredentialServiceError;
 use one_providers::common_models::key::OpenKey;
+use std::sync::Arc;
 use time::{Duration, OffsetDateTime};
 
 use one_open_core::OneOpenCore;
@@ -8,11 +9,12 @@ use one_open_core::OneOpenCore;
 use one_providers::credential_formatter::model::{
     CredentialData, CredentialPresentation, CredentialSchemaData, PublishedClaim,
 };
+use one_providers::http_client::imp::reqwest_client::ReqwestClient;
 use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<(), CredentialServiceError> {
-    let core = OneOpenCore::new(None).unwrap();
+    let core = OneOpenCore::new(None, Arc::new(ReqwestClient::default())).unwrap();
 
     let did_service = core.did_service;
     let did_method = did_service

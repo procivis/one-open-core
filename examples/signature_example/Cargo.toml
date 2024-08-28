@@ -6,5 +6,7 @@ license = "Apache-2.0"
 
 [dependencies]
 one-open-core = { path = "../../one-open-core" }
+one-providers = { path = "../../one-providers" }
 hex-literal = "0.4.1"
+reqwest = { workspace = true }
 zeroize = "1.8.1"

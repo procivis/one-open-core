@@ -18,6 +18,7 @@ use crate::{
         },
     },
     did::provider::MockDidMethodProvider,
+    http_client::MockHttpClient,
     key_algorithm::provider::MockKeyAlgorithmProvider,
 };
 
@@ -37,6 +38,7 @@ async fn test_canonize_any() {
         Arc::new(did_method_provider),
         Arc::new(key_algorithm_provider),
         prepare_caching_loader(),
+        Arc::new(MockHttpClient::new()),
     );
 
     let hmac_key = [
@@ -73,6 +75,7 @@ async fn test_transform_canonized() {
         Arc::new(did_method_provider),
         Arc::new(key_algorithm_provider),
         prepare_caching_loader(),
+        Arc::new(MockHttpClient::new()),
     );
 
     let bnode_ident_map = HashMap::from([
@@ -115,6 +118,7 @@ async fn test_transform_grouped() {
         Arc::new(did_method_provider),
         Arc::new(key_algorithm_provider),
         prepare_caching_loader(),
+        Arc::new(MockHttpClient::new()),
     );
 
     let transformed_lines = &TRANSFORMED_OWN

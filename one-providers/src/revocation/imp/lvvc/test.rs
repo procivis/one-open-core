@@ -16,6 +16,7 @@ use crate::credential_formatter::model::{
     CredentialStatus, CredentialSubject, DetailCredential, MockSignatureProvider,
 };
 use crate::credential_formatter::MockCredentialFormatter;
+use crate::http_client::imp::reqwest_client::ReqwestClient;
 use crate::revocation::model::{CredentialDataByRole, CredentialRevocationState};
 use serde_json::json;
 use std::sync::Arc;
@@ -101,7 +102,7 @@ fn create_provider(
         Arc::new(formatter_provider),
         Arc::new(MockDidMethodProvider::new()),
         Arc::new(key_provider),
-        reqwest::Client::new(),
+        Arc::new(ReqwestClient::default()),
         Params {
             credential_expiry: Default::default(),
             json_ld_context_url: None,

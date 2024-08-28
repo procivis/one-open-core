@@ -11,6 +11,7 @@ doctest = false
 [dependencies]
 one-providers = { version = "0.1.0", path = "../one-providers" }
 one-crypto    = { version = "0.1.0", path = "../one-crypto" }
+reqwest       = { workspace = true }
 thiserror     = { workspace = true }
 zeroize       = { workspace = true }
 strum         = { version = "0.26" }

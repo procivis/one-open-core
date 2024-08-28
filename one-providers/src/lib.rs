@@ -38,6 +38,7 @@ pub mod common_dto;
 pub mod common_models;
 pub mod credential_formatter;
 pub mod did;
+pub mod http_client;
 pub mod key_algorithm;
 pub mod key_storage;
 pub mod revocation;

@@ -1,8 +1,11 @@
+use std::sync::Arc;
+
 use serde_json::json;
 
 use crate::credential_formatter::imp::json_ld::{
     canonize_any, context::caching_loader::ContextCache, test_utilities::prepare_caching_loader,
 };
+use crate::http_client::MockHttpClient;
 
 #[tokio::test]
 async fn test_canonize_any() {
@@ -58,9 +61,12 @@ async fn test_canonize_any() {
           }
     );
 
-    let result = canonize_any(&json, ContextCache::new(prepare_caching_loader()))
-        .await
-        .unwrap();
+    let result = canonize_any(
+        &json,
+        ContextCache::new(prepare_caching_loader(), Arc::new(MockHttpClient::new())),
+    )
+    .await
+    .unwrap();
     assert_eq!(result, CANONICAL);
 }
 
@@ -115,9 +121,12 @@ async fn test_canonize_any_example_8() {
         }
     );
 
-    let result = canonize_any(&json, ContextCache::new(prepare_caching_loader()))
-        .await
-        .unwrap();
+    let result = canonize_any(
+        &json,
+        ContextCache::new(prepare_caching_loader(), Arc::new(MockHttpClient::new())),
+    )
+    .await
+    .unwrap();
     assert_eq!(result, CANONICAL_EXAMPLE_8);
 }
 
@@ -147,9 +156,12 @@ async fn test_canonize_any_example_8_proof() {
       }
     );
 
-    let result = canonize_any(&json, ContextCache::new(prepare_caching_loader()))
-        .await
-        .unwrap();
+    let result = canonize_any(
+        &json,
+        ContextCache::new(prepare_caching_loader(), Arc::new(MockHttpClient::new())),
+    )
+    .await
+    .unwrap();
     assert_eq!(result, CANONICAL_EXAMPLE_8_PROOF);
 }
 

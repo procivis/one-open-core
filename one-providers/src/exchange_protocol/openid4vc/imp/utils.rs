@@ -1,12 +1,13 @@
-use std::collections::{HashMap, HashSet};
-
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 
 use crate::common_models::credential::{OpenCredential, OpenCredentialStateEnum};
 use crate::common_models::interaction::OpenInteraction;
 use crate::exchange_protocol::openid4vc::model::{CredentialGroup, OpenID4VPInteractionData};
 use crate::exchange_protocol::openid4vc::{ExchangeProtocolError, StorageAccess};
+use crate::http_client::HttpClient;
 
 pub fn deserialize_interaction_data<DataDTO: for<'a> Deserialize<'a>>(
     interaction: Option<&OpenInteraction>,
@@ -31,7 +32,7 @@ pub fn serialize_interaction_data<DataDTO: ?Sized + Serialize>(
 
 pub async fn interaction_data_from_query(
     query: &str,
-    client: &reqwest::Client,
+    client: &Arc<dyn HttpClient>,
     allow_insecure_http_transport: bool,
 ) -> Result<OpenID4VPInteractionData, ExchangeProtocolError> {
     let mut interaction_data: OpenID4VPInteractionData = serde_qs::from_str(query)
@@ -61,7 +62,7 @@ pub async fn interaction_data_from_query(
         }
 
         let client_metadata = client
-            .get(client_metadata_uri.to_owned())
+            .get(client_metadata_uri.as_str())
             .send()
             .await
             .context("send error")
@@ -70,7 +71,6 @@ pub async fn interaction_data_from_query(
             .context("status error")
             .map_err(ExchangeProtocolError::Transport)?
             .json()
-            .await
             .context("parsing error")
             .map_err(ExchangeProtocolError::Transport)?;
 
@@ -85,7 +85,7 @@ pub async fn interaction_data_from_query(
         }
 
         let presentation_definition = client
-            .get(presentation_definition_uri.to_owned())
+            .get(presentation_definition_uri.as_str())
             .send()
             .await
             .context("send error")
@@ -94,7 +94,6 @@ pub async fn interaction_data_from_query(
             .context("status error")
             .map_err(ExchangeProtocolError::Transport)?
             .json()
-            .await
             .context("parsing error")
             .map_err(ExchangeProtocolError::Transport)?;
 

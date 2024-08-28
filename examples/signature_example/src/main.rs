@@ -1,10 +1,12 @@
-use one_open_core::{model::KeyAlgorithmType, OneOpenCore};
-use zeroize::Zeroizing;
+use std::sync::Arc;
 
 use hex_literal::hex;
+use one_open_core::{model::KeyAlgorithmType, OneOpenCore};
+use one_providers::http_client::imp::reqwest_client::ReqwestClient;
+use zeroize::Zeroizing;
 
 fn main() {
-    let core = OneOpenCore::new(None).unwrap();
+    let core = OneOpenCore::new(None, Arc::new(ReqwestClient::default())).unwrap();
 
     let key_pair = core
         .signature_service

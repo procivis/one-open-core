@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use one_open_core::OneOpenCore;
 use one_providers::common_models::did::DidValue;
 use one_providers::did::{
@@ -5,10 +7,13 @@ use one_providers::did::{
     imp::universal::{Params as UniversalDidMethodParams, UniversalDidMethod},
     DidMethod,
 };
+use one_providers::http_client::imp::reqwest_client::ReqwestClient;
 
 #[tokio::main]
 async fn main() -> Result<(), DidMethodError> {
-    let core = OneOpenCore::new(None).unwrap();
+    let client = Arc::new(ReqwestClient::default());
+
+    let core = OneOpenCore::new(None, client.clone()).unwrap();
     let did_service = core.did_service;
 
     let example_did_values_implemented = vec![
@@ -59,9 +64,12 @@ async fn main() -> Result<(), DidMethodError> {
     // can also be instantiated and used directly
     //
 
-    let universal_resolver = UniversalDidMethod::new(UniversalDidMethodParams {
-        resolver_url: "https://dev.uniresolver.io".to_string(),
-    });
+    let universal_resolver = UniversalDidMethod::new(
+        UniversalDidMethodParams {
+            resolver_url: "https://dev.uniresolver.io".to_string(),
+        },
+        client,
+    );
     let result = universal_resolver.resolve(&example_did_key).await;
     assert!(result.is_ok(), "expected to resolve DID");
 

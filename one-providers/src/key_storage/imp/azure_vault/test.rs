@@ -12,6 +12,7 @@ use wiremock::{
 use one_crypto::{imp::CryptoProviderImpl, CryptoProvider, Hasher, MockHasher};
 
 use super::{dto::AzureHsmGetTokenResponse, AzureVaultKeyProvider, Params};
+use crate::http_client::imp::reqwest_client::ReqwestClient;
 use crate::{common_models::key::OpenKey, key_storage::KeyStorage};
 
 fn get_params(mock_base_url: String) -> Params {
@@ -116,7 +117,11 @@ async fn test_azure_vault_generate() {
     get_token_mock(&mock_server, 3600, 1).await;
     generate_key_mock(&mock_server, 2).await;
 
-    let vault = AzureVaultKeyProvider::new(get_params(mock_server.uri()), get_crypto(vec![]));
+    let vault = AzureVaultKeyProvider::new(
+        get_params(mock_server.uri()),
+        get_crypto(vec![]),
+        Arc::new(ReqwestClient::default()),
+    );
     vault
         .generate(Some(Uuid::new_v4().into()), "ES256")
         .await
@@ -134,7 +139,11 @@ async fn test_azure_vault_generate_expired_key_causes_second_token_request() {
     get_token_mock(&mock_server, -5, 2).await;
     generate_key_mock(&mock_server, 2).await;
 
-    let vault = AzureVaultKeyProvider::new(get_params(mock_server.uri()), get_crypto(vec![]));
+    let vault = AzureVaultKeyProvider::new(
+        get_params(mock_server.uri()),
+        get_crypto(vec![]),
+        Arc::new(ReqwestClient::default()),
+    );
     vault
         .generate(Some(Uuid::new_v4().into()), "ES256")
         .await
@@ -162,6 +171,7 @@ async fn test_azure_vault_sign() {
     let vault = AzureVaultKeyProvider::new(
         get_params(mock_server.uri()),
         get_crypto(vec![("sha-256".to_string(), Arc::new(hasher_mock))]),
+        Arc::new(ReqwestClient::default()),
     );
     let result = vault
         .sign(

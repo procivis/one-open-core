@@ -10,6 +10,7 @@ use crate::{
     credential_formatter::imp::json_ld::context::caching_loader::{
         JsonLdCachingLoader, JsonLdResolver,
     },
+    http_client::{imp::reqwest_client::ReqwestClient, MockHttpClient},
     remote_entity_storage::{MockRemoteEntityStorage, RemoteEntity, RemoteEntityType},
 };
 
@@ -62,7 +63,7 @@ async fn test_load_context_success_cache_hit() {
         Duration::seconds(300),
     );
 
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(MockHttpClient::new())));
 
     assert_eq!(
         response_content,
@@ -153,7 +154,7 @@ async fn test_load_context_success_cache_miss_external_fetch_occured() {
         Duration::seconds(300),
     );
 
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert_eq!(
         response_content,
@@ -184,7 +185,7 @@ async fn test_load_context_success_cache_miss_overfilled_delete_oldest_entry_cal
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert_eq!(
         response_content,
@@ -229,7 +230,7 @@ async fn test_load_context_success_cache_hit_but_too_old_200() {
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
 
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert_eq!(
         response_content,
@@ -271,7 +272,7 @@ async fn test_load_context_success_cache_hit_but_too_old_304_with_last_modified_
         .return_once(|_| Ok(()));
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert_eq!(
         response_content,
@@ -317,7 +318,7 @@ async fn test_load_context_success_cache_hit_but_too_old_304_without_last_modifi
         .return_once(|_| Ok(()));
 
     let loader = create_loader(storage, 1, Duration::seconds(99999), Duration::seconds(300));
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert_eq!(
         response_content,
@@ -357,7 +358,7 @@ async fn test_load_context_success_cache_hit_older_than_refreshafter_younger_tha
 
     let refresh_timeout = OffsetDateTime::now_utc() - get_dummy_date() + Duration::seconds(99999);
     let loader = create_loader(storage, 1, refresh_timeout, Duration::seconds(300));
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert_eq!(
         old_response_content,
@@ -388,7 +389,7 @@ async fn test_load_context_failed_cache_hit_older_than_refreshafter_and_failed_t
         Duration::seconds(301),
         Duration::seconds(300),
     );
-    let resolver = Arc::new(JsonLdResolver::default());
+    let resolver = Arc::new(JsonLdResolver::new(Arc::new(ReqwestClient::default())));
 
     assert!(loader.get(url, resolver).await.is_err());
 }

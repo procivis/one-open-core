@@ -2,7 +2,9 @@
 
 use async_trait::async_trait;
 use serde::Deserialize;
+use std::sync::Arc;
 
+use crate::http_client::HttpClient;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
@@ -30,15 +32,12 @@ pub struct Params {
 
 pub struct UniversalDidMethod {
     pub params: Params,
-    pub client: reqwest::Client,
+    pub client: Arc<dyn HttpClient>,
 }
 
 impl UniversalDidMethod {
-    pub fn new(params: Params) -> Self {
-        Self {
-            params,
-            client: reqwest::Client::new(),
-        }
+    pub fn new(params: Params, client: Arc<dyn HttpClient>) -> Self {
+        Self { params, client }
     }
 }
 
@@ -58,7 +57,7 @@ impl DidMethod for UniversalDidMethod {
 
         let response = self
             .client
-            .get(url)
+            .get(&url)
             .send()
             .await
             .and_then(|resp| resp.error_for_status())
@@ -68,7 +67,6 @@ impl DidMethod for UniversalDidMethod {
 
         Ok(response
             .json::<ResolutionResponse>()
-            .await
             .map(|resp| resp.did_document)
             .map_err(|e| {
                 DidMethodError::ResolutionError(format!("Could not deserialize response: {e}"))

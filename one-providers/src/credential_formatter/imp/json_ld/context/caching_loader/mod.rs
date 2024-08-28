@@ -10,15 +10,21 @@ use time::{format_description::well_known::Rfc2822, macros::offset, OffsetDateTi
 
 use crate::{
     caching_loader::{CachingLoader, CachingLoaderError, ResolveResult, Resolver},
+    http_client::HttpClient,
     remote_entity_storage::RemoteEntityStorageError,
 };
 
 #[cfg(test)]
 mod test;
 
-#[derive(Default)]
 pub struct JsonLdResolver {
-    pub client: reqwest::Client,
+    pub client: Arc<dyn HttpClient>,
+}
+
+impl JsonLdResolver {
+    pub fn new(client: Arc<dyn HttpClient>) -> Self {
+        Self { client }
+    }
 }
 
 pub type JsonLdCachingLoader = CachingLoader<JsonLdResolverError>;
@@ -32,40 +38,28 @@ impl Resolver for JsonLdResolver {
         url: &str,
         last_modified: Option<&OffsetDateTime>,
     ) -> Result<ResolveResult, Self::Error> {
-        let mut request = self.client.get(url);
+        let mut builder = self.client.get(url);
+
         if let Some(last_modified) = last_modified {
-            request = request.header(
+            builder = builder.header(
                 "If-Modified-Since",
-                last_modified
+                &last_modified
                     .to_offset(offset!(+0))
                     .format(&RFC_2822_BUT_WITH_GMT)
                     .map_err(|e| JsonLdResolverError::TimeError(e.to_string()))?,
             );
         }
 
-        let response = request
+        let response = builder
             .send()
             .await
             .map_err(|e| JsonLdResolverError::Reqwest(e.to_string()))?
             .error_for_status()
             .map_err(|e| JsonLdResolverError::Reqwest(e.to_string()))?;
-        let status = response.status();
-        if status.is_success() {
-            Ok(ResolveResult::NewValue(
-                response
-                    .text()
-                    .await
-                    .map_err(|e| JsonLdResolverError::Reqwest(e.to_string()))?
-                    .into_bytes(),
-            ))
-        } else if status.is_redirection() {
-            let result = response
-                .headers()
-                .get("Last-Modified")
-                .map(|value| value.to_str())
-                .transpose()
-                .map_err(|_| JsonLdResolverError::CannotParseLastModifiedHeader)?;
-
+        if response.status.is_success() {
+            Ok(ResolveResult::NewValue(response.body))
+        } else if response.status.is_redirection() {
+            let result = response.header_get("Last-Modified");
             let last_modified = match result {
                 None => OffsetDateTime::now_utc(),
                 Some(value) => OffsetDateTime::parse(value, &Rfc2822)?,
@@ -73,7 +67,7 @@ impl Resolver for JsonLdResolver {
             Ok(ResolveResult::LastModificationDateUpdate(last_modified))
         } else {
             Err(JsonLdResolverError::UnexpectedStatusCode(
-                status.to_string(),
+                response.status.to_string(),
             ))
         }
     }
@@ -123,12 +117,10 @@ pub struct ContextCache {
 }
 
 impl ContextCache {
-    pub fn new(loader: JsonLdCachingLoader) -> Self {
+    pub fn new(loader: JsonLdCachingLoader, client: Arc<dyn HttpClient>) -> Self {
         Self {
             loader,
-            resolver: Arc::new(JsonLdResolver {
-                client: reqwest::Client::new(),
-            }),
+            resolver: Arc::new(JsonLdResolver { client }),
         }
     }
 }

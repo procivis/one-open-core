@@ -26,6 +26,7 @@ use crate::{
     key_algorithm::provider::KeyAlgorithmProvider,
 };
 
+use crate::http_client::HttpClient;
 use one_crypto::CryptoProvider;
 
 mod base_proof;
@@ -198,6 +199,7 @@ impl JsonLdBbsplus {
         did_method_provider: Arc<dyn DidMethodProvider>,
         key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
         caching_loader: JsonLdCachingLoader,
+        client: Arc<dyn HttpClient>,
     ) -> Self {
         Self {
             params,
@@ -205,7 +207,7 @@ impl JsonLdBbsplus {
             base_url,
             did_method_provider,
             key_algorithm_provider,
-            caching_loader: ContextCache::new(caching_loader),
+            caching_loader: ContextCache::new(caching_loader, client),
         }
     }
 }

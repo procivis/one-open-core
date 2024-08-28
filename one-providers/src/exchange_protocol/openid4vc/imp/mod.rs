@@ -67,6 +67,7 @@ mod utils;
 #[cfg(test)]
 mod test;
 
+use crate::http_client::HttpClient;
 pub use mappers::create_presentation_submission;
 
 const CREDENTIAL_OFFER_URL_SCHEME: &str = "openid-credential-offer";
@@ -76,7 +77,7 @@ const PRESENTATION_DEFINITION_VALUE_QUERY_PARAM_KEY: &str = "presentation_defini
 const PRESENTATION_DEFINITION_REFERENCE_QUERY_PARAM_KEY: &str = "presentation_definition_uri";
 
 pub struct OpenID4VCHTTP {
-    client: reqwest::Client,
+    client: Arc<dyn HttpClient>,
     formatter_provider: Arc<dyn CredentialFormatterProvider>,
     revocation_provider: Arc<dyn RevocationMethodProvider>,
     key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
@@ -109,6 +110,7 @@ impl OpenID4VCHTTP {
         revocation_provider: Arc<dyn RevocationMethodProvider>,
         key_provider: Arc<dyn KeyProvider>,
         key_algorithm_provider: Arc<dyn KeyAlgorithmProvider>,
+        client: Arc<dyn HttpClient>,
         params: OpenID4VCParams,
     ) -> Self {
         Self {
@@ -117,7 +119,7 @@ impl OpenID4VCHTTP {
             revocation_provider,
             key_provider,
             key_algorithm_provider,
-            client: reqwest::Client::new(),
+            client,
             params,
         }
     }
@@ -348,8 +350,10 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
         let response = self
             .client
-            .post(response_uri)
+            .post(response_uri.as_str())
             .form(&params)
+            .context("form error")
+            .map_err(ExchangeProtocolError::Transport)?
             .send()
             .await
             .context("send error")
@@ -358,7 +362,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             .context("status error")
             .map_err(ExchangeProtocolError::Transport)?;
 
-        let response: Result<OpenID4VPDirectPostResponseDTO, _> = response.json().await;
+        let response: Result<OpenID4VPDirectPostResponseDTO, _> = response.json();
 
         if let Ok(value) = response {
             Ok(UpdateResponse {
@@ -440,9 +444,11 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 
         let response = self
             .client
-            .post(interaction_data.credential_endpoint)
-            .bearer_auth(interaction_data.access_token)
+            .post(interaction_data.credential_endpoint.as_str())
+            .bearer_auth(&interaction_data.access_token)
             .json(&body)
+            .context("json error")
+            .map_err(ExchangeProtocolError::Transport)?
             .send()
             .await
             .context("send error")
@@ -453,7 +459,6 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             .map_err(ExchangeProtocolError::Transport)?;
         let response_value: SubmitIssuerResponse = response
             .json()
-            .await
             .context("parsing error")
             .map_err(ExchangeProtocolError::Transport)?;
 
@@ -801,7 +806,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
 async fn handle_credential_invitation(
     invitation_url: Url,
     organisation: OpenOrganisation,
-    client: &reqwest::Client,
+    client: &Arc<dyn HttpClient>,
     storage_access: &StorageAccess,
     handle_invitation_operations: &HandleInvitationOperationsAccess,
 ) -> Result<InvitationResponseDTO, ExchangeProtocolError> {
@@ -823,6 +828,8 @@ async fn handle_credential_invitation(
         .form(&OpenID4VCITokenRequestDTO::PreAuthorizedCode {
             pre_authorized_code: credential_offer.grants.code.pre_authorized_code.clone(),
         })
+        .context("form error")
+        .map_err(ExchangeProtocolError::Transport)?
         .send()
         .await
         .context("send error")
@@ -831,7 +838,6 @@ async fn handle_credential_invitation(
         .context("status error")
         .map_err(ExchangeProtocolError::Transport)?
         .json()
-        .await
         .context("parsing error")
         .map_err(ExchangeProtocolError::Transport)?;
 
@@ -917,7 +923,7 @@ async fn handle_credential_invitation(
 }
 
 async fn resolve_credential_offer(
-    client: &reqwest::Client,
+    client: &Arc<dyn HttpClient>,
     invitation_url: Url,
 ) -> Result<OpenID4VCICredentialOfferDTO, ExchangeProtocolError> {
     let query_pairs: HashMap<_, _> = invitation_url.query_pairs().collect();
@@ -949,7 +955,7 @@ async fn resolve_credential_offer(
         // }
 
         Ok(client
-            .get(credential_offer_url)
+            .get(credential_offer_url.as_str())
             .send()
             .await
             .context("send error")
@@ -958,7 +964,6 @@ async fn resolve_credential_offer(
             .context("status error")
             .map_err(ExchangeProtocolError::Transport)?
             .json()
-            .await
             .map_err(|error| {
                 ExchangeProtocolError::Failed(format!(
                     "Failed decoding credential offer json {error}"
@@ -974,7 +979,7 @@ async fn resolve_credential_offer(
 async fn handle_proof_invitation(
     url: Url,
     allow_insecure_http_transport: bool,
-    client: &reqwest::Client,
+    client: &Arc<dyn HttpClient>,
     storage_access: &StorageAccess,
 ) -> Result<InvitationResponseDTO, ExchangeProtocolError> {
     let query = url.query().ok_or(ExchangeProtocolError::InvalidRequest(
@@ -1011,7 +1016,7 @@ async fn handle_proof_invitation(
 }
 
 async fn get_discovery_and_issuer_metadata(
-    client: &reqwest::Client,
+    client: &Arc<dyn HttpClient>,
     credential_issuer_endpoint: Url,
 ) -> Result<
     (
@@ -1021,22 +1026,19 @@ async fn get_discovery_and_issuer_metadata(
     ExchangeProtocolError,
 > {
     async fn fetch<T: DeserializeOwned>(
-        client: &reqwest::Client,
-        endpoint: impl reqwest::IntoUrl,
+        client: &Arc<dyn HttpClient>,
+        endpoint: String,
     ) -> Result<T, ExchangeProtocolError> {
-        let response = client
-            .get(endpoint)
+        client
+            .get(&endpoint)
             .send()
             .await
             .context("send error")
             .map_err(ExchangeProtocolError::Transport)?
             .error_for_status()
             .context("status error")
-            .map_err(ExchangeProtocolError::Transport)?;
-
-        response
+            .map_err(ExchangeProtocolError::Transport)?
             .json()
-            .await
             .context("parsing error")
             .map_err(ExchangeProtocolError::Transport)
     }

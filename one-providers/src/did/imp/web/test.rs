@@ -1,5 +1,5 @@
 use std::str::FromStr;
-
+use std::sync::Arc;
 use uuid::Uuid;
 use wiremock::{
     http::Method,
@@ -7,6 +7,8 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
+use crate::http_client::imp::reqwest_client::ReqwestClient;
+use crate::http_client::HttpClient;
 use crate::{
     common_dto::{PublicKeyJwkDTO, PublicKeyJwkEllipticDataDTO, PublicKeyJwkRsaDataDTO},
     common_models::did::{DidId, DidValue},
@@ -17,6 +19,7 @@ use crate::{
         model::AmountOfKeys,
         DidMethod,
     },
+    http_client::MockHttpClient,
 };
 
 static JSON_DATA: &str = r#"
@@ -88,7 +91,12 @@ static JSON_DATA: &str = r#"
 async fn test_did_web_create() {
     let base_url = "https://test-domain.com".to_string();
 
-    let did_web_method = WebDidMethod::new(&Some(base_url), Default::default()).unwrap();
+    let did_web_method = WebDidMethod::new(
+        &Some(base_url),
+        Arc::new(MockHttpClient::new()),
+        Default::default(),
+    )
+    .unwrap();
 
     let id = DidId::from(Uuid::from_str("2389ba3f-81d5-4931-9222-c23ec721deb7").unwrap());
 
@@ -104,7 +112,12 @@ async fn test_did_web_create() {
 async fn test_did_web_create_with_port() {
     let base_url = "https://test-domain.com:54812".to_string();
 
-    let did_web_method = WebDidMethod::new(&Some(base_url), Default::default()).unwrap();
+    let did_web_method = WebDidMethod::new(
+        &Some(base_url),
+        Arc::new(MockHttpClient::new()),
+        Default::default(),
+    )
+    .unwrap();
 
     let id = DidId::from(Uuid::from_str("2389ba3f-81d5-4931-9222-c23ec721deb7").unwrap());
 
@@ -118,7 +131,8 @@ async fn test_did_web_create_with_port() {
 
 #[tokio::test]
 async fn test_did_web_create_fail_no_base_url() {
-    let did_web_method = WebDidMethod::new(&None, Default::default()).unwrap();
+    let did_web_method =
+        WebDidMethod::new(&None, Arc::new(MockHttpClient::new()), Default::default()).unwrap();
 
     let id = DidId::from(Uuid::from_str("2389ba3f-81d5-4931-9222-c23ec721deb7").unwrap());
 
@@ -212,7 +226,7 @@ async fn test_did_web_fetch() {
         .mount(&mock_server)
         .await;
 
-    let client = reqwest::Client::new();
+    let client: Arc<dyn HttpClient> = Arc::new(ReqwestClient::default());
 
     let url = format!(
         "{}/ssi/did-web/v1/2389ba3f-81d5-4931-9222-c23ec721deb7/did.json",
@@ -283,7 +297,8 @@ async fn test_did_web_fetch() {
 
 #[test]
 fn test_validate_default_keys() {
-    let did_method = WebDidMethod::new(&None, Default::default()).unwrap();
+    let did_method =
+        WebDidMethod::new(&None, Arc::new(MockHttpClient::new()), Default::default()).unwrap();
     let keys = AmountOfKeys {
         global: 1,
         authentication: 1,
@@ -297,7 +312,8 @@ fn test_validate_default_keys() {
 
 #[test]
 fn test_validate_default_keys_no_keys() {
-    let did_method = WebDidMethod::new(&None, Default::default()).unwrap();
+    let did_method =
+        WebDidMethod::new(&None, Arc::new(MockHttpClient::new()), Default::default()).unwrap();
     let keys = AmountOfKeys {
         global: 0,
         authentication: 0,
@@ -311,7 +327,8 @@ fn test_validate_default_keys_no_keys() {
 
 #[test]
 fn test_validate_default_keys_too_much_keys() {
-    let did_method = WebDidMethod::new(&None, Default::default()).unwrap();
+    let did_method =
+        WebDidMethod::new(&None, Arc::new(MockHttpClient::new()), Default::default()).unwrap();
     let keys = AmountOfKeys {
         global: 2,
         authentication: 1,
@@ -325,7 +342,8 @@ fn test_validate_default_keys_too_much_keys() {
 
 #[test]
 fn test_validate_default_keys_missing_key() {
-    let did_method = WebDidMethod::new(&None, Default::default()).unwrap();
+    let did_method =
+        WebDidMethod::new(&None, Arc::new(MockHttpClient::new()), Default::default()).unwrap();
     let keys = AmountOfKeys {
         global: 1,
         authentication: 1,
@@ -341,6 +359,7 @@ fn test_validate_default_keys_missing_key() {
 fn test_validate_keys() {
     let did_method = WebDidMethod::new(
         &None,
+        Arc::new(MockHttpClient::new()),
         Params {
             keys: Keys {
                 global: MinMax { min: 2, max: 3 },
@@ -369,6 +388,7 @@ fn test_validate_keys() {
 fn test_validate_keys_no_keys() {
     let did_method = WebDidMethod::new(
         &None,
+        Arc::new(MockHttpClient::new()),
         Params {
             keys: Keys {
                 global: MinMax { min: 2, max: 3 },
@@ -397,6 +417,7 @@ fn test_validate_keys_no_keys() {
 fn test_validate_keys_too_much_keys() {
     let did_method = WebDidMethod::new(
         &None,
+        Arc::new(MockHttpClient::new()),
         Params {
             keys: Keys {
                 global: MinMax { min: 2, max: 3 },
@@ -425,6 +446,7 @@ fn test_validate_keys_too_much_keys() {
 fn test_validate_keys_missing_key() {
     let did_method = WebDidMethod::new(
         &None,
+        Arc::new(MockHttpClient::new()),
         Params {
             keys: Keys {
                 global: MinMax { min: 2, max: 3 },

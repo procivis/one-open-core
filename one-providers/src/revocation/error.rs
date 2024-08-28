@@ -10,6 +10,7 @@ use crate::{
     },
     credential_formatter::error::FormatterError,
     did::error::DidMethodProviderError,
+    http_client,
     key_storage::error::KeyStorageProviderError,
     remote_entity_storage::RemoteEntityStorageError,
     revocation::imp::bitstring_status_list::util::BitstringError,
@@ -49,8 +50,8 @@ pub enum RevocationError {
 
     #[error("From UTF-8 error: `{0}`")]
     FromUtf8Error(#[from] std::string::FromUtf8Error),
-    #[error("HTTP request error: `{0}`")]
-    HttpRequestError(#[from] reqwest::Error),
+    #[error("HTTP client error: `{0}`")]
+    HttpClientError(#[from] http_client::Error),
     #[error("JSON error: `{0}`")]
     JsonError(#[from] serde_json::Error),
 }

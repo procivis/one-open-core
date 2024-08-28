@@ -43,6 +43,7 @@ use crate::exchange_protocol::openid4vc::test::get_dummy_date;
 use crate::exchange_protocol::openid4vc::{
     ExchangeProtocolError, ExchangeProtocolImpl, MockHandleInvitationOperations, MockStorageProxy,
 };
+use crate::http_client::imp::reqwest_client::ReqwestClient;
 use crate::key_algorithm::provider::MockKeyAlgorithmProvider;
 use crate::key_algorithm::MockKeyAlgorithm;
 use crate::key_storage::provider::MockKeyProvider;
@@ -64,6 +65,7 @@ fn setup_protocol(inputs: TestInputs) -> OpenID4VCHTTP {
         Arc::new(inputs.revocation_provider),
         Arc::new(inputs.key_provider),
         Arc::new(inputs.key_algorithm_provider),
+        Arc::new(ReqwestClient::default()),
         inputs.params.unwrap_or(OpenID4VCParams {
             pre_authorized_code_expires_in: 10,
             token_expires_in: 10,

@@ -4,6 +4,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use resolver::StatusListResolver;
 
+use crate::http_client::HttpClient;
 use crate::{
     common_models::{
         credential::{CredentialId, OpenCredential, OpenCredentialStateEnum},
@@ -53,6 +54,7 @@ impl BitstringStatusList {
         did_method_provider: Arc<dyn DidMethodProvider>,
         key_provider: Arc<dyn KeyProvider>,
         caching_loader: StatusListCachingLoader,
+        client: Arc<dyn HttpClient>,
     ) -> Self {
         Self {
             core_base_url,
@@ -60,7 +62,7 @@ impl BitstringStatusList {
             did_method_provider,
             key_provider,
             caching_loader,
-            resolver: Arc::new(StatusListResolver::default()),
+            resolver: Arc::new(StatusListResolver::new(client)),
         }
     }
 }

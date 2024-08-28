@@ -115,6 +115,8 @@ use one_crypto::imp::{
 
 use config::OneCoreConfig;
 use model::{CredentialFormat, DidMethodType, KeyAlgorithmType, StorageType};
+use one_providers::http_client::imp::reqwest_client::ReqwestClient;
+use one_providers::http_client::HttpClient;
 use one_providers::{
     caching_loader::CachingLoader,
     credential_formatter::imp::{
@@ -167,12 +169,15 @@ pub struct OneOpenCore {
 
 impl Default for OneOpenCore {
     fn default() -> Self {
-        Self::new(None).unwrap()
+        Self::new(None, Arc::new(ReqwestClient::default())).unwrap()
     }
 }
 
 impl OneOpenCore {
-    pub fn new(config: Option<OneCoreConfig>) -> Result<Self, Box<dyn Error>> {
+    pub fn new(
+        config: Option<OneCoreConfig>,
+        client: Arc<dyn HttpClient>,
+    ) -> Result<Self, Box<dyn Error>> {
         let config = config.unwrap_or(OneCoreConfig {
             ..Default::default()
         });
@@ -220,9 +225,12 @@ impl OneOpenCore {
         let key_storage_provider = Arc::new(KeyProviderImpl::new(key_storages));
 
         // initialize did method provider
-        let universal_resolver = Arc::new(UniversalDidMethod::new(UniversalDidMethodParams {
-            resolver_url: config.did_method_config.universal_resolver_url,
-        }));
+        let universal_resolver = Arc::new(UniversalDidMethod::new(
+            UniversalDidMethodParams {
+                resolver_url: config.did_method_config.universal_resolver_url,
+            },
+            client.clone(),
+        ));
         let did_methods = HashMap::from_iter(vec![
             (
                 DidMethodType::Jwk.to_string(),
@@ -236,6 +244,7 @@ impl OneOpenCore {
                 DidMethodType::Web.to_string(),
                 Arc::new(WebDidMethod::new(
                     &None,
+                    client.clone(),
                     WebDidMethodParams {
                         resolve_to_insecure_http: Some(false),
                         keys: Keys {
@@ -317,6 +326,7 @@ impl OneOpenCore {
                         did_method_provider.clone(),
                         key_algorithm_provider.clone(),
                         json_ld_caching_loader,
+                        client,
                     )) as _,
                 ),
             ]),

@@ -1,8 +1,10 @@
 //! Implementation of did:web.
 
 use async_trait::async_trait;
+use std::sync::Arc;
 use url::Url;
 
+use crate::http_client::HttpClient;
 use crate::{
     common_models::{
         did::{DidId, DidValue},
@@ -25,12 +27,16 @@ pub struct Params {
 
 pub struct WebDidMethod {
     pub did_base_string: Option<String>,
-    pub client: reqwest::Client,
+    pub client: Arc<dyn HttpClient>,
     pub params: Params,
 }
 
 impl WebDidMethod {
-    pub fn new(base_url: &Option<String>, params: Params) -> Result<Self, DidMethodError> {
+    pub fn new(
+        base_url: &Option<String>,
+        client: Arc<dyn HttpClient>,
+        params: Params,
+    ) -> Result<Self, DidMethodError> {
         let did_base_string = if let Some(base_url) = base_url {
             let url =
                 Url::parse(base_url).map_err(|e| DidMethodError::CouldNotCreate(e.to_string()))?;
@@ -53,7 +59,7 @@ impl WebDidMethod {
 
         Ok(Self {
             did_base_string,
-            client: reqwest::Client::new(),
+            client,
             params,
         })
     }
@@ -119,9 +125,9 @@ impl DidMethod for WebDidMethod {
 
 async fn fetch_did_web_document(
     url: Url,
-    client: &reqwest::Client,
+    client: &Arc<dyn HttpClient>,
 ) -> Result<DidDocumentDTO, DidMethodError> {
-    let response = client.get(url).send().await.map_err(|e| {
+    let response = client.get(url.as_str()).send().await.map_err(|e| {
         DidMethodError::ResolutionError(format!("Could not fetch did document: {e}"))
     })?;
 
@@ -129,11 +135,7 @@ async fn fetch_did_web_document(
         DidMethodError::ResolutionError(format!("Could not fetch did document: {e}"))
     })?;
 
-    let response_value = response.text().await.map_err(|e| {
-        DidMethodError::ResolutionError(format!("Could not fetch did document: {e}"))
-    })?;
-
-    serde_json::from_str(&response_value)
+    serde_json::from_slice(&response.body)
         .map_err(|e| DidMethodError::ResolutionError(format!("Could not fetch did document: {e}")))
 }
 

@@ -7,6 +7,7 @@ use serde_with::DurationSeconds;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
+use crate::http_client::HttpClient;
 use crate::{
     common_models::{
         credential::{OpenCredential, OpenCredentialRole},
@@ -57,7 +58,7 @@ pub struct LvvcProvider {
     credential_formatter: Arc<dyn CredentialFormatterProvider>,
     did_method_provider: Arc<dyn DidMethodProvider>,
     key_provider: Arc<dyn KeyProvider>,
-    client: reqwest::Client,
+    client: Arc<dyn HttpClient>,
     params: Params,
 }
 
@@ -68,7 +69,7 @@ impl LvvcProvider {
         credential_formatter: Arc<dyn CredentialFormatterProvider>,
         did_method_provider: Arc<dyn DidMethodProvider>,
         key_provider: Arc<dyn KeyProvider>,
-        client: reqwest::Client,
+        client: Arc<dyn HttpClient>,
         params: Params,
     ) -> Self {
         Self {
@@ -148,12 +149,11 @@ impl LvvcProvider {
         let response: IssuerResponseDTO = self
             .client
             .get(lvvc_check_url)
-            .bearer_auth(bearer_token)
+            .bearer_auth(&bearer_token)
             .send()
             .await?
             .error_for_status()?
-            .json()
-            .await?;
+            .json()?;
 
         let formatter = self
             .credential_formatter

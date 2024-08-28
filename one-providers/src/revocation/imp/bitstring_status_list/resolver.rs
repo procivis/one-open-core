@@ -1,14 +1,15 @@
 use async_trait::async_trait;
+use std::sync::Arc;
 use time::OffsetDateTime;
 
 use crate::{
     caching_loader::{CachingLoader, ResolveResult, Resolver},
+    http_client::HttpClient,
     revocation::error::RevocationError,
 };
 
-#[derive(Default)]
 pub struct StatusListResolver {
-    pub client: reqwest::Client,
+    pub client: Arc<dyn HttpClient>,
 }
 
 pub type StatusListCachingLoader = CachingLoader<RevocationError>;
@@ -23,14 +24,13 @@ impl Resolver for StatusListResolver {
         _previous: Option<&OffsetDateTime>,
     ) -> Result<ResolveResult, Self::Error> {
         Ok(ResolveResult::NewValue(
-            self.client
-                .get(url)
-                .send()
-                .await?
-                .error_for_status()?
-                .text()
-                .await?
-                .into_bytes(),
+            self.client.get(url).send().await?.error_for_status()?.body,
         ))
+    }
+}
+
+impl StatusListResolver {
+    pub fn new(client: Arc<dyn HttpClient>) -> Self {
+        Self { client }
     }
 }

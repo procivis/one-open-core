@@ -21,6 +21,7 @@ use one_crypto::{imp::signer::es256::ES256Signer, CryptoProvider, SignerError};
 
 use crate::{
     common_models::key::{KeyId, OpenKey},
+    http_client::HttpClient,
     key_storage::{
         error::KeyStorageError,
         model::{KeySecurity, KeyStorageCapabilities, StorageGeneratedKey},
@@ -48,7 +49,7 @@ struct AzureAccessToken {
 
 pub struct AzureVaultKeyProvider {
     access_token: Arc<Mutex<Option<AzureAccessToken>>>,
-    client: reqwest::Client,
+    client: Arc<dyn HttpClient>,
     crypto: Arc<dyn CryptoProvider>,
     params: Params,
 }
@@ -76,9 +77,11 @@ impl KeyStorage for AzureVaultKeyProvider {
 
         let response: AzureHsmGenerateKeyResponse = self
             .client
-            .post(url)
-            .json(&create_generate_key_request())
-            .bearer_auth(access_token)
+            .post(url.as_str())
+            .bearer_auth(&access_token)
+            .json(create_generate_key_request())
+            .context("json error")
+            .map_err(KeyStorageError::Transport)?
             .send()
             .await
             .context("send error")
@@ -87,7 +90,6 @@ impl KeyStorage for AzureVaultKeyProvider {
             .context("status error")
             .map_err(KeyStorageError::Transport)?
             .json()
-            .await
             .context("parsing error")
             .map_err(KeyStorageError::Transport)?;
 
@@ -116,16 +118,16 @@ impl KeyStorage for AzureVaultKeyProvider {
 
         let parsed: AzureHsmSignResponse = self
             .client
-            .post(url)
+            .post(url.as_str())
+            .bearer_auth(&access_token)
             .json(&sign_request)
-            .bearer_auth(access_token)
+            .map_err(|e| SignerError::CouldNotSign(e.to_string()))?
             .send()
             .await
             .map_err(|e| SignerError::CouldNotSign(e.to_string()))?
             .error_for_status()
             .map_err(|e| SignerError::CouldNotSign(e.to_string()))?
             .json()
-            .await
             .map_err(|e| SignerError::CouldNotSign(e.to_string()))?;
 
         let decoded = Base64UrlSafeNoPadding::decode_to_vec(parsed.value, None)
@@ -148,10 +150,14 @@ impl KeyStorage for AzureVaultKeyProvider {
 }
 
 impl AzureVaultKeyProvider {
-    pub fn new(params: Params, crypto: Arc<dyn CryptoProvider>) -> Self {
+    pub fn new(
+        params: Params,
+        crypto: Arc<dyn CryptoProvider>,
+        client: Arc<dyn HttpClient>,
+    ) -> Self {
         Self {
             access_token: Arc::new(Mutex::new(None)),
-            client: reqwest::Client::new(),
+            client,
             crypto,
             params,
         }
@@ -168,8 +174,10 @@ impl AzureVaultKeyProvider {
 
         let response: AzureHsmGetTokenResponse = self
             .client
-            .post(url)
+            .post(url.as_str())
             .form(&request)
+            .context("form error")
+            .map_err(KeyStorageError::Transport)?
             .send()
             .await
             .context("send error")
@@ -178,7 +186,6 @@ impl AzureVaultKeyProvider {
             .context("status error")
             .map_err(KeyStorageError::Transport)?
             .json()
-            .await
             .context("parsing error")
             .map_err(KeyStorageError::Transport)?;
 
