@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, OneOrMany};
+use time::OffsetDateTime;
 
 use crate::credential_formatter::model::{CredentialSchema, CredentialStatus, CredentialSubject};
 
@@ -18,6 +19,14 @@ pub struct VCContent {
     pub credential_status: Vec<CredentialStatus>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub credential_schema: Option<CredentialSchema>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub issuer: Option<Issuer>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_from: Option<OffsetDateTime>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub valid_until: Option<OffsetDateTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,4 +49,27 @@ pub struct VC {
 #[serde(rename_all = "camelCase")]
 pub struct VP {
     pub vp: VPContent,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Issuer {
+    Object(IssuerObject),
+    Url(String),
+}
+
+impl Issuer {
+    pub fn issuer(&self) -> &str {
+        match self {
+            Issuer::Object(object) => &object.id,
+            Issuer::Url(s) => s,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IssuerObject {
+    id: String,
+    #[serde(flatten)]
+    rest: Option<serde_json::Value>,
 }

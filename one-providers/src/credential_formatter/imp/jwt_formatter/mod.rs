@@ -61,7 +61,12 @@ impl CredentialFormatter for JWTFormatter {
         let credential_id = credential.id.clone();
         let issuer = credential.issuer_did.to_string();
 
-        let vc = format_vc(credential, additional_context, additional_types)?;
+        let vc = format_vc(
+            credential,
+            issuer.clone(),
+            additional_context,
+            additional_types,
+        )?;
 
         let payload = JWTPayload {
             issued_at: Some(issued_at),
@@ -218,7 +223,7 @@ impl CredentialFormatter for JWTFormatter {
 fn format_payload(credentials: &[String]) -> VP {
     VP {
         vp: VPContent {
-            context: vec![Context::CredentialsV1.to_string()],
+            context: vec![Context::CredentialsV2.to_string()],
             r#type: vec!["VerifiablePresentation".to_owned()],
             verifiable_credential: credentials.to_vec(),
         },

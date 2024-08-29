@@ -9,7 +9,7 @@ use crate::{
 
 use super::{
     model::{SDCredentialSubject, Sdvc, VCContent},
-    Sdvp,
+    Issuer, Sdvp,
 };
 
 pub(super) fn vc_from_credential(
@@ -22,7 +22,7 @@ pub(super) fn vc_from_credential(
     let mut hashed_claims: Vec<String> = sd_section.to_vec();
     hashed_claims.sort_unstable();
 
-    let context = vec![Context::CredentialsV1.to_string()]
+    let context = vec![Context::CredentialsV2.to_string()]
         .into_iter()
         .chain(additional_context)
         .collect();
@@ -42,6 +42,9 @@ pub(super) fn vc_from_credential(
             },
             credential_status: credential.status,
             credential_schema: credential.schema.into(),
+            issuer: Some(Issuer::Url(credential.issuer_did.to_string())),
+            valid_from: None,
+            valid_until: None,
         },
         hash_alg: Some(algorithm.to_owned()),
     }

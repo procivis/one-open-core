@@ -1,4 +1,4 @@
-use super::model::{VCContent, VC, VP};
+use super::model::{Issuer, VCContent, VC, VP};
 use crate::{
     common_models::did::DidValue,
     credential_formatter::{
@@ -26,10 +26,11 @@ impl From<CredentialSchemaData> for Option<CredentialSchema> {
 
 pub(super) fn format_vc(
     credential: CredentialData,
+    issuer: String,
     additional_context: Vec<String>,
     additional_types: Vec<String>,
 ) -> Result<VC, FormatterError> {
-    let context = vec![Context::CredentialsV1.to_string()]
+    let context = vec![Context::CredentialsV2.to_string()]
         .into_iter()
         .chain(additional_context)
         .collect();
@@ -44,11 +45,14 @@ pub(super) fn format_vc(
             context,
             r#type: types,
             id: credential.id,
+            issuer: Some(Issuer::Url(issuer)),
             credential_subject: CredentialSubject {
                 values: nest_claims(credential.claims)?,
             },
             credential_status: credential.status,
             credential_schema: credential.schema.into(),
+            valid_from: None,
+            valid_until: None,
         },
     })
 }
