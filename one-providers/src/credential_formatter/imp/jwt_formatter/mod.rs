@@ -205,7 +205,7 @@ impl CredentialFormatter for JWTFormatter {
                 "OBJECT".to_string(),
                 "ARRAY".to_string(),
             ],
-            forbidden_claim_names: vec![],
+            forbidden_claim_names: vec!["0".to_string()],
         }
     }
 

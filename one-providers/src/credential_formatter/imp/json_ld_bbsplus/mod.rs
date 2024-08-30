@@ -177,7 +177,7 @@ impl CredentialFormatter for JsonLdBbsplus {
                 "ES256".to_string(),
                 "DILITHIUM".to_string(),
             ],
-            forbidden_claim_names: jsonld_forbidden_claim_names(),
+            forbidden_claim_names: [jsonld_forbidden_claim_names(), vec!["0".to_string()]].concat(),
         }
     }
 
