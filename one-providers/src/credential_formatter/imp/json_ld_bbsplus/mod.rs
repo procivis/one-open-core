@@ -55,6 +55,7 @@ pub struct JsonLdBbsplus {
 pub struct Params {
     #[serde_as(as = "DurationSeconds<i64>")]
     pub leeway: Duration,
+    pub embed_layout_properties: Option<bool>,
 }
 
 #[async_trait]
@@ -79,6 +80,7 @@ impl CredentialFormatter for JsonLdBbsplus {
             auth_fn,
             json_ld_context_url,
             custom_subject_name,
+            self.params.embed_layout_properties.unwrap_or_default(),
         )
         .await
     }

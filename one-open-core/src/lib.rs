@@ -324,6 +324,7 @@ impl OneOpenCore {
                             leeway: time::Duration::seconds(
                                 config.formatter_config.leeway.try_into().unwrap(),
                             ),
+                            embed_layout_properties: None,
                         },
                         crypto_provider.clone(),
                         None,

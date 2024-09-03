@@ -32,6 +32,7 @@ impl JsonLdBbsplus {
         auth_fn: AuthenticationFn,
         json_ld_context_url: Option<String>,
         custom_subject_name: Option<String>,
+        embed_layout_properties: bool,
     ) -> Result<String, FormatterError> {
         if algorithm != "BBS_PLUS" {
             return Err(FormatterError::BBSOnly);
@@ -49,6 +50,7 @@ impl JsonLdBbsplus {
             additional_types,
             json_ld_context_url,
             custom_subject_name,
+            embed_layout_properties,
         )?;
 
         let hmac_key = utilities::generate_random_seed_32();

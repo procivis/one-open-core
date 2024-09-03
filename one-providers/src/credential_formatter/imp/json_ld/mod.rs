@@ -18,7 +18,7 @@ use crate::{
     common_models::did::DidValue,
     credential_formatter::{
         error::FormatterError,
-        model::{Context, CredentialData, PublishedClaim},
+        model::{Context, CredentialData, CredentialSchema, PublishedClaim},
     },
 };
 
@@ -39,6 +39,7 @@ pub fn prepare_credential(
     additional_types: Vec<String>,
     json_ld_context_url: Option<String>,
     custom_subject_name: Option<String>,
+    embed_layout_properties: bool,
 ) -> Result<LdCredential, FormatterError> {
     let credential_schema = &credential.schema;
 
@@ -60,6 +61,14 @@ pub fn prepare_credential(
         custom_subject_name,
     )?;
 
+    // Strip layout (whole metadata as it only contains layout)
+    let mut credential_schema: Option<CredentialSchema> = credential.schema.into();
+    if let Some(schema) = &mut credential_schema {
+        if !embed_layout_properties {
+            schema.metadata = None;
+        }
+    }
+
     Ok(LdCredential {
         context,
         id: credential.id,
@@ -70,7 +79,7 @@ pub fn prepare_credential(
         credential_subject,
         credential_status: credential.status,
         proof: None,
-        credential_schema: credential.schema.into(),
+        credential_schema,
         // we use `valid_from` for newly issued credentials
         issuance_date: None,
     })
