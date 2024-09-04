@@ -284,7 +284,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             presentation_definition_id,
             credential_presentations,
             &oidc_format,
-            format_map,
+            format_map.clone(),
         )?;
 
         let response_uri = interaction_data.response_uri.clone();
@@ -335,6 +335,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             let ctx = FormatPresentationCtx {
                 nonce: Some(interaction_data.nonce),
                 token_formats: Some(token_formats),
+                vc_format_map: format_map,
                 ..Default::default()
             };
 

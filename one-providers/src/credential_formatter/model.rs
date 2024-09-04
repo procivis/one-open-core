@@ -192,6 +192,7 @@ pub struct FormatPresentationCtx {
     pub client_id: Option<Url>,
     pub response_uri: Option<Url>,
     pub token_formats: Option<Vec<String>>,
+    pub vc_format_map: HashMap<String, String>,
 }
 
 #[allow(dead_code)]
