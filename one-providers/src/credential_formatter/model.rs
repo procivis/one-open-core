@@ -191,6 +191,7 @@ pub struct FormatPresentationCtx {
     pub format_nonce: Option<String>,
     pub client_id: Option<Url>,
     pub response_uri: Option<Url>,
+    pub token_formats: Option<Vec<String>>,
 }
 
 #[allow(dead_code)]

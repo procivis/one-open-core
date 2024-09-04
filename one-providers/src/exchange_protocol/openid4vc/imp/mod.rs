@@ -275,6 +275,11 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
             ))?
             .id;
 
+        let token_formats: Vec<_> = credential_presentations
+            .iter()
+            .map(|presented_credential| presented_credential.credential_schema.format.to_owned())
+            .collect();
+
         let presentation_submission = create_presentation_submission(
             presentation_definition_id,
             credential_presentations,
@@ -329,6 +334,7 @@ impl ExchangeProtocolImpl for OpenID4VCHTTP {
         } else {
             let ctx = FormatPresentationCtx {
                 nonce: Some(interaction_data.nonce),
+                token_formats: Some(token_formats),
                 ..Default::default()
             };
 
