@@ -3,7 +3,7 @@ use crate::{
     credential_formatter::{
         error::FormatterError,
         imp::jwt::Jwt,
-        model::{Context, CredentialData, Presentation, PublishedClaim},
+        model::{Context, CredentialData, CredentialSchema, Presentation, PublishedClaim},
     },
 };
 
@@ -18,6 +18,7 @@ pub(super) fn vc_from_credential(
     additional_context: Vec<String>,
     additional_types: Vec<String>,
     algorithm: &str,
+    embed_layout_properties: bool,
 ) -> Sdvc {
     let mut hashed_claims: Vec<String> = sd_section.to_vec();
     hashed_claims.sort_unstable();
@@ -32,6 +33,14 @@ pub(super) fn vc_from_credential(
         .chain(additional_types)
         .collect();
 
+    // Strip layout (whole metadata as it only contains layout)
+    let mut credential_schema: Option<CredentialSchema> = credential.schema.into();
+    if let Some(schema) = &mut credential_schema {
+        if !embed_layout_properties {
+            schema.metadata = None;
+        }
+    }
+
     Sdvc {
         vc: VCContent {
             context,
@@ -41,7 +50,7 @@ pub(super) fn vc_from_credential(
                 claims: hashed_claims,
             },
             credential_status: credential.status,
-            credential_schema: credential.schema.into(),
+            credential_schema,
             issuer: Some(Issuer::Url(credential.issuer_did.to_string())),
             valid_from: None,
             valid_until: None,

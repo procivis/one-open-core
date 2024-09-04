@@ -56,40 +56,51 @@ pub enum OpenLayoutType {
     SingleAttribute,
 }
 
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Eq, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenLayoutProperties {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub background: Option<OpenBackgroundProperties>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub logo: Option<OpenLogoProperties>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub primary_attribute: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub secondary_attribute: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub picture_attribute: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<OpenCodeProperties>,
 }
 
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Eq, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenBackgroundProperties {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub image: Option<String>,
 }
 
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Eq, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenLogoProperties {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub font_color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub background_color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub image: Option<String>,
 }
 
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Eq, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenCodeProperties {
     pub attribute: String,
     pub r#type: OpenCodeTypeEnum,
 }
 
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Eq, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OpenCodeTypeEnum {
     Barcode,

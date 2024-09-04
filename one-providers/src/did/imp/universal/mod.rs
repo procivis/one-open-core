@@ -53,7 +53,7 @@ impl DidMethod for UniversalDidMethod {
     }
 
     async fn resolve(&self, did_value: &DidValue) -> Result<DidDocument, DidMethodError> {
-        let url = format!("{}/1.0/identifiers/{}", self.params.resolver_url, did_value,);
+        let url = format!("{}/1.0/identifiers/{}", self.params.resolver_url, did_value);
 
         let response = self
             .client

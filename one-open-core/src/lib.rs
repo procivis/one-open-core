@@ -302,6 +302,7 @@ impl OneOpenCore {
                     CredentialFormat::Jwt.to_string(),
                     Arc::new(JWTFormatter::new(JWTParams {
                         leeway: config.formatter_config.leeway,
+                        embed_layout_properties: config.formatter_config.embed_layout_properties,
                     })) as _,
                 ),
                 (
@@ -309,6 +310,9 @@ impl OneOpenCore {
                     Arc::new(SDJWTFormatter::new(
                         SDJWTParams {
                             leeway: config.formatter_config.leeway,
+                            embed_layout_properties: config
+                                .formatter_config
+                                .embed_layout_properties,
                         },
                         crypto_provider.clone(),
                     )) as _,

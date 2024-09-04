@@ -35,6 +35,7 @@ pub struct JWTFormatter {
 #[serde(rename_all = "camelCase")]
 pub struct Params {
     pub leeway: u64,
+    pub embed_layout_properties: bool,
 }
 
 impl JWTFormatter {
@@ -66,6 +67,7 @@ impl CredentialFormatter for JWTFormatter {
             issuer.clone(),
             additional_context,
             additional_types,
+            self.params.embed_layout_properties,
         )?;
 
         let payload = JWTPayload {

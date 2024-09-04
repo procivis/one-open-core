@@ -17,8 +17,9 @@ impl From<CredentialSchemaData> for Option<CredentialSchema> {
             CredentialSchemaData {
                 id: Some(id),
                 r#type: Some(r#type),
+                metadata,
                 ..
-            } => Some(CredentialSchema::new(id, r#type)),
+            } => Some(CredentialSchema::new(id, r#type, metadata)),
             _ => None,
         }
     }
@@ -29,6 +30,7 @@ pub(super) fn format_vc(
     issuer: String,
     additional_context: Vec<String>,
     additional_types: Vec<String>,
+    embed_layout_properties: bool,
 ) -> Result<VC, FormatterError> {
     let context = vec![Context::CredentialsV2.to_string()]
         .into_iter()
@@ -40,6 +42,14 @@ pub(super) fn format_vc(
         .chain(additional_types)
         .collect();
 
+    // Strip layout (whole metadata as it only contains layout)
+    let mut credential_schema: Option<CredentialSchema> = credential.schema.into();
+    if let Some(schema) = &mut credential_schema {
+        if !embed_layout_properties {
+            schema.metadata = None;
+        }
+    }
+
     Ok(VC {
         vc: VCContent {
             context,
@@ -50,7 +60,7 @@ pub(super) fn format_vc(
                 values: nest_claims(credential.claims)?,
             },
             credential_status: credential.status,
-            credential_schema: credential.schema.into(),
+            credential_schema,
             valid_from: None,
             valid_until: None,
         },

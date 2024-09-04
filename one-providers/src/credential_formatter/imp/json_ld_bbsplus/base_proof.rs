@@ -331,7 +331,7 @@ impl JsonLdBbsplus {
             .map_err(|_| FormatterError::CouldNotFormat("B64 encoding failed".to_owned()))?;
 
         // For multibase output
-        Ok(format!("u{b64}",))
+        Ok(format!("u{b64}"))
     }
 }
 

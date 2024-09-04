@@ -1295,7 +1295,7 @@ fn test_map_offered_claims_to_credential_schema_mandatory_array_missing_error() 
     ]);
 
     assert!(
-        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys,)
+        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys)
             .is_err()
     )
 }
@@ -1329,7 +1329,7 @@ fn test_map_offered_claims_to_credential_schema_mandatory_array_object_field_mis
     ]);
 
     assert!(
-        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys,)
+        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys)
             .is_err()
     )
 }
@@ -1363,7 +1363,7 @@ fn test_map_offered_claims_to_credential_schema_mandatory_object_error() {
     ]);
 
     assert!(
-        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys,)
+        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys)
             .is_err()
     )
 }
@@ -1444,7 +1444,7 @@ fn test_map_offered_claims_to_credential_schema_opt_object_opt_obj_present_man_f
     ]);
 
     assert!(
-        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys,)
+        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys)
             .is_err()
     )
 }
@@ -1463,7 +1463,7 @@ fn test_map_offered_claims_to_credential_schema_opt_object_opt_obj_present_man_r
     )]);
 
     assert!(
-        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys,)
+        map_offered_claims_to_credential_schema(&schema, Uuid::new_v4().into(), &claim_keys)
             .is_err()
     )
 }

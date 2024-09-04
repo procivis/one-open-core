@@ -14,7 +14,10 @@ use url::Url;
 use one_crypto::SignerError;
 
 use super::error::FormatterError;
-use crate::common_models::did::DidValue;
+use crate::common_models::{
+    credential_schema::{OpenLayoutProperties, OpenLayoutType},
+    did::DidValue,
+};
 
 pub type AuthenticationFn = Box<dyn SignatureProvider>;
 pub type VerificationFn = Box<dyn TokenVerifier>;
@@ -68,11 +71,24 @@ pub struct CredentialSubject {
 pub struct CredentialSchema {
     pub id: String,
     pub r#type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<CredentialSchemaMetadata>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct CredentialSchemaMetadata {
+    pub layout_properties: OpenLayoutProperties,
+    pub layout_type: OpenLayoutType,
 }
 
 impl CredentialSchema {
-    pub fn new(id: String, r#type: String) -> Self {
-        Self { id, r#type }
+    pub fn new(id: String, r#type: String, metadata: Option<CredentialSchemaMetadata>) -> Self {
+        Self {
+            id,
+            r#type,
+            metadata,
+        }
     }
 }
 
@@ -153,6 +169,7 @@ pub struct CredentialSchemaData {
     pub r#type: Option<String>,
     pub context: Option<String>,
     pub name: String,
+    pub metadata: Option<CredentialSchemaMetadata>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

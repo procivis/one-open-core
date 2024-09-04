@@ -22,6 +22,7 @@ pub struct DidMethodConfig {
 
 pub struct FormatterConfig {
     pub leeway: u64,
+    pub embed_layout_properties: bool,
 }
 
 impl Default for OneCoreConfig {
@@ -43,7 +44,10 @@ impl Default for OneCoreConfig {
                 universal_resolver_url: "https://dev.uniresolver.io".to_string(),
                 key_count_range: (1, 1),
             },
-            formatter_config: FormatterConfig { leeway: 60 },
+            formatter_config: FormatterConfig {
+                leeway: 60,
+                embed_layout_properties: false,
+            },
         }
     }
 }

@@ -410,6 +410,7 @@ pub async fn create_lvvc_with_status(
             context: None,
             r#type: None,
             name: schema.name.to_owned(),
+            metadata: None,
         },
     };
 

@@ -190,7 +190,7 @@ fn test_validate_claims_failed_malformed_claim() {
     ]);
 
     matches!(
-        validate_claims(detail_credential, &proof_input_schema,).unwrap_err(),
+        validate_claims(detail_credential, &proof_input_schema).unwrap_err(),
         OpenID4VCError::OpenID4VCI(OpenID4VCIError::InvalidRequest)
     );
 }

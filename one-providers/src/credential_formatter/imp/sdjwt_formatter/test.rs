@@ -60,7 +60,10 @@ async fn test_format_credential_a() {
 
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(crypto),
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let credential_data = get_credential_data(
@@ -206,7 +209,10 @@ async fn test_format_credential_with_array() {
 
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(crypto),
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let credential_data = get_credential_data_with_array(
@@ -329,7 +335,10 @@ async fn test_extract_credentials() {
 
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(crypto),
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -444,7 +453,10 @@ async fn test_extract_credentials_with_array() {
 
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(crypto),
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -540,7 +552,10 @@ async fn test_extract_credentials_with_array_stripped() {
 
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(crypto),
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -598,7 +613,10 @@ async fn test_extract_presentation() {
 
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(crypto),
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -722,7 +740,10 @@ fn test_prepare_sd_presentation() {
 fn test_get_capabilities() {
     let sd_formatter = SDJWTFormatter {
         crypto: Arc::new(MockCryptoProvider::default()),
-        params: Params { leeway: 123u64 },
+        params: Params {
+            leeway: 123u64,
+            embed_layout_properties: false,
+        },
     };
 
     assert_eq!(
@@ -1145,8 +1166,9 @@ fn get_credential_data(status: Vec<CredentialStatus>, core_base_url: &str) -> Cr
     let schema = CredentialSchemaData {
         id: Some("CredentialSchemaId".to_owned()),
         r#type: Some("TestType".to_owned()),
-        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4(),)),
+        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4())),
         name: "".to_owned(),
+        metadata: None,
     };
 
     CredentialData {
@@ -1183,8 +1205,9 @@ fn get_credential_data_with_array(
     let schema = CredentialSchemaData {
         id: Some("CredentialSchemaId".to_owned()),
         r#type: Some("TestType".to_owned()),
-        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4(),)),
+        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4())),
         name: "".to_owned(),
+        metadata: None,
     };
 
     CredentialData {

@@ -51,6 +51,7 @@ pub struct SDJWTFormatter {
 #[serde(rename_all = "camelCase")]
 pub struct Params {
     pub leeway: u64,
+    pub embed_layout_properties: bool,
 }
 
 #[async_trait]
@@ -278,6 +279,7 @@ impl SDJWTFormatter {
             additional_context,
             additional_types,
             algorithm,
+            self.params.embed_layout_properties,
         );
 
         Ok((vc, disclosures))

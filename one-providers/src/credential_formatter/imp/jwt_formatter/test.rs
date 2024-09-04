@@ -6,7 +6,10 @@ use uuid::Uuid;
 
 use super::JWTFormatter;
 use crate::{
-    common_models::did::DidValue,
+    common_models::{
+        credential_schema::{OpenLayoutProperties, OpenLayoutType},
+        did::DidValue,
+    },
     credential_formatter::{
         imp::{
             common::MockAuth,
@@ -17,8 +20,8 @@ use crate::{
             },
         },
         model::{
-            CredentialData, CredentialPresentation, CredentialSchemaData, CredentialStatus,
-            ExtractPresentationCtx, MockTokenVerifier, PublishedClaim,
+            CredentialData, CredentialPresentation, CredentialSchemaData, CredentialSchemaMetadata,
+            CredentialStatus, ExtractPresentationCtx, MockTokenVerifier, PublishedClaim,
         },
         CredentialFormatter,
     },
@@ -31,8 +34,19 @@ fn get_credential_data(status: Vec<CredentialStatus>, core_base_url: &str) -> Cr
     let schema = CredentialSchemaData {
         id: Some("CredentialSchemaId".to_owned()),
         r#type: Some("TestType".to_owned()),
-        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4(),)),
+        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4())),
         name: "".to_owned(),
+        metadata: Some(CredentialSchemaMetadata {
+            layout_properties: OpenLayoutProperties {
+                background: None,
+                logo: None,
+                primary_attribute: Some("name".into()),
+                secondary_attribute: None,
+                picture_attribute: None,
+                code: None,
+            },
+            layout_type: OpenLayoutType::Card,
+        }),
     };
 
     CredentialData {
@@ -69,8 +83,9 @@ fn get_credential_data_with_array(
     let schema = CredentialSchemaData {
         id: Some("CredentialSchemaId".to_owned()),
         r#type: Some("TestType".to_owned()),
-        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4(),)),
+        context: Some(format!("{core_base_url}/ssi/context/v1/{}", Uuid::new_v4())),
         name: "".to_owned(),
+        metadata: None,
     };
 
     CredentialData {
@@ -108,7 +123,10 @@ async fn test_format_credential() {
     let leeway = 45u64;
 
     let formatter = JWTFormatter {
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let credential_data = get_credential_data(
@@ -174,6 +192,103 @@ async fn test_format_credential() {
 
     let vc = payload.custom.vc;
 
+    assert!(vc.credential_schema.unwrap().metadata.is_none());
+
+    assert!(vc
+        .credential_subject
+        .values
+        .iter()
+        .all(|claim| ["name", "age"].contains(&claim.0.as_str())));
+
+    assert!(vc.context.contains(&String::from("Context1")));
+    assert!(vc.r#type.contains(&String::from("Type1")));
+
+    assert_eq!(1, vc.credential_status.len());
+    let credential_status = vc.credential_status.first().unwrap();
+    assert_eq!(&credential_status.id, &Some("STATUS_ID".to_string()));
+    assert_eq!(&credential_status.r#type, "TYPE");
+    assert_eq!(credential_status.status_purpose.as_deref(), Some("PURPOSE"));
+
+    let field1 = credential_status.additional_fields.get("Field1").unwrap();
+    assert_eq!(field1, "Val1");
+}
+
+#[tokio::test]
+async fn test_format_credential_with_layout_properties() {
+    let leeway = 45u64;
+
+    let formatter = JWTFormatter {
+        params: Params {
+            leeway,
+            embed_layout_properties: true,
+        },
+    };
+
+    let credential_data = get_credential_data(
+        vec![CredentialStatus {
+            id: Some("STATUS_ID".to_string()),
+            r#type: "TYPE".to_string(),
+            status_purpose: Some("PURPOSE".to_string()),
+            additional_fields: HashMap::from([("Field1".to_owned(), "Val1".into())]),
+        }],
+        "http://base_url",
+    );
+
+    let auth_fn = MockAuth(|_| vec![65u8, 66, 67]);
+
+    let result = formatter
+        .format_credentials(
+            credential_data,
+            &DidValue::from("holder_did".to_string()),
+            "algorithm",
+            vec!["Context1".to_string()],
+            vec!["Type1".to_string()],
+            Box::new(auth_fn),
+            None,
+            None,
+        )
+        .await;
+
+    assert!(result.is_ok());
+
+    let token = result.unwrap();
+
+    let jwt_parts: Vec<&str> = token.splitn(3, '.').collect();
+
+    assert_eq!(
+        jwt_parts[0],
+        &Base64UrlSafeNoPadding::encode_to_string(
+            r##"{"alg":"algorithm","kid":"#key0","typ":"JWT"}"##
+        )
+        .unwrap()
+    );
+    assert_eq!(
+        jwt_parts[2],
+        &Base64UrlSafeNoPadding::encode_to_string(r#"ABC"#).unwrap()
+    );
+
+    let payload: JWTPayload<VC> = serde_json::from_str(
+        &String::from_utf8(Base64UrlSafeNoPadding::decode_to_vec(jwt_parts[1], None).unwrap())
+            .unwrap(),
+    )
+    .unwrap();
+
+    assert_eq!(
+        payload.expires_at,
+        Some(payload.issued_at.unwrap() + Duration::days(365 * 2)),
+    );
+    assert_eq!(
+        payload.invalid_before,
+        Some(payload.issued_at.unwrap() - Duration::seconds(leeway as i64)),
+    );
+
+    assert_eq!(payload.issuer, Some(String::from("Issuer DID")));
+    assert_eq!(payload.subject, Some(String::from("holder_did")));
+
+    let vc = payload.custom.vc;
+
+    assert!(vc.credential_schema.unwrap().metadata.is_some());
+
     assert!(vc
         .credential_subject
         .values
@@ -198,7 +313,10 @@ async fn test_format_credential_nested_array() {
     let leeway = 45u64;
 
     let sd_formatter = JWTFormatter {
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let credential_data = get_credential_data_with_array(
@@ -287,7 +405,10 @@ async fn test_extract_credentials() {
     let leeway = 45u64;
 
     let jwt_formatter = JWTFormatter {
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -357,7 +478,10 @@ async fn test_extract_credentials_nested_array() {
     let leeway = 45u64;
 
     let jwt_formatter = JWTFormatter {
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -429,7 +553,10 @@ async fn test_format_credential_presentation() {
         IlZhbDEifX0sIl9zZF9hbGciOiJzaGEtMjU2In0.QUJD";
 
     let jwt_formatter = JWTFormatter {
-        params: Params { leeway: 45 },
+        params: Params {
+            leeway: 45,
+            embed_layout_properties: false,
+        },
     };
 
     // Both
@@ -473,7 +600,10 @@ async fn test_format_presentation() {
     let leeway = 45u64;
 
     let jwt_formatter = JWTFormatter {
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let auth_fn = MockAuth(|_| vec![65u8, 66, 67]);
@@ -551,7 +681,10 @@ async fn test_extract_presentation() {
     let leeway = 45u64;
 
     let jwt_formatter = JWTFormatter {
-        params: Params { leeway },
+        params: Params {
+            leeway,
+            embed_layout_properties: false,
+        },
     };
 
     let mut verify_mock = MockTokenVerifier::new();
@@ -596,7 +729,10 @@ async fn test_extract_presentation() {
 #[test]
 fn test_get_capabilities() {
     let jwt_formatter = JWTFormatter {
-        params: Params { leeway: 123u64 },
+        params: Params {
+            leeway: 123u64,
+            embed_layout_properties: false,
+        },
     };
 
     assert_eq!(1, jwt_formatter.get_capabilities().features.len());

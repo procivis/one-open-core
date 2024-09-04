@@ -277,8 +277,8 @@ async fn test_did_web_fetch() {
             r#use: None,
             crv: "P-256".to_string(),
             x: "38M1FDts7Oea7urmseiugGW7tWc3mLpJh6rKe7xINZ8".to_string(),
-            y: Some("nDQW6XZ7b_u2Sy9slofYLlG03sOEoug3I0aAPQ0exs4".to_string(),),
-        },),
+            y: Some("nDQW6XZ7b_u2Sy9slofYLlG03sOEoug3I0aAPQ0exs4".to_string()),
+        }),
     );
     assert_eq!(
         methods[3].public_key_jwk,
@@ -291,7 +291,7 @@ async fn test_did_web_fetch() {
             G9Azsn3j95d-saIgZzPLhQFiKluGvsjrSkYU5pXVWIsV-B2jtLeeLC14XcYxWDUJ0qVopxkBvdlERcNtgF\
             4dvW4X00EHj4vCljFw"
                 .to_string(),
-        },),
+        }),
     );
 }
 
