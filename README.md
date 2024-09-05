@@ -2,8 +2,7 @@
 ![Procivis](docs/assets/logo_dark_mode_Open_One_Core.svg#gh-dark-mode-only)
 
 The Procivis One Open Core library is a subset of our [Procivis One Core](https://docs.procivis.ch/)
-including specific services and protocols and was developed with funding from the U.S. Department of
-Homeland Security.
+including specific services and protocols.
 
 ## Table of contents
 
@@ -19,6 +18,7 @@ Homeland Security.
   * [Core](#core)
     * [Examples](#examples)
 * [Documentation](#documentation)
+* [Acknowledgement](#acknowledgement)
 * [License](#license)
 
 ## Background
@@ -291,6 +291,13 @@ See the [Procivis One documentation](https://docs.procivis.ch/) for:
 * [Trial access](https://docs.procivis.ch/trial/intro) to the full solution
 * [APIs](https://docs.procivis.ch/guides/api/overview) and [SDK](https://docs.procivis.ch/sdk/overview) documentation
 * Conceptual topics
+
+## Acknowledgement
+
+This work is funded in part by the U.S Department of Homeland Security Science and Technology
+Directorate (DHS S&T) Silicon Valley Innovation Program (SVIP) under contract 70RSAT24T00000012.
+Any opinions contained herein are those of the performer and do not necessarily reflect those of
+DHS.
 
 ## License
 
